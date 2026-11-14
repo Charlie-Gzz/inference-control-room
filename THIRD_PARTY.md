@@ -1,6 +1,7 @@
 # Third-party models, data and software
 
-Nothing below is redistributed in this repo, except the small derived samples noted.
+Nothing below is redistributed in this repo, except the small derived samples noted and
+the two chart fonts (Inter and JetBrains Mono, with their licenses, in `src/icr/assets/fonts/`).
 Licenses were checked on 2026-11-13 from each source's own page.
 
 ## Models (official `Qwen/` uploads only)
@@ -39,5 +40,8 @@ The GSM8K subset is not committed. It lives in the Modal Volume.
 | vLLM 0.33.0 | serving engine (Modal image only) | Apache-2.0 |
 | Modal client | GPU cloud | Apache-2.0 |
 | Go 1.27.4 toolchain | builds the router (downloaded to `.tools/`, not committed) | BSD-3-Clause |
-| Tailwind CSS (CDN), Inter, JetBrains Mono | site styling and fonts | MIT, OFL-1.1, OFL-1.1 |
+| Tailwind CSS (CDN) | site styling | MIT |
+| Inter 4.1 (https://github.com/rsms/inter) | site and chart font. Three TTF files are committed in `src/icr/assets/fonts/` so charts look the same on every machine | OFL-1.1 (`Inter-LICENSE.txt`) |
+| JetBrains Mono 2.304 (https://github.com/JetBrains/JetBrainsMono) | site and chart font for numbers. Two TTF files are committed in `src/icr/assets/fonts/` | OFL-1.1 (`JetBrainsMono-OFL.txt`) |
+| ffmpeg (Docker image `jrottenberg/ffmpeg:7.1-alpine`) | encodes the videos, never installed on the host | LGPL/GPL, used as a tool only |
 | matplotlib, Plotly, aiohttp, Typer, numpy, pytest, ruff, Playwright | charts, client, CLI, tests | see each project |

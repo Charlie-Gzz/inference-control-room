@@ -23,6 +23,6 @@ def test_rates_do_not_change_the_run_id():
 
 def test_time_estimates_cover_the_ramp():
     ramp = {"rates_rps": [1, 2, 3, 4, 5, 6], "level_s": 40.0, "warmup_s": 30.0}
-    assert sweep.task_seconds("ramp:chat", ramp) == 30 + 240 + 150
-    assert sweep.task_seconds("ramp:chat@1;2=cal", ramp) == 30 + 80 + 150
+    assert sweep.task_seconds("ramp:chat", ramp) == 30 + 240 + 90
+    assert sweep.task_seconds("ramp:chat@1;2=cal", ramp) == 30 + 80 + 90
     assert sweep.task_seconds("gsm8k", ramp) > sweep.task_seconds("greedy", ramp)

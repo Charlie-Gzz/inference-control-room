@@ -61,7 +61,7 @@ export function axes(root, { width, height, margin, x, y, xTicks, yTicks, xLabel
   if (xLabel) svg("text", { ...label, x: (margin.left + width - margin.right) / 2, y: height - 6, "text-anchor": "middle" }, g, xLabel);
   if (yLabel) {
     const cy = (margin.top + height - margin.bottom) / 2;
-    svg("text", { ...label, x: 14, y: cy, "text-anchor": "middle", transform: `rotate(-90 14 ${cy})` }, g, yLabel);
+    svg("text", { ...label, x: 13, y: cy, "text-anchor": "middle", transform: `rotate(-90 13 ${cy})` }, g, yLabel);
   }
   return g;
 }

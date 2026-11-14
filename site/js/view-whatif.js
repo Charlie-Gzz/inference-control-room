@@ -5,6 +5,7 @@ import { axes, CONFIG_COLORS, linear, log, logTicks, niceTicks, svg } from "./ch
 import { money, percent } from "./format.js";
 
 const ui = { ttft: 2.0, itl: 0.1, yKey: "itl_p95_s", gpu: "l4", workload: "chat" };
+let observer = null;
 
 function meets(p) {
   return !p.errors && p.ttft_p95_s != null && p.ttft_p95_s <= ui.ttft && (p.itl_p95_s == null || p.itl_p95_s <= ui.itl);
@@ -47,7 +48,7 @@ export function render(root, state) {
   const option = (v, label, current) => `<option value="${v}"${v === current ? " selected" : ""}>${label}</option>`;
 
   root.innerHTML = `
-    <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_360px] items-start">
+    <div class="layout-side">
       <div class="card p-3">
         <div class="flex flex-wrap items-center gap-3 px-1 pb-2 text-sm">
           <span class="font-semibold">Every measured operating point</span>
@@ -61,7 +62,7 @@ export function render(root, state) {
             </select></label>
         </div>
         <div id="wi-plot"></div>
-        <div class="px-1 pt-2 text-xs text-muted">Each dot is one server config at one traffic level of its ramp (lines join the levels of a config, from light load to heavy). Pushing a GPU harder makes tokens cheaper and responses slower. Solid dots meet your target. The white line is the Pareto frontier: nothing is both cheaper and faster.</div>
+        <div class="px-1 pt-2 text-xs text-muted">Each dot is one server config at one traffic level of its ramp (lines join the levels of a config, from light load to heavy). Pushing a GPU harder makes tokens cheaper and responses slower. Solid dots meet your target. The white line is the Pareto frontier: nothing is both cheaper and faster. Levels where requests failed are not drawn.</div>
       </div>
       <div class="space-y-3">
         <div class="card p-4 space-y-4">
@@ -81,6 +82,17 @@ export function render(root, state) {
     </div>`;
 
   const redraw = () => draw(root, sweep[ui.gpu][ui.workload]);
+  // Redraw when the plot's box changes width (window resize, or late-arriving styles).
+  if (observer) observer.disconnect();
+  const holder = root.querySelector("#wi-plot");
+  let drawnWidth = 0;
+  observer = new ResizeObserver(() => {
+    if (Math.abs(holder.clientWidth - drawnWidth) > 2) {
+      drawnWidth = holder.clientWidth;
+      redraw();
+    }
+  });
+  observer.observe(holder);
   root.querySelector("#wi-gpu").addEventListener("change", (e) => {
     ui.gpu = e.target.value;
     render(root, state);
@@ -127,7 +139,9 @@ function draw(root, data) {
   root.querySelector("#wi-itl-val").textContent = `${Math.round(ui.itl * 1000)} ms`;
   const configs = data.configs;
   const color = Object.fromEntries(configs.map((c, i) => [c.config, CONFIG_COLORS[i % CONFIG_COLORS.length]]));
-  const all = configs.flatMap((c) => c.points).filter((p) => p.cost_per_m_output != null && p[ui.yKey] != null);
+  // Levels where requests failed are not drawn: their token counts (and so their cost) mean nothing.
+  const drawn = (p) => p.cost_per_m_output != null && p[ui.yKey] != null && !p.errors;
+  const all = configs.flatMap((c) => c.points).filter(drawn);
   const capacity = Object.fromEntries(configs.map((c) => [c.config, capacityPoint(c.points)]));
   const winners = Object.values(capacity).filter(Boolean).sort((a, b) => a.cost_per_m_output - b.cost_per_m_output);
   const best = winners[0] || null;
@@ -135,7 +149,7 @@ function draw(root, data) {
   const holder = root.querySelector("#wi-plot");
   const width = Math.max(holder.clientWidth, 320);
   const height = Math.max(360, Math.min(560, width * 0.56));
-  const margin = { left: 58, right: 18, top: 14, bottom: 44 };
+  const margin = { left: 76, right: 18, top: 14, bottom: 44 };
   const xs = all.map((p) => p.cost_per_m_output);
   const ys = all.map((p) => p[ui.yKey]);
   const limit = ui.yKey === "itl_p95_s" ? ui.itl : ui.ttft;
@@ -166,7 +180,7 @@ function draw(root, data) {
     svg("polyline", { points: frontier.map((p) => `${x(p.cost_per_m_output)},${y(p[ui.yKey])}`).join(" "), fill: "none", stroke: "#E5E7EB", "stroke-width": 1.5, "stroke-opacity": 0.75 }, root_);
   }
   for (const c of configs) {
-    const pts = c.points.filter((p) => p.cost_per_m_output != null && p[ui.yKey] != null);
+    const pts = c.points.filter(drawn);
     svg("polyline", { points: pts.map((p) => `${x(p.cost_per_m_output)},${y(p[ui.yKey])}`).join(" "), fill: "none", stroke: color[c.config], "stroke-opacity": 0.3 }, root_);
     for (const p of pts) {
       const ok = meets(p) && capacity[c.config] && p.level <= capacity[c.config].level;

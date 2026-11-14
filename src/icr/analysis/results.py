@@ -37,7 +37,7 @@ def _facts(calib: dict) -> dict:
     return {
         "gpu": f"{len(gpus)} x {name}" if len(gpus) > 1 else name,
         "model": model,
-        "engine": sample.meta.get("vllm_version", "vLLM"),
+        "engine": f"vLLM {sample.meta.get('vllm_version', '')}".strip(),
         "fleet_config": calib.get("fleet_config"),
     }
 

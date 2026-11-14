@@ -28,7 +28,7 @@ from icr.workloads import generator
 
 GREEDY_PROMPTS = 100
 GREEDY_SEED = 123
-STARTUP_ALLOWANCE_S = 240.0  # measured: 154 s for AWQ with warm JIT caches
+STARTUP_ALLOWANCE_S = 215.0  # measured: 83 to 200 s for AWQ with warm JIT caches
 RUN_FILES = ("requests.jsonl", "replicas.jsonl", "meta.json", "result.json", "metrics.txt")
 
 
@@ -56,8 +56,8 @@ def task_seconds(task: str, ramp: dict) -> float:
     t = parse_task(task)
     if t["kind"] == "ramp":
         levels = len(t["rates"] or ramp["rates_rps"])
-        return ramp["warmup_s"] + levels * ramp["level_s"] + 150
-    return 300 if t["kind"] == "gsm8k" else 150
+        return ramp["warmup_s"] + levels * ramp["level_s"] + 90  # measured: about 40 s over
+    return 120 if t["kind"] == "gsm8k" else 90  # measured: 46 s and about 30 s
 
 
 def read_run(directory: Path) -> dict:

@@ -349,7 +349,8 @@ function renderHonest() {
   } else if (state.view === "autoscale") {
     parts.push('<span class="tag real">measured</span> latency and replica counts · <span class="tag modeled">modeled</span> GPU-seconds saved');
   } else {
-    parts.push('<span class="tag real">real</span> Replay of a real recorded run. Nothing is simulated.');
+    const replay = state.view === "split" || state.view === "room";
+    parts.push(`<span class="tag real">real</span> ${replay ? "Replay of a real recorded run" : "Measured on real GPU runs"}. Nothing is simulated.`);
   }
   if (facts.gpu) parts.push(`GPU: <b>${facts.gpu}</b>`);
   if (facts.model) parts.push(`Model: <b>${facts.model}</b>`);
@@ -448,10 +449,15 @@ async function main() {
     const tour = await import("./tour.js");
     tour.start(state, { setView, render });
   });
+  let resizeTimer = null;
   window.addEventListener("resize", () => {
     for (const p of activePanels()) p.yard.resize();
     drawScrubber();
     render();
+    if (state.view === "autoscale") {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => setView("autoscale"), 150); // redraw the chart at the new width
+    }
   });
 
   await setView(params.get("view") || "split");

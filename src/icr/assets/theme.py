@@ -1,7 +1,8 @@
-"""One look for every chart: the Switchyard palette, fonts and axis style."""
+"""One look for every chart: the Switchyard palette, fonts and title layout."""
 
 from __future__ import annotations
 
+import textwrap
 from pathlib import Path
 
 import matplotlib
@@ -30,18 +31,17 @@ SERIES = ["#FB7185", "#38BDF8", "#A78BFA", "#34D399", "#FBBF24", "#F472B6", "#22
 MARKERS = ["o", "s", "D", "^", "v", "P", "X", "*", "<", ">", "h", "p"]
 
 CHART_DIR = config.ROOT / "assets" / "charts"
+FONT_DIR = Path(__file__).parent / "fonts"
 WIDTH_PX = 1600
 DPI = 200
-
-
-def _font(preferred: list[str]) -> str:
-    installed = {f.name for f in font_manager.fontManager.ttflist}
-    return next((name for name in preferred if name in installed), "DejaVu Sans")
+SANS, MONO = "Inter", "JetBrains Mono"
+TITLE_CHARS, SUBTITLE_CHARS = 84, 132  # line lengths that fit 1600 px at the sizes below
 
 
 def apply() -> None:
-    """Set matplotlib's defaults to the Switchyard look."""
-    sans = _font(["Inter", "Segoe UI", "Arial"])
+    """Register the bundled fonts and set matplotlib's defaults to the Switchyard look."""
+    for path in FONT_DIR.glob("*.ttf"):
+        font_manager.fontManager.addfont(str(path))
     plt.rcParams.update(
         {
             "figure.facecolor": BG, "axes.facecolor": BG, "savefig.facecolor": BG,
@@ -49,35 +49,50 @@ def apply() -> None:
             "xtick.color": MUTED, "ytick.color": MUTED, "grid.color": LINE,
             "axes.grid": True, "axes.axisbelow": True, "grid.linewidth": 0.8,
             "axes.spines.top": False, "axes.spines.right": False,
-            "font.family": sans, "font.size": 10, "axes.titlesize": 10.5,
+            "font.family": SANS, "font.size": 10, "axes.titlesize": 10,
             "axes.titleweight": "regular", "axes.titlecolor": MUTED, "axes.titlelocation": "left",
-            "legend.frameon": False, "legend.fontsize": 9, "svg.fonttype": "none",
+            # SVG text is stored as outlines, so it looks the same without the fonts installed.
+            "legend.frameon": False, "legend.fontsize": 9, "svg.fonttype": "path",
             "xtick.labelsize": 9, "ytick.labelsize": 9, "axes.labelsize": 9.5,
         }
     )  # fmt: skip
 
 
 def mono() -> str:
-    return _font(["JetBrains Mono", "Consolas", "DejaVu Sans Mono"])
+    return MONO
 
 
-def figure(height_px: int = 900, **kwargs):
-    """A 1600 px wide figure. The takeaway goes in `title`, the detail in `subtitle`."""
+def figure(height_px: int = 900):
+    """A 1600 px wide figure."""
     apply()
-    fig = plt.figure(figsize=(WIDTH_PX / DPI, height_px / DPI), dpi=DPI, **kwargs)
-    return fig
+    return plt.figure(figsize=(WIDTH_PX / DPI, height_px / DPI), dpi=DPI)
 
 
-def titles(fig, title: str, subtitle: str = "") -> None:
-    """Takeaway title (large, top left) and a muted subtitle under it."""
-    fig.text(0.035, 0.955, title, fontsize=13.5, fontweight="bold", color=INK, va="top", ha="left")
-    if subtitle:
-        fig.text(0.035, 0.955 - 0.062 * 900 / (fig.get_figheight() * DPI), subtitle,
-                 fontsize=9, color=MUTED, va="top", ha="left")  # fmt: skip
+def titles(fig, title: str, subtitle: str = "") -> float:
+    """Draw the takeaway title and a muted subtitle, both wrapped to the figure width.
+
+    Returns the top of the plotting area as a figure fraction: pass it to
+    `fig.subplots_adjust(top=...)` so the axes start below the header.
+    """
+    height = fig.get_figheight() * DPI
+    y = height - 34  # pixels from the bottom
+    for line in textwrap.wrap(title, TITLE_CHARS):
+        fig.text(0.035, y / height, line, fontsize=12.5, fontweight="bold", color=INK, va="top")
+        y -= 46
+    y -= 6
+    for line in textwrap.wrap(subtitle, SUBTITLE_CHARS):
+        fig.text(0.035, y / height, line, fontsize=8.6, color=MUTED, va="top")
+        y -= 31
+    return (y - 44) / height
 
 
 def footer(fig, text: str) -> None:
-    fig.text(0.035, 0.018, text, fontsize=7.5, color=MUTED, va="bottom", ha="left")
+    fig.text(0.035, 14 / (fig.get_figheight() * DPI), text, fontsize=7.4, color=MUTED, va="bottom")
+
+
+def bottom(fig, pixels: int = 150) -> float:
+    """Bottom of the plotting area as a figure fraction: room for the x label and footer."""
+    return pixels / (fig.get_figheight() * DPI)
 
 
 def save(fig, name: str) -> list[Path]:

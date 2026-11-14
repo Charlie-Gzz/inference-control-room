@@ -111,6 +111,15 @@ input[type="range"].slo::-moz-range-thumb { width: 14px; height: 14px; border-ra
   .yard-canvas { height: var(--yard-h-mobile, 300px); }
 }
 
+/* Page layouts. Plain CSS (not Tailwind classes) so they apply before the first paint. */
+.layout-split, .layout-side { display: grid; gap: 12px; align-items: start; grid-template-columns: minmax(0, 1fr); }
+.layout-split .scoreboard { order: 3; }
+@media (min-width: 1024px) {
+  .layout-split { grid-template-columns: minmax(0, 1fr) 230px minmax(0, 1fr); }
+  .layout-split .scoreboard { order: 0; }
+  .layout-side { grid-template-columns: minmax(0, 1fr) 350px; }
+}
+
 /* Record mode (video capture). Every animated value is set per frame by js/record.js. */
 body.recording { overflow: hidden; }
 body.recording #pickers, body.recording #tour-start { display: none !important; }

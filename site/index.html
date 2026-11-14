@@ -54,13 +54,13 @@ tailwind.config = { theme: { extend: {
     <div class="flex items-center gap-2 text-sm" id="pickers"></div>
   </section>
 
-  <section id="view-split" class="view grid gap-3 lg:grid-cols-[minmax(0,1fr)_230px_minmax(0,1fr)] items-start">
+  <section id="view-split" class="view layout-split">
     <div id="yard-left"></div>
-    <div class="scoreboard order-last lg:order-none" id="scoreboard"></div>
+    <div class="scoreboard" id="scoreboard"></div>
     <div id="yard-right"></div>
   </section>
 
-  <section id="view-room" class="view hidden-view grid gap-3 lg:grid-cols-[minmax(0,1fr)_340px] items-start">
+  <section id="view-room" class="view hidden-view layout-side">
     <div id="yard-room"></div>
     <div class="space-y-3">
       <div class="card p-4 text-sm space-y-2" id="room-legend"></div>
