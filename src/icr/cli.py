@@ -121,11 +121,13 @@ def results() -> None:
 
 @app.command()
 def charts() -> None:
-    """Draw every chart (PNG + SVG) into assets/charts/ from the saved summary."""
+    """Draw every chart (PNG + SVG) and the interactive page into assets/charts/."""
     from icr.assets import charts as drawing
+    from icr.assets import interactive
 
     for name, status in drawing.write_all().items():
         typer.echo(f"{name:22} {status}")
+    typer.echo(f"{'interactive page':22} {interactive.write()}")
 
 
 @app.command("replay-data")
