@@ -9,10 +9,13 @@ SLO: p95 time to first token <= 2.0 s and p95 inter-token latency <= 100 ms, wit
 | Config | Weights | Spec. decoding | Prefix cache | Max seqs | Max req/s at SLO | $ per M output at SLO | TTFT p95 (s) | ITL p95 (ms) | GSM8K | Draft acceptance | Greedy match |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | `awq` | AWQ 4-bit | off | yes | 128 | 5.98 | 0.525 | 0.384 | 86.7 | 92.4% | - | 92% (self) |
+| `fp8` | FP8 | off | yes | 128 | 5.98 | 0.525 | 0.327 | 85.4 | 89.6% | - | - |
+| `awq-seqs32` | AWQ 4-bit | off | yes | 32 | 5.20 | 0.675 | 0.355 | 64.4 | - | - | - |
+| `awq-seqs64` | AWQ 4-bit | off | yes | 64 | 5.20 | 0.675 | 0.346 | 64.9 | - | - | - |
 | `awq-nocache` | AWQ 4-bit | off | no | 128 | 0.00 | - | - | - | - | - | - |
 
 Cheapest config that meets the SLO: `awq`.
 
 ## Spend
 
-Total: $0.85 over 6 Modal runs (dev $0.85, fleet $0.00, h100 $0.00). See `docs/GPU_LEDGER.md`.
+Total: $1.30 over 7 Modal runs (dev $1.30, fleet $0.00, h100 $0.00). See `docs/GPU_LEDGER.md`.

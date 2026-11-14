@@ -13,8 +13,8 @@ Totals use the actual cost when it is known. Rendered by `icr.ledger`.
 | 2026-11-14 03:38 | download models + data (CPU only) | dev | none | 2 | 4 | 33 | 0.001 | 0.000 | 0.138 |
 | 2026-11-14 15:16 | M3a calibration ramp | dev | L4 x1 | 4 | 16 | 494 | 0.153 | 0.147 | 0.285 |
 | 2026-11-14 15:54 | M3a: fine chat ramp, coarse rag ramp, gsm8k, greedy (awq) | dev | L4 x1 | 4 | 16 | 887 | 0.275 | 0.269 | 0.554 |
-| 2026-11-14 20:05 | M3a stage 1 sweep, session 1 | dev | L4 x1 | 4 | 16 | 1017 | 0.316 | 0.295 | 0.850 |
-| 2026-11-14 20:49 | M3a stage 1 sweep, session 2 | dev | L4 x1 | 4 | 16 | 1446 | 0.449 | pending | 1.298 |
+| 2026-11-14 20:05 | M3a stage 1 sweep, session 1 | dev | L4 x1 | 4 | 16 | 1017 | 0.316 | 0.309 | 0.864 |
+| 2026-11-14 20:49 | M3a stage 1 sweep, session 2 | dev | L4 x1 | 4 | 16 | 1446 | 0.449 | 0.433 | 1.297 |
 
 ## Totals
 

@@ -92,7 +92,15 @@ def config_rows(label: str = "l4", workload: str = "chat", slo: SLO = DEFAULT_SL
         if name in greedy:
             row["greedy"] = _greedy_match(name, run.meta["config"], greedy)
         rows.append(row)
-    return sorted(rows, key=lambda r: (r["cost_per_m_output"] is None, r["cost_per_m_output"]))
+    return sorted(rows, key=_rank)
+
+
+def _rank(row: dict) -> tuple:
+    """Cheapest first. Configs at the same ramp level produce the same tokens, so their cost
+    ties exactly: then the higher GSM8K accuracy wins, then the baseline, then the name."""
+    cost = row["cost_per_m_output"]
+    accuracy = (row.get("gsm8k") or {}).get("accuracy", 0.0)
+    return (cost is None, cost or 0.0, -accuracy, row["config"] != "awq", row["config"])
 
 
 def _greedy_match(name: str, cfg: dict, greedy: dict[str, Run]) -> dict:

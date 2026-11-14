@@ -155,3 +155,20 @@ def test_capacity_table_and_headline_follow_from_the_ramp(saved_runs):
 def test_router_overhead_is_reported_per_policy(saved_runs):
     overhead = fleet_results.router_overhead()["decision_us"]
     assert overhead["prefix-aware"]["p50"] == 80 and overhead["round-robin"]["p95"] == 20
+
+
+def test_results_summary_and_markdown_build_from_saved_runs(saved_runs, monkeypatch, tmp_path):
+    from icr.analysis import results
+    from icr.fleet import plan
+
+    monkeypatch.setattr(plan, "CALIBRATION_FILE", tmp_path / "missing.json")
+    monkeypatch.setattr(results, "CALIBRATION_FILE", tmp_path / "missing.json")
+    summary = results.build()
+    assert summary["fleet"]["chat"]["policies"]["prefix-aware"]["repeats"] == 3
+    assert summary["headline"]["capacity_change"] == pytest.approx(0.25)
+    assert summary["prefix_pressure"]["chat"]["prefix_groups"] == 5
+    text = results.render_markdown(summary)
+    assert "## Fleet, fixed traffic: `chat` at 11.2 req/s" in text
+    assert "## Fleet capacity at the SLO" in text and "## Router overhead" in text
+    assert summary["headline"]["text"] in text
+    json.dumps(summary)  # the site and the charts read it as JSON
