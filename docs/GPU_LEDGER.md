@@ -16,10 +16,11 @@ Totals use the actual cost when it is known. Rendered by `icr.ledger`.
 | 2026-11-14 20:05 | M3a stage 1 sweep, session 1 | dev | L4 x1 | 4 | 16 | 1017 | 0.316 | 0.309 | 0.864 |
 | 2026-11-14 20:49 | M3a stage 1 sweep, session 2 | dev | L4 x1 | 4 | 16 | 1446 | 0.449 | 0.443 | 1.307 |
 | 2026-11-14 21:20 | M3a stage 1 sweep, session 3 | dev | L4 x1 | 4 | 16 | 1345 | 0.417 | 0.411 | 1.718 |
+| 2026-11-14 21:33 | M3a stage 1 sweep, session 4 (draft, suffix) | dev | L4 x1 | 4 | 16 | 578 | 0.179 | pending | 1.897 |
 
 ## Totals
 
-- dev: $1.72 of $10.00
+- dev: $1.90 of $10.00
 - fleet: $0.00 of $18.00
 - h100: $0.00 of $7.00
-- **all: $1.72 of $35.00**
+- **all: $1.90 of $35.00**

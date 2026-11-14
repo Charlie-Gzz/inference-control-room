@@ -1,0 +1,117 @@
+{
+ "session_id": "l4-20261114-212119",
+ "label": "l4",
+ "jobs": [
+  {
+   "config": {
+    "name": "awq-draft",
+    "weights": "awq",
+    "quantization": null,
+    "speculative": {
+     "method": "draft_model",
+     "model": "/vol/hf/hub/models--Qwen--Qwen2.5-0.5B-Instruct/snapshots/7ae557604adf67be50417f59c2c2f167def9a775",
+     "num_speculative_tokens": 5
+    },
+    "prefix_caching": true,
+    "max_num_seqs": null,
+    "max_model_len": 8192,
+    "gpu_memory_utilization": 0.9,
+    "extra_args": []
+   },
+   "tasks": [
+    "ramp:chat@2.6;3.64;4.42;5.2;5.98;6.76",
+    "greedy"
+   ]
+  },
+  {
+   "config": {
+    "name": "awq-suffix",
+    "weights": "awq",
+    "quantization": null,
+    "speculative": {
+     "method": "suffix",
+     "num_speculative_tokens": 8
+    },
+    "prefix_caching": true,
+    "max_num_seqs": null,
+    "max_model_len": 8192,
+    "gpu_memory_utilization": 0.9,
+    "extra_args": []
+   },
+   "tasks": [
+    "ramp:chat@2.6;3.64;4.42;5.2;5.98;6.76",
+    "greedy"
+   ]
+  },
+  {
+   "config": {
+    "name": "awq",
+    "weights": "awq",
+    "quantization": null,
+    "speculative": null,
+    "prefix_caching": true,
+    "max_num_seqs": null,
+    "max_model_len": 8192,
+    "gpu_memory_utilization": 0.9,
+    "extra_args": []
+   },
+   "tasks": [
+    "calib:rag@2;2.2;2.4;2.6;2.8;3"
+   ]
+  }
+ ],
+ "seed": 0,
+ "ramp": {
+  "rates_rps": [],
+  "level_s": 40.0,
+  "warmup_s": 30.0
+ },
+ "budget_s": 1620,
+ "startups": {
+  "awq-draft": {
+   "ok": false,
+   "error": "RuntimeError('vLLM exited with 1:\\n(APIServer pid=21) INFO 11-14 21:24:38 [startup.py:38]   \u2588\u2584\u2588\u2580 \u2588     \u2588     \u2588     \u2588  model   Qwen/Qwen2.5-7B-Instruct-AWQ\\n(APIServer pid=21) INFO 11-14 21:24:38 [startup.py:38]    \u2580\u2580  \u2580\u2580\u2580\u2580\u2580 \u2580\u2580\u2580\u2580\u2580 \u2580     \u2580\\n(APIServer pid=21) INFO 11-14 21:24:38 [startup.py:38] \\n(API",
+   "log": "W1114 21:24:24.472000 21 site-packages/torch/_opaque_base.py:6] torch._opaque_base is deprecated, use torch._custom_class_base instead\nW1114 21:24:24.473000 21 site-packages/torch/_library/opaque_object.py:288] register_opaque_type is deprecated, use register_custom_class instead\nW1114 21:24:24.473000 21 site-packages/torch/_library/opaque_object.py:211] typ='value' is deprecated, use typ='constant' instead\n(APIServer pid=21) INFO 11-14 21:24:38 [startup.py:38] \n(APIServer pid=21) INFO 11-14 21:24:38 [startup.py:38]        \u2588     \u2588     \u2588\u2584   \u2584\u2588\n(APIServer pid=21) INFO 11-14 21:24:38 [startup.py:38]  \u2584\u2584 \u2584\u2588 \u2588     \u2588     \u2588 \u2580\u2584\u2580 \u2588  version 0.33.0\n(APIServer pid=21) INFO 11-14 21:24:38 [startup.py:38]   \u2588\u2584\u2588\u2580 \u2588     \u2588     \u2588     \u2588  model   Qwen/Qwen2.5-7B-Instruct-AWQ\n(APIServer pid=21) INFO 11-14 21:24:38 [startup.py:38]    \u2580\u2580  \u2580\u2580\u2580\u2580\u2580 \u2580\u2580\u2580\u2580\u2580 \u2580     \u2580\n(APIServer pid=21) INFO 11-14 21:24:38 [startup.py:38] \n(APIServer pid=21) INFO 11-14 21:24:38 [startup.py:96] non-default args: {'model_tag': 'Qwen/Qwen2.5-7B-Instruct-AWQ', 'enable_prompt_tokens_details': True, 'host': '127.0.0.1', 'uvicorn_log_level': 'warning', 'model': 'Qwen/Qwen2.5-7B-Instruct-AWQ', 'revision': 'b25037543e9394b818fdfca67ab2a00ecc7dd641', 'max_model_len': 8192, 'served_model_name': ['llm'], 'gpu_memory_utilization': 0.9, 'enable_prefix_caching': True, 'speculative_config': {'method': 'draft_model', 'model': '/vol/hf/hub/models--Qwen--Qwen2.5-0.5B-Instruct/snapshots/7ae557604adf67be50417f59c2c2f167def9a775', 'num_speculative_tokens': 5}}\n(APIServer pid=21) INFO 11-14 21:24:39 [arg_utils.py:941] HF_HUB_OFFLINE is True, replace model_id [Qwen/Qwen2.5-7B-Instruct-AWQ] to model_path [/__modal/volumes/vo-sK57fVBk8Ifdaj6qWuCvKx/hf/hub/models--Qwen--Qwen2.5-7B-Instruct-AWQ/snapshots/b25037543e9394b818fdfca67ab2a00ecc7dd641]\n(APIServer pid=21) INFO 11-14 21:24:39 [model.py:744] Resolved architecture: Qwen2ForCausalLM\n(APIServer pid=21) INFO 11-14 21:24:39 [model.py:2170] Using max model len 8192\n(APIServer pid=21) INFO 11-14 21:24:42 [model.py:744] Resolved architecture: Qwen2ForCausalLM\n(APIServer pid=21) WARNING 11-14 21:24:42 [model.py:2516] Casting torch.bfloat16 to torch.float16.\n(APIServer pid=21) INFO 11-14 21:24:42 [model.py:2170] Using max model len 32768\n(APIServer pid=21) INFO 11-14 21:24:42 [speculative.py:1799] Overriding draft model max model len from 32768 to 8192\nTraceback (most recent call last):\n  File \"/usr/local/bin/vllm\", line 10, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/vllm/entrypoints/cli/main.py\", line 117, in main\n    args.dispatch_function(args)\n  File \"/usr/local/lib/python3.12/site-packages/vllm/entrypoints/cli/serve.py\", line 156, in cmd\n    uvloop.run(run_server(args))\n  File \"/usr/local/lib/python3.12/site-packages/uvloop/__init__.py\", line 96, in run\n    return __asyncio.run(\n           ^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/asyncio/runners.py\", line 195, in run\n    return runner.run(main)\n           ^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/asyncio/runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"uvloop/loop.pyx\", line 1515, in uvloop.loop.Loop.run_until_complete\n  File \"/usr/local/lib/python3.12/site-packages/uvloop/__init__.py\", line 48, in wrapper\n    return await main\n           ^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/vllm/entrypoints/launchers/api_server/entry.py\", line 176, in run_server\n    await run_server_worker(listen_address, sock, args, **uvicorn_kwargs)\n  File \"/usr/local/lib/python3.12/site-packages/vllm/entrypoints/launchers/api_server/entry.py\", line 190, in run_server_worker\n    async with build_async_engine_client(\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/contextlib.py\", line 210, in __aenter__\n    return await anext(self.gen)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/vllm/entrypoints/launchers/api_server/entry.py\", line 60, in build_async_engine_client\n    async with build_async_engine_client_from_engine_args(\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/contextlib.py\", line 210, in __aenter__\n    return await anext(self.gen)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/vllm/entrypoints/launchers/api_server/entry.py\", line 82, in build_async_engine_client_from_engine_args\n    vllm_config = engine_args.create_engine_config(usage_context=usage_context)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/vllm/engine/arg_utils.py\", line 2635, in create_engine_config\n    speculative_config = self.create_speculative_config(\n                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/vllm/engine/arg_utils.py\", line 2139, in create_speculative_config\n    return SpeculativeConfig(**self.speculative_config)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/pydantic/_internal/_dataclasses.py\", line 121, in __init__\n    s.__pydantic_validator__.validate_python(ArgsKwargs(args, kwargs), self_instance=s)\npydantic_core._pydantic_core.ValidationError: 1 validation error for SpeculativeConfig\n  Value error, Target and draft model should have the same vocabulary size. Target model vocab_size=152064. Draft model vocab_size=151936. Using models with different tokenizers can cause out-of-bounds errors during speculative decoding. [type=value_error, input_value=ArgsKwargs((), {'method':...very_timeout_sec=120))}), input_type=ArgsKwargs]\n    For further information visit https://errors.pydantic.dev/2.14/v/value_error"
+  },
+  "awq-suffix": {
+   "ok": false,
+   "error": "RuntimeError('vLLM exited with 1:\\n(APIServer pid=49) INFO 11-14 21:25:05 [startup.py:38]        \u2588     \u2588     \u2588\u2584   \u2584\u2588\\n(APIServer pid=49) INFO 11-14 21:25:05 [startup.py:38]  \u2584\u2584 \u2584\u2588 \u2588     \u2588     \u2588 \u2580\u2584\u2580 \u2588  version 0.33.0\\n(APIServer pid=49) INFO 11-14 21:25:05 [startup.py:38]   \u2588\u2584\u2588\u2580 \u2588     \u2588     \u2588     \u2588  ",
+   "log": "W1114 21:24:52.114000 49 site-packages/torch/_opaque_base.py:6] torch._opaque_base is deprecated, use torch._custom_class_base instead\nW1114 21:24:52.115000 49 site-packages/torch/_library/opaque_object.py:288] register_opaque_type is deprecated, use register_custom_class instead\nW1114 21:24:52.116000 49 site-packages/torch/_library/opaque_object.py:211] typ='value' is deprecated, use typ='constant' instead\n(APIServer pid=49) INFO 11-14 21:25:05 [startup.py:38] \n(APIServer pid=49) INFO 11-14 21:25:05 [startup.py:38]        \u2588     \u2588     \u2588\u2584   \u2584\u2588\n(APIServer pid=49) INFO 11-14 21:25:05 [startup.py:38]  \u2584\u2584 \u2584\u2588 \u2588     \u2588     \u2588 \u2580\u2584\u2580 \u2588  version 0.33.0\n(APIServer pid=49) INFO 11-14 21:25:05 [startup.py:38]   \u2588\u2584\u2588\u2580 \u2588     \u2588     \u2588     \u2588  model   Qwen/Qwen2.5-7B-Instruct-AWQ\n(APIServer pid=49) INFO 11-14 21:25:05 [startup.py:38]    \u2580\u2580  \u2580\u2580\u2580\u2580\u2580 \u2580\u2580\u2580\u2580\u2580 \u2580     \u2580\n(APIServer pid=49) INFO 11-14 21:25:05 [startup.py:38] \n(APIServer pid=49) INFO 11-14 21:25:05 [startup.py:96] non-default args: {'model_tag': 'Qwen/Qwen2.5-7B-Instruct-AWQ', 'enable_prompt_tokens_details': True, 'host': '127.0.0.1', 'uvicorn_log_level': 'warning', 'model': 'Qwen/Qwen2.5-7B-Instruct-AWQ', 'revision': 'b25037543e9394b818fdfca67ab2a00ecc7dd641', 'max_model_len': 8192, 'served_model_name': ['llm'], 'gpu_memory_utilization': 0.9, 'enable_prefix_caching': True, 'speculative_config': {'method': 'suffix', 'num_speculative_tokens': 8}}\n(APIServer pid=49) INFO 11-14 21:25:06 [arg_utils.py:941] HF_HUB_OFFLINE is True, replace model_id [Qwen/Qwen2.5-7B-Instruct-AWQ] to model_path [/__modal/volumes/vo-sK57fVBk8Ifdaj6qWuCvKx/hf/hub/models--Qwen--Qwen2.5-7B-Instruct-AWQ/snapshots/b25037543e9394b818fdfca67ab2a00ecc7dd641]\n(APIServer pid=49) INFO 11-14 21:25:06 [model.py:744] Resolved architecture: Qwen2ForCausalLM\n(APIServer pid=49) INFO 11-14 21:25:06 [model.py:2170] Using max model len 8192\nTraceback (most recent call last):\n  File \"/usr/local/bin/vllm\", line 10, in <module>\n    sys.exit(main())\n             ^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/vllm/entrypoints/cli/main.py\", line 117, in main\n    args.dispatch_function(args)\n  File \"/usr/local/lib/python3.12/site-packages/vllm/entrypoints/cli/serve.py\", line 156, in cmd\n    uvloop.run(run_server(args))\n  File \"/usr/local/lib/python3.12/site-packages/uvloop/__init__.py\", line 96, in run\n    return __asyncio.run(\n           ^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/asyncio/runners.py\", line 195, in run\n    return runner.run(main)\n           ^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/asyncio/runners.py\", line 118, in run\n    return self._loop.run_until_complete(task)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"uvloop/loop.pyx\", line 1515, in uvloop.loop.Loop.run_until_complete\n  File \"/usr/local/lib/python3.12/site-packages/uvloop/__init__.py\", line 48, in wrapper\n    return await main\n           ^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/vllm/entrypoints/launchers/api_server/entry.py\", line 176, in run_server\n    await run_server_worker(listen_address, sock, args, **uvicorn_kwargs)\n  File \"/usr/local/lib/python3.12/site-packages/vllm/entrypoints/launchers/api_server/entry.py\", line 190, in run_server_worker\n    async with build_async_engine_client(\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/contextlib.py\", line 210, in __aenter__\n    return await anext(self.gen)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/vllm/entrypoints/launchers/api_server/entry.py\", line 60, in build_async_engine_client\n    async with build_async_engine_client_from_engine_args(\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/contextlib.py\", line 210, in __aenter__\n    return await anext(self.gen)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/vllm/entrypoints/launchers/api_server/entry.py\", line 82, in build_async_engine_client_from_engine_args\n    vllm_config = engine_args.create_engine_config(usage_context=usage_context)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/vllm/engine/arg_utils.py\", line 2635, in create_engine_config\n    speculative_config = self.create_speculative_config(\n                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/vllm/engine/arg_utils.py\", line 2139, in create_speculative_config\n    return SpeculativeConfig(**self.speculative_config)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.12/site-packages/pydantic/_internal/_dataclasses.py\", line 121, in __init__\n    s.__pydantic_validator__.validate_python(ArgsKwargs(args, kwargs), self_instance=s)\n  File \"/usr/local/lib/python3.12/site-packages/vllm/config/speculative.py\", line 1334, in __post_init__\n    self._validate_suffix_decoding()\n  File \"/usr/local/lib/python3.12/site-packages/vllm/config/speculative.py\", line 1728, in _validate_suffix_decoding\n    raise ImportError(\nImportError: Arctic Inference is required for suffix decoding. Install via `pip install arctic-inference==0.1.1`."
+  },
+  "awq": {
+   "ok": true,
+   "startup_s": 193.2
+  }
+ },
+ "skipped": [],
+ "resources": {
+  "samples": 552,
+  "cpu_cores_mean": 0.885,
+  "cpu_cores_p95": 1.554,
+  "cpu_cores_max": 3.901,
+  "memory_gib_max": 20.896
+ },
+ "gpu": {
+  "gpus": [
+   "NVIDIA L4, 23034 MiB, 610.57.04"
+  ],
+  "table": "Sat Nov 14 21:23:47 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 610.57.04              KMD Version: 610.57.04     CUDA UMD Version: 13.3     |\n+-----------------------------------------+------------------------+----------------------+\n| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  NVIDIA L4                      On  |   00000000:00:04.0 Off |                    0 |\n| N/A   68C    P8             18W /   72W |       5MiB /  23034MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n\n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|  No running processes found                                                             |\n+-----------------------------------------------------------------------------------------+"
+ },
+ "vllm_version": "0.33.0",
+ "container_seconds": 553.160859407,
+ "ledger": {
+  "date": "2026-11-14 21:33",
+  "purpose": "M3a stage 1 sweep, session 4 (draft, suffix)",
+  "category": "dev",
+  "gpu": "L4",
+  "gpu_count": 1,
+  "cpu": 4.0,
+  "memory_gib": 16.0,
+  "billed_seconds": 578.2,
+  "cost_usd": 0.1794,
+  "actual_cost_usd": null,
+  "app_id": "ap-R9SED76f3F32BYgScU9fGs",
+  "run_id": "l4-20261114-212119",
+  "note": ""
+ }
+}
