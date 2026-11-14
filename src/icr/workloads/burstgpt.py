@@ -100,5 +100,7 @@ def scaled_arrivals(
     rng = random.Random(seed)
     raw = sorted(t + rng.random() for t in segment[offset : offset + count])
     span = raw[-1] - raw[0]
-    scale = (count / rate_rps) / span if span > 0 else 0.0
+    # The last arrival lands one mean gap before the end of the window, so consecutive
+    # windows (ramp levels) join without two arrivals at the same instant.
+    scale = ((count - 1) / rate_rps) / span if span > 0 else 0.0
     return [(t - raw[0]) * scale for t in raw]

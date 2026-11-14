@@ -148,14 +148,14 @@ class Generator:
 
 
 def build(
-    mix_name: str,
+    mix_name: str | Mix,
     seed: int,
     arrivals: list[float],
     warmup_s: float = 0.0,
     level_starts: list[float] | None = None,
 ) -> list[RequestSpec]:
     """One request per arrival time. Deterministic for a given mix, seed and arrivals."""
-    mix = MIXES[mix_name]
+    mix = MIXES[mix_name] if isinstance(mix_name, str) else mix_name
     gen = Generator(mix, seed)
     lengths = burstgpt.response_token_quantiles()
     waiting: deque[Session] = deque()  # sessions with turns left, oldest first
@@ -190,7 +190,7 @@ def build(
 
 
 def steady_workload(
-    mix: str,
+    mix: str | Mix,
     seed: int,
     rate_rps: float,
     duration_s: float,
@@ -204,7 +204,7 @@ def steady_workload(
 
 
 def ramp_workload(
-    mix: str,
+    mix: str | Mix,
     seed: int,
     rates_rps: list[float],
     level_s: float,

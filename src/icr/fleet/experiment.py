@@ -23,14 +23,16 @@ async def run(
     out_dir: Path,
     meta: dict,
     autoscaler=None,
-    drain_s: float = 120.0,
+    request_timeout_s: float = 120.0,
 ) -> dict:
     """Send `specs` to `targets` (the router URL, or replica URLs when direct).
 
+    A request that has not finished `request_timeout_s` after it was sent is aborted
+    and recorded as an error, so an overloaded run still ends.
     Returns the summary that is also stored in meta.json.
     """
     sampler = MetricsSampler(replica_urls)
-    generator = LoadGenerator(targets, timeout_s=drain_s + specs[-1].scheduled_s + 60)
+    generator = LoadGenerator(targets, timeout_s=request_timeout_s)
     started = time.time()
     sampler.start()
     scaler_task = asyncio.create_task(autoscaler.run(sampler)) if autoscaler else None
@@ -38,8 +40,11 @@ async def run(
         records = await generator.run(specs)
     finally:
         if scaler_task:
+            failed = scaler_task.exception() if scaler_task.done() else None
             scaler_task.cancel()
             await asyncio.gather(scaler_task, return_exceptions=True)
+            if failed:
+                raise failed  # an autoscaler crash must not pass silently
         await sampler.stop()
     rows = [r.to_dict() for r in records]
     summary = metrics.summarize(rows, replicas=len(replica_urls))

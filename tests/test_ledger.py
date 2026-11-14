@@ -12,9 +12,11 @@ def empty_ledger(tmp_path, monkeypatch):
 
 
 def spend(category: str, dollars: float) -> None:
-    seconds = dollars / config.hourly_cost("L4", 1, 0, 0) * 3600
-    ledger.record(purpose="test", category=category, gpu="L4", gpu_count=1, cpu=0, memory_gib=0,
-                  billed_seconds=seconds)  # fmt: skip
+    seconds = dollars / config.hourly_cost("L4", 1, 0, 0) * 3600 - ledger.STARTUP_ALLOWANCE_S
+    ledger.record(
+        purpose="test", category=category, gpu="L4", gpu_count=1, cpu=0, memory_gib=0,
+        container_seconds=seconds,
+    )  # fmt: skip
 
 
 def test_cost_formula_adds_gpu_cpu_and_memory():
@@ -29,6 +31,16 @@ def test_record_accumulates_and_renders(empty_ledger):
     assert ledger.spent("dev") == pytest.approx(1.0, abs=0.01)
     text = ledger.LEDGER_MD.read_text("utf-8")
     assert "| 3.000 |" in text and "fleet: $2.00 of $18.00" in text
+
+
+def test_actual_cost_replaces_the_estimate_once_known(empty_ledger, monkeypatch):
+    spend("dev", 1.0)
+    row = ledger.rows()[0] | {"app_id": "ap-1"}
+    ledger._write([row])
+    monkeypatch.setattr(ledger, "billing_by_app", lambda period: {"ap-1": 0.4, "ap-other": 9.0})
+    ledger.reconcile()
+    assert ledger.spent() == 0.4
+    assert "| 1.000 | 0.400 | 0.400 |" in ledger.LEDGER_MD.read_text("utf-8")
 
 
 def test_dev_cap_blocks_development_runs(empty_ledger):

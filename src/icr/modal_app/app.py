@@ -21,10 +21,14 @@ volume = modal.Volume.from_name(config.VOLUME_NAME, create_if_missing=True, vers
 
 SRC = Path(__file__).resolve().parents[1]  # src/icr
 IGNORE = ["**/__pycache__", "**/*.pyc"]
+ROUTER_BINARY = SRC.parents[1] / "router" / "bin" / "switchyard-router"  # linux build
 ENV = {
     "HF_HOME": config.VOL_HF,
-    "VLLM_CACHE_ROOT": config.VOL_VLLM_CACHE,
     "HF_XET_HIGH_PERFORMANCE": "1",
+    # JIT and compile caches live in the Volume, so later containers start faster.
+    "VLLM_CACHE_ROOT": config.VOL_VLLM_CACHE,
+    "FLASHINFER_WORKSPACE_BASE": f"{config.VOLUME_MOUNT}/flashinfer",
+    "TRITON_CACHE_DIR": f"{config.VOLUME_MOUNT}/triton-cache",
 }
 
 cpu_image = (
@@ -39,14 +43,23 @@ gpu_image = (
     .entrypoint([])
     .uv_pip_install(f"vllm=={config.VLLM_VERSION}")
     .env(ENV)
-    .add_local_dir(SRC, "/root/icr", ignore=IGNORE)
 )
+if ROUTER_BINARY.exists():  # built by `icr build-router --linux`
+    gpu_image = gpu_image.add_local_file(
+        ROUTER_BINARY, "/usr/local/bin/switchyard-router", copy=True
+    )
+    gpu_image = gpu_image.run_commands("chmod +x /usr/local/bin/switchyard-router")
+gpu_image = gpu_image.add_local_dir(SRC, "/root/icr", ignore=IGNORE)
 
 VOLUMES = {config.VOLUME_MOUNT: volume}
 
 # Requested resources per function (billed even if unused, so keep them tight).
 CPU_DOWNLOAD = {"cpu": 2.0, "memory": 4096}
 L4_SINGLE = {"cpu": 4.0, "memory": 16384}
+
+
+def _resources(spec: dict) -> dict:
+    return {"cpu": spec["cpu"], "memory_gib": spec["memory"] / 1024}
 
 
 # --- remote functions -------------------------------------------------------
@@ -57,11 +70,13 @@ L4_SINGLE = {"cpu": 4.0, "memory": 16384}
 def download_fn() -> dict:
     from icr.modal_app import download
 
+    start = time.monotonic()
     out = {"models": download.download_models()}
     volume.commit()
     out["burstgpt"] = download.download_burstgpt()
     out["gsm8k"] = download.download_gsm8k()
     volume.commit()
+    out["container_seconds"] = time.monotonic() - start
     return out
 
 
@@ -70,22 +85,40 @@ def download_fn() -> dict:
 def smoke_fn(run_id: str) -> dict:
     from icr.modal_app import smoke
 
+    start = time.monotonic()
     result = smoke.run_smoke()
     out = Path(config.VOL_RUNS) / run_id
     out.mkdir(parents=True, exist_ok=True)
     (out / "smoke.json").write_text(json.dumps(result, indent=1), encoding="utf-8")
     volume.commit()
+    result["container_seconds"] = time.monotonic() - start
+    return result
+
+
+@app.function(image=gpu_image, gpu=config.GPU_L4, volumes=VOLUMES,
+              timeout=config.TIMEOUT_SWEEP_S, max_containers=1, **L4_SINGLE)  # fmt: skip
+def sweep_l4_fn(session: dict) -> dict:
+    from icr.modal_app import sweep
+
+    start = time.monotonic()
+    result = sweep.run_session(session, volume.commit)
+    volume.commit()
+    result["container_seconds"] = time.monotonic() - start
     return result
 
 
 # --- local entry points -----------------------------------------------------
 
 
-def _timed(fn, *args):
-    """Call a remote function and return (result, wall-clock seconds including startup)."""
-    start = time.monotonic()
-    result = fn.remote(*args)
-    return result, time.monotonic() - start
+def _save_runs(runs: dict[str, dict], extra_meta: dict) -> None:
+    """Write run files returned by a remote function into results/runs/."""
+    for run_id, files in runs.items():
+        out = config.RUNS_DIR / run_id
+        out.mkdir(parents=True, exist_ok=True)
+        for name, text in files.items():
+            if name in ("meta.json", "result.json"):
+                text = json.dumps({**json.loads(text), **extra_meta}, indent=1)
+            (out / name).write_text(text, encoding="utf-8", newline="\n")
 
 
 @app.local_entrypoint()
@@ -94,17 +127,17 @@ def download():
     from icr import ledger
     from icr.workloads import burstgpt
 
-    result, seconds = _timed(download_fn)
+    result = download_fn.remote()
     segments = result["burstgpt"].pop("segments")
     burstgpt.SEGMENTS_FILE.parent.mkdir(parents=True, exist_ok=True)
     burstgpt.SEGMENTS_FILE.write_text(json.dumps(segments), encoding="utf-8", newline="\n")
     for name, seg in segments["segments"].items():
-        seg.pop("arrivals")
-        print(name, seg)
+        print(name, {k: v for k, v in seg.items() if k != "arrivals"})
     print(json.dumps(result, indent=1))
     ledger.record(
         purpose="download models + data (CPU only)", category="dev", gpu="none", gpu_count=0,
-        cpu=CPU_DOWNLOAD["cpu"], memory_gib=CPU_DOWNLOAD["memory"] / 1024, billed_seconds=seconds,
+        container_seconds=result["container_seconds"], app_id=app.app_id or "",
+        **_resources(CPU_DOWNLOAD),
     )  # fmt: skip
 
 
@@ -113,10 +146,10 @@ def smoke():
     """One L4: start vLLM (AWQ), 20 requests, /metrics, resource use."""
     from icr import ledger
 
-    res = {"cpu": L4_SINGLE["cpu"], "memory_gib": L4_SINGLE["memory"] / 1024}
+    res = _resources(L4_SINGLE)
     ledger.check_budget("dev", "L4", 1, max_seconds=config.TIMEOUT_DEFAULT_S, **res)
     run_id = time.strftime("smoke-%Y%m%d-%H%M%S", time.gmtime())
-    result, seconds = _timed(smoke_fn, run_id)
+    result = smoke_fn.remote(run_id)
 
     out = config.RUNS_DIR / run_id
     out.mkdir(parents=True, exist_ok=True)
@@ -124,11 +157,61 @@ def smoke():
     (out / "vllm_log_tail.txt").write_text(result.pop("vllm_log_tail", ""), "utf-8", newline="\n")
     row = ledger.record(
         purpose="M0 smoke test (AWQ, 20 requests)", category="dev", gpu="L4", gpu_count=1,
-        billed_seconds=seconds, run_id=run_id, **res,
+        container_seconds=result["container_seconds"], app_id=app.app_id or "", run_id=run_id,
+        **res,
     )  # fmt: skip
     result["billed_seconds"], result["estimated_cost_usd"] = row["billed_seconds"], row["cost_usd"]
     (out / "meta.json").write_text(json.dumps(result, indent=1), "utf-8", newline="\n")
-    print(f"ok={result['ok']} startup={result.get('startup_seconds')}s billed={seconds:.0f}s")
-    print(f"cost=${row['cost_usd']:.3f} -> {out}")
+    print(f"ok={result['ok']} startup={result.get('startup_seconds')}s cost=${row['cost_usd']:.3f}")
     if not result["ok"]:
         raise SystemExit(result.get("error"))
+
+
+@app.local_entrypoint()
+def sweep(
+    configs: str,
+    tasks: str = "ramp:chat",
+    rates: str = "",
+    level_s: float = 40.0,
+    warmup_s: float = 30.0,
+    seed: int = 0,
+    purpose: str = "",
+):
+    """One L4 session of the config sweep: `--configs awq,fp8 --tasks ramp:chat,gsm8k`."""
+    from icr import ledger
+    from icr.modal_app.configs import CONFIGS
+
+    res = _resources(L4_SINGLE)
+    ledger.check_budget("dev", "L4", 1, max_seconds=config.TIMEOUT_SWEEP_S, **res)
+    names = [n.strip() for n in configs.split(",")]
+    session = {
+        "session_id": time.strftime("l4-%Y%m%d-%H%M%S", time.gmtime()),
+        "label": "l4",
+        "configs": [CONFIGS[n].to_dict() for n in names],
+        "tasks": [t.strip() for t in tasks.split(",")],
+        "seed": seed,
+        "ramp": {
+            "rates_rps": [float(r) for r in rates.split(",") if r],
+            "level_s": level_s,
+            "warmup_s": warmup_s,
+        },
+    }
+    result = sweep_l4_fn.remote(session)
+    row = ledger.record(
+        purpose=purpose or f"sweep {configs} [{tasks}]", category="dev", gpu="L4", gpu_count=1,
+        container_seconds=result["container_seconds"], app_id=app.app_id or "",
+        run_id=session["session_id"], **res,
+    )  # fmt: skip
+    hourly = config.hourly_cost("L4", 1, res["cpu"], res["memory_gib"])
+    _save_runs(result.pop("runs"), {"cost_per_hour_usd": round(hourly, 4)})
+    log = config.RESULTS_DIR / "sessions" / f"{session['session_id']}.json"
+    log.parent.mkdir(parents=True, exist_ok=True)
+    log.write_text(
+        json.dumps({**session, **result, "ledger": row}, indent=1), "utf-8", newline="\n"
+    )
+    for name, info in result["startups"].items():
+        print(name, {k: v for k, v in info.items() if k != "log"})
+        if "log" in info:
+            print(info["log"][-3000:])
+    print(f"container {result['container_seconds']:.0f}s, est ${row['cost_usd']:.3f}")
+    print("resources:", result["resources"])

@@ -19,13 +19,14 @@ REQUEST_FIELDS = {
 
 async def test_requests_are_sent_on_schedule_even_when_the_server_is_slow():
     """Open loop: a server that takes ~1 s per request must not delay later sends."""
-    slow = MockParams(step_base_s=0.05, time_scale=1.0, max_num_seqs=4)
+    slow = MockParams(step_base_s=0.02, time_scale=1.0, max_num_seqs=8)
     fleet = MockFleet(1, base_port=free_port_block(), params=slow)
     await fleet.start()
     try:
         specs = generator.steady_workload("no-sharing", seed=0, rate_rps=40.0, duration_s=2.0)
         for s in specs:
-            s.max_tokens = 20
+            s.max_tokens = 10
+            s.messages = [{"role": "user", "content": f"short unique prompt {s.id}"}]
         records = await LoadGenerator([fleet.url(0)]).run(specs)
     finally:
         await fleet.stop()
@@ -58,4 +59,6 @@ async def test_run_writes_all_three_files_with_every_field(fleet, tmp_path):
     per_replica = len(samples) / 4
     assert per_replica > 0.6 * meta["duration_s"] / 0.25  # sampled about every 250 ms
     assert meta["mock"] is True and meta["summary"] == summary
-    assert summary["requests"] == 40 and summary["errors"] == 0  # warmup is excluded
+    measured = sum(s.phase == "measured" for s in specs)
+    assert 30 <= measured < 60  # the first second is warmup
+    assert summary["requests"] == measured and summary["errors"] == 0  # warmup is excluded

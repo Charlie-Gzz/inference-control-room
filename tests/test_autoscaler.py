@@ -59,22 +59,23 @@ def test_scales_down_only_if_the_rest_can_carry_the_load():
 
 async def test_scales_up_on_a_burst_and_down_after_it_MOCK(tmp_path):
     """Quiet, then a burst, then quiet again, at 10x speed on the mock fleet."""
-    params = MockParams(time_scale=0.1)
-    quiet = generator.steady_workload("chat", 0, rate_rps=20.0, duration_s=3.0)
-    burst = generator.steady_workload("chat", 1, rate_rps=400.0, duration_s=4.0)
-    tail = generator.steady_workload("chat", 2, rate_rps=10.0, duration_s=5.0)
+    params = MockParams(time_scale=0.1, max_num_seqs=8)
+    quiet = generator.steady_workload("chat", 0, rate_rps=10.0, duration_s=3.0)
+    burst = generator.steady_workload("chat", 1, rate_rps=150.0, duration_s=4.0)
+    tail = generator.steady_workload("chat", 2, rate_rps=5.0, duration_s=5.0)
     specs = []
     for offset, part in ((0.0, quiet), (3.0, burst), (7.0, tail)):
         for s in part:
             s.scheduled_s += offset
             s.id = len(specs)
-            s.max_tokens = 60
+            s.max_tokens = 30
             specs.append(s)
     config = AutoscalerConfig(interval_s=0.1, up_load=6, up_sustain_s=0.3, down_load=3,
                               down_sustain_s=1.0, drain_timeout_s=5.0)  # fmt: skip
+    base = free_port_block()  # replicas use base..base+3, the router base+6
     summary, events = await mock_autoscale(
-        specs, config, params, startup_s=5.0, out_dir=tmp_path,
-        base_port=free_port_block(), router_port=free_port_block(1),
+        specs, config, params, startup_s=5.0, out_dir=tmp_path, base_port=base,
+        router_port=base + 6,
     )  # fmt: skip
     assert summary["errors"] == 0
 

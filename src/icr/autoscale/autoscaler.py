@@ -43,6 +43,13 @@ class ReplicaManager(Protocol):
     async def stop(self, index: int) -> None: ...
 
 
+def _since(previous: float | None, active: bool, now: float) -> float | None:
+    """When a condition first became true, or None if it is not true now."""
+    if not active:
+        return None
+    return now if previous is None else previous
+
+
 class Autoscaler:
     def __init__(self, manager: ReplicaManager, router, config: AutoscalerConfig, live: list[int]):
         self.manager, self.router, self.config = manager, router, config
@@ -77,8 +84,8 @@ class Autoscaler:
         busy = sig["load"] > c.up_load or sig["waiting"] > c.up_waiting or sig["kv"] > c.up_kv
         remaining = max(len(self.live) - 1, 1)
         idle = not busy and sig["total"] / remaining < c.down_load
-        self._busy_since = (self._busy_since or now) if busy else None
-        self._idle_since = (self._idle_since or now) if idle else None
+        self._busy_since = _since(self._busy_since, busy, now)
+        self._idle_since = _since(self._idle_since, idle, now)
         if busy and len(self.live) < c.max_replicas and now - self._busy_since >= c.up_sustain_s:
             return "up"
         if idle and len(self.live) > c.min_replicas and now - self._idle_since >= c.down_sustain_s:

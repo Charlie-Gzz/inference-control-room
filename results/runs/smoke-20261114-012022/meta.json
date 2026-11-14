@@ -1,0 +1,352 @@
+{
+ "config": {
+  "name": "awq",
+  "weights": "awq",
+  "quantization": null,
+  "speculative": null,
+  "prefix_caching": true,
+  "max_num_seqs": null,
+  "max_model_len": 8192,
+  "gpu_memory_utilization": 0.9,
+  "extra_args": []
+ },
+ "gpu": {
+  "gpus": [
+   "NVIDIA L4, 23034 MiB, 610.57.04"
+  ],
+  "table": "Sat Nov 14 01:27:36 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 610.57.04              KMD Version: 610.57.04     CUDA UMD Version: 13.3     |\n+-----------------------------------------+------------------------+----------------------+\n| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  NVIDIA L4                      On  |   00000000:00:06.0 Off |                    0 |\n| N/A   63C    P8             15W /   72W |       4MiB /  23034MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n\n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|  No running processes found                                                             |\n+-----------------------------------------------------------------------------------------+"
+ },
+ "startup_seconds": 270.4,
+ "requests": {
+  "sequential": [
+   {
+    "user": "What is the change fee for fare class 1?",
+    "ttft_s": 0.7355,
+    "total_s": 0.9879,
+    "usage": {
+     "prompt_tokens": 2164,
+     "total_tokens": 2178,
+     "completion_tokens": 14,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "created_cache_tokens": 2160
+     }
+    },
+    "text": "The change fee for fare class 1 is 7 dollars."
+   },
+   {
+    "user": "What is the change fee for fare class 2?",
+    "ttft_s": 0.0469,
+    "total_s": 0.2982,
+    "usage": {
+     "prompt_tokens": 2164,
+     "total_tokens": 2178,
+     "completion_tokens": 14,
+     "prompt_tokens_details": {
+      "cached_tokens": 2144,
+      "created_cache_tokens": 16
+     }
+    },
+    "text": "The change fee for fare class 2 is 9 dollars."
+   },
+   {
+    "user": "What is the change fee for fare class 3?",
+    "ttft_s": 0.0461,
+    "total_s": 0.3163,
+    "usage": {
+     "prompt_tokens": 2164,
+     "total_tokens": 2179,
+     "completion_tokens": 15,
+     "prompt_tokens_details": {
+      "cached_tokens": 2144,
+      "created_cache_tokens": 16
+     }
+    },
+    "text": "The change fee for fare class 3 is 11 dollars."
+   },
+   {
+    "user": "What is the change fee for fare class 4?",
+    "ttft_s": 0.0466,
+    "total_s": 0.3185,
+    "usage": {
+     "prompt_tokens": 2164,
+     "total_tokens": 2179,
+     "completion_tokens": 15,
+     "prompt_tokens_details": {
+      "cached_tokens": 2144,
+      "created_cache_tokens": 16
+     }
+    },
+    "text": "The change fee for fare class 4 is 13 dollars."
+   }
+  ],
+  "concurrent": [
+   {
+    "user": "What is the change fee for fare class 5?",
+    "ttft_s": 0.0837,
+    "total_s": 0.4748,
+    "usage": {
+     "prompt_tokens": 2164,
+     "total_tokens": 2179,
+     "completion_tokens": 15,
+     "prompt_tokens_details": {
+      "cached_tokens": 2144,
+      "created_cache_tokens": 16
+     }
+    },
+    "text": "The change fee for fare class 5 is 15 dollars."
+   },
+   {
+    "user": "What is the change fee for fare class 6?",
+    "ttft_s": 0.1098,
+    "total_s": 0.4951,
+    "usage": {
+     "prompt_tokens": 2164,
+     "total_tokens": 2179,
+     "completion_tokens": 15,
+     "prompt_tokens_details": {
+      "cached_tokens": 2144,
+      "created_cache_tokens": 16
+     }
+    },
+    "text": "The change fee for fare class 6 is 17 dollars."
+   },
+   {
+    "user": "What is the change fee for fare class 7?",
+    "ttft_s": 0.1095,
+    "total_s": 0.495,
+    "usage": {
+     "prompt_tokens": 2164,
+     "total_tokens": 2179,
+     "completion_tokens": 15,
+     "prompt_tokens_details": {
+      "cached_tokens": 2144,
+      "created_cache_tokens": 16
+     }
+    },
+    "text": "The change fee for fare class 7 is 19 dollars."
+   },
+   {
+    "user": "What is the change fee for fare class 8?",
+    "ttft_s": 0.1094,
+    "total_s": 0.4951,
+    "usage": {
+     "prompt_tokens": 2164,
+     "total_tokens": 2179,
+     "completion_tokens": 15,
+     "prompt_tokens_details": {
+      "cached_tokens": 2144,
+      "created_cache_tokens": 16
+     }
+    },
+    "text": "The change fee for fare class 8 is 21 dollars."
+   },
+   {
+    "user": "What is the change fee for fare class 9?",
+    "ttft_s": 0.1092,
+    "total_s": 0.4952,
+    "usage": {
+     "prompt_tokens": 2164,
+     "total_tokens": 2179,
+     "completion_tokens": 15,
+     "prompt_tokens_details": {
+      "cached_tokens": 2144,
+      "created_cache_tokens": 16
+     }
+    },
+    "text": "The change fee for fare class 9 is 23 dollars."
+   },
+   {
+    "user": "What is the change fee for fare class 10?",
+    "ttft_s": 0.1089,
+    "total_s": 0.513,
+    "usage": {
+     "prompt_tokens": 2165,
+     "total_tokens": 2181,
+     "completion_tokens": 16,
+     "prompt_tokens_details": {
+      "cached_tokens": 2144,
+      "created_cache_tokens": 16
+     }
+    },
+    "text": "The change fee for fare class 10 is 25 dollars."
+   },
+   {
+    "user": "What is the change fee for fare class 11?",
+    "ttft_s": 0.2193,
+    "total_s": 0.5326,
+    "usage": {
+     "prompt_tokens": 2165,
+     "total_tokens": 2181,
+     "completion_tokens": 16,
+     "prompt_tokens_details": {
+      "cached_tokens": 2144,
+      "created_cache_tokens": 16
+     }
+    },
+    "text": "The change fee for fare class 11 is 27 dollars."
+   },
+   {
+    "user": "What is the change fee for fare class 12?",
+    "ttft_s": 0.2192,
+    "total_s": 0.5327,
+    "usage": {
+     "prompt_tokens": 2165,
+     "total_tokens": 2181,
+     "completion_tokens": 16,
+     "prompt_tokens_details": {
+      "cached_tokens": 2144,
+      "created_cache_tokens": 16
+     }
+    },
+    "text": "The change fee for fare class 12 is 29 dollars."
+   },
+   {
+    "user": "Name one prime number.",
+    "ttft_s": 0.2191,
+    "total_s": 0.2399,
+    "usage": {
+     "prompt_tokens": 28,
+     "total_tokens": 30,
+     "completion_tokens": 2,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "created_cache_tokens": 16
+     }
+    },
+    "text": "2"
+   },
+   {
+    "user": "Name one prime number.",
+    "ttft_s": 0.219,
+    "total_s": 0.2401,
+    "usage": {
+     "prompt_tokens": 28,
+     "total_tokens": 30,
+     "completion_tokens": 2,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "created_cache_tokens": 16
+     }
+    },
+    "text": "2"
+   },
+   {
+    "user": "Name one prime number.",
+    "ttft_s": 0.2188,
+    "total_s": 0.2402,
+    "usage": {
+     "prompt_tokens": 28,
+     "total_tokens": 30,
+     "completion_tokens": 2,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "created_cache_tokens": 16
+     }
+    },
+    "text": "3"
+   },
+   {
+    "user": "Name one prime number.",
+    "ttft_s": 0.2186,
+    "total_s": 0.2401,
+    "usage": {
+     "prompt_tokens": 28,
+     "total_tokens": 30,
+     "completion_tokens": 2,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "created_cache_tokens": 16
+     }
+    },
+    "text": "2"
+   },
+   {
+    "user": "Name one prime number.",
+    "ttft_s": 0.2185,
+    "total_s": 0.2402,
+    "usage": {
+     "prompt_tokens": 28,
+     "total_tokens": 30,
+     "completion_tokens": 2,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "created_cache_tokens": 16
+     }
+    },
+    "text": "2"
+   },
+   {
+    "user": "Name one prime number.",
+    "ttft_s": 0.2184,
+    "total_s": 0.2403,
+    "usage": {
+     "prompt_tokens": 28,
+     "total_tokens": 30,
+     "completion_tokens": 2,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "created_cache_tokens": 16
+     }
+    },
+    "text": "2"
+   },
+   {
+    "user": "Name one prime number.",
+    "ttft_s": 0.2183,
+    "total_s": 0.2405,
+    "usage": {
+     "prompt_tokens": 28,
+     "total_tokens": 30,
+     "completion_tokens": 2,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "created_cache_tokens": 16
+     }
+    },
+    "text": "2"
+   },
+   {
+    "user": "Name one prime number.",
+    "ttft_s": 0.2182,
+    "total_s": 0.2407,
+    "usage": {
+     "prompt_tokens": 28,
+     "total_tokens": 30,
+     "completion_tokens": 2,
+     "prompt_tokens_details": {
+      "cached_tokens": 0,
+      "created_cache_tokens": 16
+     }
+    },
+    "text": "2"
+   }
+  ]
+ },
+ "reset_prefix_cache_ok": true,
+ "after_reset": {
+  "user": "What is the change fee for fare class 1?",
+  "ttft_s": 0.7436,
+  "total_s": 0.9957,
+  "usage": {
+   "prompt_tokens": 2164,
+   "total_tokens": 2178,
+   "completion_tokens": 14,
+   "prompt_tokens_details": {
+    "cached_tokens": 0,
+    "created_cache_tokens": 2160
+   }
+  },
+  "text": "The change fee for fare class 1 is 7 dollars."
+ },
+ "resources_startup": {
+  "samples": 0
+ },
+ "resources_serving": {
+  "samples": 0
+ },
+ "ok": true,
+ "vllm_version": "0.33.0",
+ "billed_seconds": 730.9,
+ "estimated_cost_usd": 0.2268
+}
