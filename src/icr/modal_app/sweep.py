@@ -8,6 +8,9 @@ Tasks:
 - `ramp:<mix>`  stepped traffic ramp at the session's rates, to find the capacity at the SLO
 - `ramp:<mix>@<r1>;<r2>;...=<tag>`  the same with its own rates; the tag (`cal`, `fine`)
                 names calibration ramps, so they never collide with the sweep's own ramp
+- `calib:<mix>@<r1>;<r2>;...`  both calibration ramps in one go: the coarse ramp at these
+                rates (`-cal`), then the fine ramp between its last passing and first
+                failing level (`-fine`)
 - `gsm8k`       accuracy on the GSM8K subset
 - `greedy`      greedy outputs for a fixed prompt sample, twice (for the match-rate check)
 """
@@ -54,10 +57,29 @@ def run_id(label: str, cfg_name: str, task: str) -> str:
 def task_seconds(task: str, ramp: dict) -> float:
     """Rough time one task needs, for the session's time guard."""
     t = parse_task(task)
-    if t["kind"] == "ramp":
+    if t["kind"] in ("ramp", "calib", "fine-of"):
         levels = len(t["rates"] or ramp["rates_rps"])
-        return ramp["warmup_s"] + levels * ramp["level_s"] + 90  # measured: about 40 s over
+        one = ramp["warmup_s"] + levels * ramp["level_s"] + 90  # measured: about 40 s over
+        return 2 * one if t["kind"] == "calib" else one
     return 120 if t["kind"] == "gsm8k" else 90  # measured: 46 s and about 30 s
+
+
+def coarse_task(task: str) -> str:
+    """The coarse ramp of a `calib` task, as an ordinary tagged ramp task."""
+    return "ramp:" + task.split(":", 1)[1] + "=cal"
+
+
+def fine_task(label: str, cfg_name: str, task: str) -> str | None:
+    """The fine ramp that follows a finished coarse ramp, or None if it never missed the SLO."""
+    from icr.analysis import calibrate, runs
+
+    directory = Path(config.VOL_RUNS) / run_id(label, cfg_name, coarse_task(task))
+    meta = json.loads((directory / "meta.json").read_text("utf-8"))
+    coarse = calibrate.ramp_capacity(runs.Run(directory.name, directory, meta))
+    if coarse["first_miss"] is None:
+        return None
+    levels = ";".join(str(r) for r in calibrate.fine_levels(coarse))
+    return f"ramp:{parse_task(task)['mix']}@{levels}=fine"
 
 
 def read_run(directory: Path) -> dict:
@@ -90,8 +112,8 @@ def run_session(session: dict, commit) -> dict:
         todo = [t for t in job["tasks"] if not _done(label, cfg.name, t)]
         for task in job["tasks"]:
             if task not in todo:
-                rid = run_id(label, cfg.name, task)
-                runs[rid] = read_run(Path(config.VOL_RUNS) / rid)
+                for rid in _result_ids(label, cfg.name, task):
+                    runs[rid] = read_run(Path(config.VOL_RUNS) / rid)
         if not todo:
             continue
         if not fits(todo[0], startup=STARTUP_ALLOWANCE_S):  # no time to start another server
@@ -107,11 +129,25 @@ def run_session(session: dict, commit) -> dict:
             continue
         startups[cfg.name] = {"ok": True, "startup_s": startup_s}
         try:
-            for task in todo:
+            queue = list(todo)
+            while queue:
+                task = queue.pop(0)
                 rid = run_id(label, cfg.name, task)
                 if not fits(task):
                     skipped.append(rid)  # rerun the session later: finished tasks are kept
                     continue
+                if parse_task(task)["kind"] == "calib":  # coarse ramp now, fine ramp right after
+                    steps = (
+                        [coarse_task(task)] if not _done(label, cfg.name, coarse_task(task)) else []
+                    )
+                    queue = [*steps, f"fine-of:{task}", *queue]
+                    continue
+                if task.startswith("fine-of:"):
+                    fine = fine_task(label, cfg.name, task.removeprefix("fine-of:"))
+                    if fine is None:
+                        startups[cfg.name]["note"] = f"{task}: the coarse ramp never missed the SLO"
+                        continue
+                    task, rid = fine, run_id(label, cfg.name, fine)
                 out = Path(config.VOL_RUNS) / rid
                 meta = {
                     "run_id": rid, "kind": "sweep", "label": label, "config": cfg.to_dict(),
@@ -137,8 +173,18 @@ def run_session(session: dict, commit) -> dict:
 
 
 def _done(label: str, cfg_name: str, task: str) -> bool:
+    if parse_task(task)["kind"] == "calib":  # done when its fine ramp exists
+        task = f"ramp:{parse_task(task)['mix']}=fine"
     out = Path(config.VOL_RUNS) / run_id(label, cfg_name, task)
     return (out / "meta.json").exists() or (out / "result.json").exists()
+
+
+def _result_ids(label: str, cfg_name: str, task: str) -> list[str]:
+    """Run ids a finished task left behind (a `calib` task leaves two ramps)."""
+    if parse_task(task)["kind"] != "calib":
+        return [run_id(label, cfg_name, task)]
+    mix = parse_task(task)["mix"]
+    return [run_id(label, cfg_name, f"ramp:{mix}={tag}") for tag in ("cal", "fine")]
 
 
 def _annotate(out: Path, extra: dict) -> None:
