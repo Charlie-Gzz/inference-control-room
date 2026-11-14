@@ -100,3 +100,23 @@ def gif(story: str, name: str = "hero") -> Path:
 def make(story: str, mock: bool = False, max_frames: int | None = None) -> dict:
     info = capture(story, mock=mock, max_frames=max_frames)
     return {**info, **encode(story, info["fps"])}
+
+
+# Storyboard name -> committed file name (assets/video/<name>.mp4).
+STORIES = {
+    "story-main": "switchyard",
+    "story-loop": "switchyard-loop",
+    "story-vertical": "switchyard-vertical",
+}
+
+
+def make_all() -> dict[str, Path]:
+    """Every video and the README GIF. Masters stay in the gitignored masters folder."""
+    written = {}
+    for story, name in STORIES.items():
+        result = make(story)
+        target = VIDEO_DIR / f"{name}.mp4"
+        result["web"].replace(target)
+        written[name] = target
+    written["hero.gif"] = gif("story-loop")
+    return written

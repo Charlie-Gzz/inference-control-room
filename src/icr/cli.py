@@ -130,6 +130,33 @@ def charts() -> None:
     typer.echo(f"{'interactive page':22} {interactive.write()}")
 
 
+@app.command()
+def assets(
+    video: bool = typer.Option(False, help="Also capture and encode the videos (slow, Docker)."),
+) -> None:
+    """Regenerate everything derived from results/: summaries, charts, site data,
+    storyboards, screenshots, the diagram and (with --video) the videos."""
+    from icr.analysis import results as report
+    from icr.analysis import site_data
+    from icr.assets import charts as drawing
+    from icr.assets import interactive, shots, story
+    from icr.assets import video as videos
+
+    summary = report.write()
+    for name, status in drawing.write_all().items():
+        typer.echo(f"chart {name:22} {status}")
+    interactive.write()
+    typer.echo(f"site data: {site_data.build_all()}")
+    stories = story.write_all(summary)
+    window = stories["story-main"]["window"]
+    request = next(s["request"] for s in stories["story-main"]["scenes"] if s["kind"] == "cold")
+    for path in shots.capture(shots.shots(t=window["t0"] + 20.0, pick=request)):
+        typer.echo(f"wrote {path}")
+    if video:
+        for name, path in videos.make_all().items():
+            typer.echo(f"video {name}: {path} ({path.stat().st_size / 1e6:.1f} MB)")
+
+
 @app.command("replay-data")
 def replay_data(mock: bool = typer.Option(False, help="Use local MOCK runs (site development).")):
     """Build the control room's replay files in site/data/ from results/."""
