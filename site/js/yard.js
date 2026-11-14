@@ -131,9 +131,17 @@ export class Yard {
     ctx.clearRect(0, 0, w, h);
     this.hits = [];
     if (!replay) return;
+    if (opts.camera) {
+      // Video only: zoom by `scale` keeping the point (cx, cy) of the yard at the center.
+      const { scale, cx, cy } = opts.camera;
+      ctx.translate(w / 2, h / 2);
+      ctx.scale(scale, scale);
+      ctx.translate(-cx * w, -cy * h);
+    }
     const q = replay.req;
     const n = replay.replicas;
     const [lo, hi] = replay.range(T);
+    const shown = (i) => opts.only == null || i === opts.only; // video cold open: one request
 
     // Which branches were used in the last moments, and the newest decision.
     const lit = new Float32Array(n);
@@ -141,7 +149,7 @@ export class Yard {
     let before = -1;
     for (let i = lo; i < hi; i++) {
       const r = q.rep[i];
-      if (r == null) continue;
+      if (r == null || !shown(i)) continue;
       const age = T - (q.t[i] - TIMING.branch);
       if (age < 0) continue;
       if (age < 2.5) lit[r] = Math.min(1, lit[r] + Math.exp(-age / 0.45));
@@ -152,11 +160,11 @@ export class Yard {
 
     this.drawTracks(lit);
     this.drawSwitch(T, newest, before);
-    for (let r = 0; r < n; r++) this.drawPlatform(r, replay.replicaAt(r, T));
+    for (let r = 0; r < n; r++) this.drawPlatform(r, replay.replicaAt(r, T), opts.only != null);
 
     const flashes = [];
     for (let i = lo; i < hi; i++) {
-      if (replay.leave[i] + TIMING.depart < T) continue;
+      if (replay.leave[i] + TIMING.depart < T || !shown(i)) continue;
       this.drawCar(i, T, flashes, opts);
     }
     if (!opts.reduced) for (const f of flashes) this.drawFlash(f);
@@ -247,9 +255,10 @@ export class Yard {
     ctx.fillText(this.small ? "IN" : "REQUESTS", 6, sw.y + (this.small ? 9 : 13));
   }
 
-  drawPlatform(r, m) {
+  drawPlatform(r, m, quiet = false) {
     const { ctx } = this;
     const p = this.platforms[r];
+    if (quiet) m = { ...m, running: 0, waiting: 0, tps: null, kv: 0 }; // cold open: no live stats
     ctx.globalAlpha = m.up ? 1 : 0.45;
     ctx.fillStyle = COLORS.panel;
     ctx.strokeStyle = COLORS.line;
@@ -408,6 +417,21 @@ export class Yard {
     if (age < TIMING.flash && q.ptok[i] > 0) {
       flashes.push({ x: x + cw / 2, y: y + ch / 2, u: age / TIMING.flash, share: q.ctok[i] / q.ptok[i], size: ch });
     }
+  }
+
+  // Center of a request's car at time T (canvas CSS pixels). The video's camera follows it.
+  carXY(i, T) {
+    const q = this.replay.req;
+    const r = q.rep[i];
+    const t0 = q.t[i];
+    const tSwitch = t0 - TIMING.branch;
+    const tEnter = tSwitch - TIMING.approach;
+    if (T < tSwitch) return [lerp(-11, this.sw.x, clamp01((T - tEnter) / TIMING.approach)), this.sw.y];
+    if (T < t0) return this.branchPoint(r, (T - tSwitch) / TIMING.branch);
+    const p = this.platforms[r];
+    const [sx, sy] = this.slotXY(p, this.replay.slot[i]);
+    const u = easeOut(clamp01((T - t0) / TIMING.settle));
+    return [lerp(p.x - this.car.cw, sx, u) + this.car.cw / 2, lerp(p.cy - this.car.ch / 2, sy, u) + this.car.ch / 2];
   }
 
   // A cache hit flashes rose as the car arrives. A miss gets a faint grey ring.

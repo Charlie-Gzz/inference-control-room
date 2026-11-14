@@ -110,3 +110,43 @@ input[type="range"].slo::-moz-range-thumb { width: 14px; height: 14px; border-ra
   .dial:nth-child(-n + 3) { border-bottom: 1px solid var(--line); }
   .yard-canvas { height: var(--yard-h-mobile, 300px); }
 }
+
+/* Record mode (video capture). Every animated value is set per frame by js/record.js. */
+body.recording { overflow: hidden; }
+body.recording #pickers, body.recording #tour-start { display: none !important; }
+body.recording .yard-canvas { height: var(--rec-yard-h, 560px); }
+body.recording main { max-width: 1840px; }
+body.recording header > div { max-width: 1840px; }
+body.recording .headline { font-size: 30px; max-width: 70ch; }
+body.recording .dial-value { font-size: 26px; }
+body.recording .dial-label { font-size: 12px; }
+body.recording .score-val { font-size: 22px; }
+body.recording .score-name { font-size: 13.5px; }
+body.recording #view-split { grid-template-columns: minmax(0, 1fr) 270px minmax(0, 1fr); }
+body.recording.vertical #view-split { grid-template-columns: minmax(0, 1fr); }
+body.recording.vertical .yard-canvas { height: var(--rec-yard-h, 470px); }
+body.recording.vertical #view-split .scoreboard { order: 0; }
+body.recording.vertical .headline { font-size: 34px; }
+
+#rec-layer { position: fixed; inset: 0; z-index: 100; pointer-events: none; }
+#rec-layer > div { position: absolute; }
+#rec-cine { inset: 0; background: #05080d; display: none; }
+#rec-cine canvas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+body.vertical #rec-cine canvas { top: 30%; height: 40%; }
+#rec-curtain { inset: 0; background: #05080d; opacity: 0; }
+#rec-badge { left: 50%; top: 16%; transform: translateX(-50%); display: none; padding: 14px 28px; border-radius: 999px; background: rgba(11, 15, 23, 0.92); border: 2px solid var(--rose); color: var(--rose); font: 600 30px "JetBrains Mono", monospace; }
+#rec-caption { left: 0; right: 0; bottom: 12%; text-align: center; padding: 0 6%; }
+#rec-caption.top { bottom: auto; top: 7.5%; }
+.rec-caption-box { display: inline-block; padding: 18px 34px; border-radius: 18px; background: rgba(5, 8, 13, 0.86); border: 1px solid var(--line); font: 600 46px/1.25 Inter, sans-serif; letter-spacing: -0.015em; color: var(--ink); max-width: 30ch; }
+body.vertical .rec-caption-box { font-size: 50px; max-width: 18ch; }
+#rec-number { inset: 0; background: #05080d; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 46px; padding: 0 6%; text-align: center; }
+.rec-number-line { font: 500 34px/1.3 Inter, sans-serif; color: var(--muted); max-width: 30ch; }
+.rec-number-row { display: flex; gap: 90px; flex-wrap: wrap; justify-content: center; }
+body.vertical .rec-number-row { flex-direction: column; gap: 54px; }
+.rec-number-value { font: 600 150px/1 "JetBrains Mono", monospace; color: var(--rose); letter-spacing: -0.04em; }
+.rec-number-label { margin-top: 14px; font: 500 28px Inter, sans-serif; color: var(--ink); max-width: 16ch; margin-inline: auto; }
+.rec-number-foot { font: 400 22px Inter, sans-serif; color: var(--muted); max-width: 60ch; }
+#rec-end { inset: 0; background: #05080d; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 18px; text-align: center; padding: 0 8%; }
+.rec-end-name { font: 700 96px Inter, sans-serif; letter-spacing: -0.03em; margin-top: 16px; }
+.rec-end-line { font: 400 32px/1.35 Inter, sans-serif; color: var(--muted); max-width: 32ch; }
+.rec-end-url { margin-top: 20px; font: 600 28px "JetBrains Mono", monospace; color: var(--rose); }
