@@ -26,6 +26,15 @@ def nvidia_smi() -> dict:
     }
 
 
+def vllm_version() -> str:
+    """Version string of the installed vLLM, or '' where it is not installed (local runs)."""
+    try:
+        out = subprocess.run(["vllm", "--version"], capture_output=True, text=True, timeout=120)
+        return out.stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        return ""
+
+
 def _usage() -> tuple[float, float]:
     """(CPU seconds used so far, memory in GiB) for the whole container.
 

@@ -90,6 +90,35 @@ def mock_run(workload: str = "chat", rate: float = 30.0, duration: float = 40.0,
         typer.echo("".join(f"{v:>14}" for v in row))
 
 
+@app.command()
+def calibrate(fleet_config: str = typer.Option("", help="Server config the fleet will use.")):
+    """Write results/summaries/calibration.json from the saved calibration ramps."""
+    from icr.analysis import calibrate as calibration
+
+    data = calibration.write(fleet_config or None)
+    typer.echo(f"baseline {data['baseline']}: R_sat {data['baseline_r_sat']}")
+    typer.echo(f"fleet config {data['fleet_config']}: R_sat {data['r_sat']}")
+    typer.echo(f"KV cache: {data['kv_cache_tokens']} tokens per replica")
+    for where, found in data["sources"].items():
+        for workload, src in found.items():
+            if src["stage"] == "cal" and src["first_miss"] is not None:
+                levels = ";".join(str(x) for x in calibration.fine_levels(src))
+                typer.echo(
+                    f"  {where} {workload}: coarse only. Fine ramp: ramp:{workload}@{levels}=fine"
+                )
+
+
+@app.command()
+def results() -> None:
+    """Recompute every metric from results/runs/ (no GPU) and write the summaries."""
+    from icr.analysis import results as report
+
+    summary = report.write()
+    typer.echo(f"wrote {report.SUMMARY_FILE} and {report.RESULTS_MD}")
+    if summary.get("headline"):
+        typer.echo(summary["headline"]["text"])
+
+
 @app.command("replay-data")
 def replay_data(mock: bool = typer.Option(False, help="Use local MOCK runs (site development).")):
     """Build the control room's replay files in site/data/ from results/."""

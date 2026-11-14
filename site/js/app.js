@@ -1,9 +1,9 @@
 // Switchyard control room: loads recorded runs and replays them.
 // One clock drives every yard on screen. All drawing is a function of the replay time T.
 
+import { loadIndex, loadRun } from "./data.js";
 import { clock, compact, integer, KIND_LABEL, percent, secondsText, why } from "./format.js";
 import { YardPanel } from "./panel.js";
-import { Replay } from "./replay.js";
 import { COLORS, POLICY_COLORS } from "./yard.js";
 
 const $ = (id) => document.getElementById(id);
@@ -26,21 +26,6 @@ export const state = {
   record: params.has("record"),
 };
 
-const cache = new Map();
-
-async function getJSON(path) {
-  const response = await fetch(path);
-  if (!response.ok) throw new Error(`${path}: ${response.status}`);
-  return response.json();
-}
-
-async function loadRun(id) {
-  if (!cache.has(id)) {
-    const entry = state.index.runs.find((r) => r.id === id);
-    cache.set(id, getJSON(`data/${entry.file}`).then((data) => new Replay(data)));
-  }
-  return cache.get(id);
-}
 
 // --- run selection -----------------------------------------------------------------
 
@@ -432,7 +417,7 @@ function tick(now) {
 }
 
 async function main() {
-  state.index = await getJSON("data/index.json");
+  state.index = await loadIndex();
   const index = state.index;
   $("mock-banner").classList.toggle("hidden-view", !index.mock);
   const mk = (id) => new YardPanel($(id), { onPick, onPolicy, onHover });

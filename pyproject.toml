@@ -42,6 +42,9 @@ src = ["src", "tests"]
 select = ["E", "F", "I", "UP", "B", "SIM"]
 ignore = ["SIM905"]  # word lists are written as split() strings on purpose
 
+[tool.ruff.lint.per-file-ignores]
+"src/icr/analysis/results.py" = ["E501"]  # markdown table rows read better on one line
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"

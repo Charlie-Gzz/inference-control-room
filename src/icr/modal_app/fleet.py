@@ -17,7 +17,6 @@ Run kinds:
 from __future__ import annotations
 
 import asyncio
-import subprocess
 import time
 from pathlib import Path
 
@@ -26,7 +25,7 @@ from icr.autoscale.autoscaler import Autoscaler, AutoscalerConfig
 from icr.fleet import experiment
 from icr.fleet.router_proc import RouterProcess
 from icr.modal_app.sweep import _annotate, read_run
-from icr.modal_app.sysinfo import ResourceSampler, nvidia_smi
+from icr.modal_app.sysinfo import ResourceSampler, nvidia_smi, vllm_version
 from icr.modal_app.vllm_proc import ServerConfig, VllmServer
 from icr.workloads import generator
 
@@ -79,14 +78,16 @@ class VllmManager:
 class Fleet:
     """The replicas and the router of one session."""
 
-    def __init__(self, cfg: ServerConfig, replicas: int, table_chunks: int):
+    def __init__(self, cfg: ServerConfig, session: dict, make_server=VllmServer):
+        base = session.get("base_port", BASE_PORT)
         self.servers = {
-            i: VllmServer(cfg, BASE_PORT + i, gpu_index=i, log_dir="/tmp") for i in range(replicas)
+            i: make_server(cfg, base + i, gpu_index=i) for i in range(session["replicas"])
         }
         self.urls = {i: s.url for i, s in self.servers.items()}
         self.router = RouterProcess(
-            self.urls, "round-robin", ROUTER_PORT, flags={"table-chunks": table_chunks}
-        )
+            self.urls, "round-robin", session.get("router_port", ROUTER_PORT),
+            flags={"table-chunks": session["table_chunks"]},
+        )  # fmt: skip
         self.startups: dict[int, float] = {}
 
     def ensure_all_up(self, timeout: float = 420) -> None:
@@ -112,19 +113,18 @@ class Fleet:
             server.stop()
 
 
-def run_session(session: dict, commit) -> dict:
-    """Run every unfinished run of the session. `commit` persists the Volume."""
+def run_session(session: dict, commit, make_server=VllmServer, runs_root: Path | None = None):
+    """Run every unfinished run of the session. `commit` persists the Volume.
+
+    `make_server` and `runs_root` exist for the local dry run against the mock fleet.
+    """
+    runs_root = runs_root or Path(config.VOL_RUNS)
     deadline = time.monotonic() + session["budget_s"]
     cfg_dict = session["config"]
     cfg = ServerConfig(**{**cfg_dict, "extra_args": tuple(cfg_dict.get("extra_args", ()))})
     sampler = ResourceSampler().start()
-    environment = {
-        "gpu": nvidia_smi(),
-        "vllm_version": subprocess.run(
-            ["vllm", "--version"], capture_output=True, text=True
-        ).stdout.strip(),
-    }
-    fleet = Fleet(cfg, session["replicas"], session["table_chunks"])
+    environment = {"gpu": nvidia_smi(), "vllm_version": vllm_version()}
+    fleet = Fleet(cfg, session, make_server)
     runs: dict[str, dict] = {}
     skipped: list[str] = []
     out: dict = {"runs": runs, "skipped": skipped, **environment}
@@ -134,7 +134,7 @@ def run_session(session: dict, commit) -> dict:
         out["startup_s"] = dict(fleet.startups)
         for run in session["runs"]:
             rid = run_id(run)
-            directory = Path(config.VOL_RUNS) / rid
+            directory = runs_root / rid
             if (directory / "meta.json").exists():
                 runs[rid] = read_run(directory)
                 continue

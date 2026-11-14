@@ -1,0 +1,57 @@
+{
+ "baseline": "awq",
+ "baseline_r_sat": {
+  "chat": 4.0
+ },
+ "fleet_config": "awq",
+ "r_sat": {
+  "chat": 4.0
+ },
+ "sources": {
+  "baseline": {
+   "chat": {
+    "r_sat": 4.0,
+    "first_miss": 6.0,
+    "rates": [
+     1.0,
+     2.0,
+     3.0,
+     4.0,
+     6.0,
+     8.0
+    ],
+    "source": "sweep-l4-awq-ramp-chat-cal",
+    "stage": "cal"
+   }
+  },
+  "fleet": {
+   "chat": {
+    "r_sat": 4.0,
+    "first_miss": 6.0,
+    "rates": [
+     1.0,
+     2.0,
+     3.0,
+     4.0,
+     6.0,
+     8.0
+    ],
+    "source": "sweep-l4-awq-ramp-chat-cal",
+    "stage": "cal"
+   }
+  }
+ },
+ "kv_cache_tokens": 250592,
+ "autoscaler": {
+  "min_replicas": 1,
+  "max_replicas": 4,
+  "interval_s": 1.0,
+  "up_load": 12.0,
+  "up_waiting": 1.0,
+  "up_kv": 0.9,
+  "up_sustain_s": 3.0,
+  "down_load": 6.0,
+  "down_sustain_s": 20.0,
+  "drain_timeout_s": 60.0
+ }
+}

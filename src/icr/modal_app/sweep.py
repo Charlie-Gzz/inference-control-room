@@ -16,13 +16,12 @@ from __future__ import annotations
 
 import asyncio
 import json
-import subprocess
 import time
 from pathlib import Path
 
 from icr import clock, config
 from icr.fleet import experiment
-from icr.modal_app.sysinfo import ResourceSampler, nvidia_smi
+from icr.modal_app.sysinfo import ResourceSampler, nvidia_smi, vllm_version
 from icr.modal_app.vllm_proc import ServerConfig, VllmServer
 from icr.quality import checks
 from icr.workloads import generator
@@ -76,12 +75,7 @@ def run_session(session: dict, commit) -> dict:
     """Run every (config, task) of the session. `commit` persists the Volume."""
     label = session["label"]
     sampler = ResourceSampler().start()
-    environment = {
-        "gpu": nvidia_smi(),
-        "vllm_version": subprocess.run(
-            ["vllm", "--version"], capture_output=True, text=True
-        ).stdout.strip(),
-    }
+    environment = {"gpu": nvidia_smi(), "vllm_version": vllm_version()}
     runs: dict[str, dict] = {}
     startups: dict[str, dict] = {}
     skipped: list[str] = []
