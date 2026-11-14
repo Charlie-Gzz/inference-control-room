@@ -50,3 +50,14 @@ STAGE_1 = [
 STAGE_2: list[ServerConfig] = []
 
 CONFIGS: dict[str, ServerConfig] = {c.name: c for c in [*STAGE_1, *STAGE_2]}
+
+# Named job lists for `modal run ...::sweep --jobs <name>`. Every config gets the chat
+# ramp at the frozen sweep levels. GSM8K runs once per quantization, the greedy-output
+# check on the baseline and on every speculative config.
+JOBS = {
+    "stage1": (
+        "awq=ramp:chat,gsm8k,greedy|awq-nocache=ramp:chat|awq-seqs32=ramp:chat"
+        "|awq-seqs64=ramp:chat|fp8=ramp:chat,gsm8k|bf16=ramp:chat,gsm8k"
+        "|awq-ngram=ramp:chat,greedy|awq-draft=ramp:chat,greedy|awq-suffix=ramp:chat,greedy"
+    ),
+}

@@ -1,42 +1,72 @@
 {
  "baseline": "awq",
  "baseline_r_sat": {
-  "chat": 4.0
+  "chat": 5.2,
+  "rag": 2.0
  },
  "fleet_config": "awq",
  "r_sat": {
-  "chat": 4.0
+  "chat": 5.2,
+  "rag": 2.0
  },
  "sources": {
   "baseline": {
    "chat": {
-    "r_sat": 4.0,
-    "first_miss": 6.0,
+    "r_sat": 5.2,
+    "first_miss": 5.6,
+    "rates": [
+     4.0,
+     4.4,
+     4.8,
+     5.2,
+     5.6,
+     6.0
+    ],
+    "source": "sweep-l4-awq-ramp-chat-fine",
+    "stage": "fine"
+   },
+   "rag": {
+    "r_sat": 2.0,
+    "first_miss": 3.0,
     "rates": [
      1.0,
+     1.5,
      2.0,
      3.0,
      4.0,
-     6.0,
-     8.0
+     6.0
     ],
-    "source": "sweep-l4-awq-ramp-chat-cal",
+    "source": "sweep-l4-awq-ramp-rag-cal",
     "stage": "cal"
    }
   },
   "fleet": {
    "chat": {
-    "r_sat": 4.0,
-    "first_miss": 6.0,
+    "r_sat": 5.2,
+    "first_miss": 5.6,
+    "rates": [
+     4.0,
+     4.4,
+     4.8,
+     5.2,
+     5.6,
+     6.0
+    ],
+    "source": "sweep-l4-awq-ramp-chat-fine",
+    "stage": "fine"
+   },
+   "rag": {
+    "r_sat": 2.0,
+    "first_miss": 3.0,
     "rates": [
      1.0,
+     1.5,
      2.0,
      3.0,
      4.0,
-     6.0,
-     8.0
+     6.0
     ],
-    "source": "sweep-l4-awq-ramp-chat-cal",
+    "source": "sweep-l4-awq-ramp-rag-cal",
     "stage": "cal"
    }
   }

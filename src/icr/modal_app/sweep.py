@@ -1,7 +1,7 @@
 """Single-replica config sweep (M3). Runs inside one GPU container.
 
-One session = a few server configs. For each config: start vLLM once, run every task
-against it, stop it. Each finished (config, task) is written to the Volume right away,
+One session = a few jobs. A job is one server config and its tasks: start vLLM once, run
+the tasks against it, stop it. Each finished (config, task) is written to the Volume right away,
 and a rerun skips what is already there.
 
 Tasks:
@@ -84,10 +84,11 @@ def run_session(session: dict, commit) -> dict:
     def fits(task: str, startup: float = 0.0) -> bool:
         return time.monotonic() + startup + task_seconds(task, session["ramp"]) < deadline
 
-    for cfg_dict in session["configs"]:
+    for job in session["jobs"]:  # one job = one server config and the tasks to run on it
+        cfg_dict = job["config"]
         cfg = ServerConfig(**{**cfg_dict, "extra_args": tuple(cfg_dict.get("extra_args", ()))})
-        todo = [t for t in session["tasks"] if not _done(label, cfg.name, t)]
-        for task in session["tasks"]:
+        todo = [t for t in job["tasks"] if not _done(label, cfg.name, t)]
+        for task in job["tasks"]:
             if task not in todo:
                 rid = run_id(label, cfg.name, task)
                 runs[rid] = read_run(Path(config.VOL_RUNS) / rid)

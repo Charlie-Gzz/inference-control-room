@@ -123,6 +123,18 @@ def fleet_l4_fn(session: dict) -> dict:
 # --- local entry points -----------------------------------------------------
 
 
+def _parse_jobs(configs: str, tasks: str, jobs: str) -> list[tuple[str, list[str]]]:
+    """(config name, tasks) pairs from `--jobs`, or every task for every `--configs` name."""
+    split = lambda text: [t.strip() for t in text.split(",") if t.strip()]  # noqa: E731
+    if jobs:
+        from icr.modal_app.configs import JOBS
+
+        jobs = JOBS.get(jobs, jobs)  # a named list, or the list itself
+        pairs = [job.split("=", 1) for job in jobs.split("|") if job.strip()]
+        return [(name.strip(), split(job_tasks)) for name, job_tasks in pairs]
+    return [(name, split(tasks)) for name in split(configs)]
+
+
 def _save_runs(runs: dict[str, dict], extra_meta: dict) -> None:
     """Write run files returned by a remote function into results/runs/."""
     from icr.analysis import runs as saved
@@ -182,8 +194,9 @@ def smoke():
 
 @app.local_entrypoint()
 def sweep(
-    configs: str,
+    configs: str = "",
     tasks: str = "ramp:chat",
+    jobs: str = "",
     rates: str = "",
     level_s: float = 40.0,
     warmup_s: float = 30.0,
@@ -192,6 +205,9 @@ def sweep(
 ):
     """One L4 session of the config sweep: `--configs awq,fp8 --tasks ramp:chat,gsm8k`.
 
+    `--jobs "awq=ramp:chat,gsm8k|fp8=ramp:chat"` gives each config its own tasks instead.
+    Finished tasks are skipped, and tasks that do not fit the session's time are left for
+    the next call, so the same command can simply be repeated until everything is done.
     Without `--rates`, ramps use the frozen sweep levels (multiples of the baseline's
     saturation rate from results/summaries/calibration.json).
     """
@@ -201,7 +217,6 @@ def sweep(
 
     res = _resources(L4_SINGLE)
     ledger.check_budget("dev", "L4", 1, max_seconds=config.TIMEOUT_SWEEP_S, **res)
-    names = [n.strip() for n in configs.split(",")]
     default_rates = [float(r) for r in rates.split(",") if r]
 
     def with_rates(task: str) -> str:
@@ -215,13 +230,15 @@ def sweep(
     session = {
         "session_id": time.strftime("l4-%Y%m%d-%H%M%S", time.gmtime()),
         "label": "l4",
-        "configs": [CONFIGS[n].to_dict() for n in names],
-        "tasks": [with_rates(t.strip()) for t in tasks.split(",")],
+        "jobs": [
+            {"config": CONFIGS[name].to_dict(), "tasks": [with_rates(t) for t in job_tasks]}
+            for name, job_tasks in _parse_jobs(configs, tasks, jobs)
+        ],
         "seed": seed,
         "ramp": {"rates_rps": default_rates, "level_s": level_s, "warmup_s": warmup_s},
         "budget_s": config.SWEEP_SESSION_BUDGET_S,
     }
-    purpose = purpose or f"sweep {configs} [{tasks}]"
+    purpose = purpose or f"sweep {jobs or configs + ' [' + tasks + ']'}"
     ledger_args = dict(category="dev", gpu="L4", gpu_count=1, app_id=app.app_id or "",
                        run_id=session["session_id"], **res)  # fmt: skip
     try:
