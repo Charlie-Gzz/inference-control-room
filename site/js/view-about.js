@@ -64,18 +64,19 @@ export function render(root, state) {
   ];
   root.innerHTML = `
     <style>.about-table th{font-weight:500;color:var(--muted);text-align:left;padding:6px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
-      .about-table td{padding:8px 10px;border-bottom:1px solid var(--line);font-family:"JetBrains Mono",monospace;font-size:12.5px;white-space:nowrap}</style>
-    <div class="max-w-5xl space-y-5">
+      .about-table td{padding:8px 10px;border-bottom:1px solid var(--line);font-family:"JetBrains Mono",monospace;font-size:12px;white-space:nowrap}
+      .about-table td .text-muted{font-size:11px}</style>
+    <div class="space-y-5">
       <div>
         <h1 class="text-2xl font-semibold">How these numbers were made</h1>
         <p class="text-muted mt-2 max-w-3xl">Switchyard is a small LLM serving fleet: ${facts.gpu || "4 GPUs"} in one container, one vLLM replica per GPU serving ${facts.model || "Qwen2.5-7B-Instruct"}, with a Go router in front. Every view on this site replays files recorded during real runs. The latency target (SLO) is p95 time to first token of at most ${slo.ttft_s} s and p95 inter-token latency of at most ${Math.round(slo.itl_s * 1000)} ms, with no failed requests.</p>
       </div>
-      <div class="grid gap-3 md:grid-cols-2">
+      <div class="grid gap-3 md:grid-cols-2 max-w-5xl">
         ${method.map(([title, text]) => `<div class="card p-4"><div class="font-semibold">${title}</div><p class="text-sm text-muted mt-1 leading-relaxed">${text}</p></div>`).join("")}
       </div>
       ${s.fleet ? `<h2 class="text-xl font-semibold pt-2">Same traffic, three routers</h2>${Object.values(s.fleet).map(fleetTable).join("")}` : ""}
       ${s.capacity ? capacityTable(s.capacity) : ""}
-      <div class="card p-4">
+      <div class="card p-4 max-w-5xl">
         <div class="font-semibold">Limits</div>
         <ul class="text-sm text-muted mt-2 space-y-1.5 list-disc pl-5 leading-relaxed">
           <li>One model family (Qwen2.5-7B) and one GPU type for the fleet (NVIDIA L4). Other models and GPUs will shift every number.</li>

@@ -79,6 +79,13 @@ def test_modeled_gpu_seconds_count_from_start_to_stop():
     # Replica 0 runs all 480 s; replica 1 runs 100..310 and 400..480.
     assert fleet_results.modeled_gpu_seconds(events, 480.0) == 480 + 210 + 80
     assert fleet_results.modeled_gpu_seconds([], 480.0) == 480
+    # Only the traffic window counts: a replica stopped during the drain is cut at the window.
+    late = [
+        {"t": 400.0, "event": "start", "replica": 2},
+        {"t": 520.0, "event": "stopped", "replica": 2},
+        {"t": 500.0, "event": "start", "replica": 3},
+    ]
+    assert fleet_results.modeled_gpu_seconds(late, 480.0) == 480 + 80
 
 
 # --- end to end over saved runs ------------------------------------------------------

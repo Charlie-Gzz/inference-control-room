@@ -35,7 +35,7 @@ FONT_DIR = Path(__file__).parent / "fonts"
 WIDTH_PX = 1600
 DPI = 200
 SANS, MONO = "Inter", "JetBrains Mono"
-TITLE_CHARS, SUBTITLE_CHARS = 84, 132  # line lengths that fit 1600 px at the sizes below
+TITLE_CHARS, SUBTITLE_CHARS = 84, 120  # line lengths that fit 1600 px at the sizes below
 
 
 def apply() -> None:
@@ -83,7 +83,7 @@ def titles(fig, title: str, subtitle: str = "") -> float:
     for line in textwrap.wrap(subtitle, SUBTITLE_CHARS):
         fig.text(0.035, y / height, line, fontsize=8.6, color=MUTED, va="top")
         y -= 31
-    return (y - 44) / height
+    return (y - 72) / height  # room for the axes' own titles
 
 
 def footer(fig, text: str) -> None:

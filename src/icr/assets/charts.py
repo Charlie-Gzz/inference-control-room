@@ -80,9 +80,9 @@ def capacity_by_policy(s: dict):
     fig = theme.figure(860)
     left, right = fig.subplots(1, 2)
     _policy_bars(left, cap, "max_rps_at_slo", fmt="{:.1f}")
-    left.set_title("Highest traffic that still meets the SLO (requests per second)")
+    left.set_title("Highest traffic within the SLO (req/s)")
     _policy_bars(right, cap, "cost_per_m_output", fmt="${:.2f}")
-    right.set_title("Cost per million output tokens at that traffic (USD)")
+    right.set_title("Cost per million output tokens there (USD)")
     change, cost = head.get("capacity_change"), head.get("cost_change")
     if change is None or abs(change) < 0.005:
         title = "Every routing policy carries the same traffic within the SLO"
@@ -92,7 +92,8 @@ def capacity_by_policy(s: dict):
         if cost is not None:
             title += f", {_pct(cost)} {'cheaper' if cost < 0 else 'more expensive'} per token"
     rates = ", ".join(f"{r:g}" for r in s["capacity"]["rates_rps"])
-    sub = (f"Capacity ramp on the chat workload: levels of {rates} req/s, 60 s each, 2 repeats. "
+    level_s = s["capacity"].get("level_s") or 60
+    sub = (f"Capacity ramp on the chat workload: levels of {rates} req/s, {level_s:g} s each, 2 repeats. "
            "Bar = median, line = min to max, dots = repeats.")  # fmt: skip
     foot = _footer(s, extra="SLO: p95 TTFT <= 2 s, p95 inter-token latency <= 100 ms, no errors")
     return _finish(fig, "capacity_by_policy", title, sub, foot, left=0.07, right=0.97, wspace=0.22)
@@ -153,7 +154,7 @@ def cache_hit_by_policy(s: dict):
                         textcoords="offset points", ha="center", fontsize=8.5,
                         fontfamily=theme.MONO)  # fmt: skip
     ax.set_xticks(range(len(workloads)), [WORKLOAD_LABEL[w] for w in workloads])
-    ax.set_ylabel("prompt tokens served from the prefix cache (%)")
+    ax.set_ylabel("prompt tokens from cache (%)")
     ax.set_ylim(0, 105)
     ax.grid(axis="x", visible=False)
     ax.legend(loc="upper right", ncols=3)
@@ -210,7 +211,7 @@ def autoscaling(s: dict, seed: int = 0):
     static = runs.load(f"fleet-autoscale-chat-static-s{seed}")
     scaled = runs.load(f"fleet-autoscale-chat-autoscaled-s{seed}")
     rows = static.requests
-    total = max(r.get("end_s") or r["scheduled_s"] for r in rows)
+    total = max(static.meta["duration_s"], scaled.meta["duration_s"])
     fig = theme.figure(1200)
     top, mid, low = fig.subplots(3, 1, sharex=True, gridspec_kw={"height_ratios": [1, 1, 1.5]})
     arrivals = [0] * (int(total) + 1)
@@ -232,7 +233,7 @@ def autoscaling(s: dict, seed: int = 0):
     mid.set_ylim(0, 4.9)
     mid.set_yticks([0, 1, 2, 3, 4])
     mid.set_ylabel("replicas")
-    mid.legend(loc="lower right", ncols=3)
+    mid.legend(loc="lower right", bbox_to_anchor=(1.0, 1.0), ncols=3)
 
     bucket = 10
     for run, color, marker, label in (
@@ -259,11 +260,12 @@ def autoscaling(s: dict, seed: int = 0):
             a["autoscaled"]["ttft_p95_s"]["median"],
             a["static"]["ttft_p95_s"]["median"],
         )
-        title = (f"Autoscaling saves {saved * 100:.0f}% of GPU-seconds (modeled), and p95 time to first "
-                 f"token goes from {ttft_s:.2f} s to {ttft_a:.2f} s")  # fmt: skip
+        gpu = f"saves {saved * 100:.0f}% of" if saved >= 0 else f"uses {-saved * 100:.0f}% more"
+        title = (f"Autoscaling {gpu} GPU-seconds (modeled), and p95 time to first token goes "
+                 f"from {ttft_s:.2f} s to {ttft_a:.2f} s")  # fmt: skip
     sub = ("Bursty BurstGPT segment. Latency and replica counts are measured. GPU-seconds are MODELED as if "
            f"each replica were billed alone; in the test all 4 GPUs were billed. Repeat {seed + 1} shown.")  # fmt: skip
-    return _finish(fig, "autoscaling", title, sub, _footer(s), left=0.075, right=0.97, hspace=0.22)
+    return _finish(fig, "autoscaling", title, sub, _footer(s), left=0.075, right=0.97, hspace=0.36)
 
 
 # --- single-replica sweep ----------------------------------------------------------

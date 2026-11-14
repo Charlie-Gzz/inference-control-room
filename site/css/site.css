@@ -163,3 +163,16 @@ body.vertical .rec-number-row { flex-direction: column; gap: 54px; }
 .rec-end-name { font: 700 96px Inter, sans-serif; letter-spacing: -0.03em; margin-top: 16px; }
 .rec-end-line { font: 400 32px/1.35 Inter, sans-serif; color: var(--muted); max-width: 32ch; }
 .rec-end-url { margin-top: 20px; font: 600 28px "JetBrains Mono", monospace; color: var(--rose); }
+
+/* Record mode, replay scenes: the headline band is kept empty for the captions. */
+body.recording #headline { visibility: hidden; }
+body.recording #headline-box { min-height: 92px; }
+body.recording #view-room .yard-canvas { height: var(--rec-yard-h, 640px); }
+body.recording #view-split .yard-canvas { height: var(--rec-yard-h, 600px); }
+#rec-caption.top .rec-caption-box { font-size: 38px; max-width: 48ch; padding: 14px 30px; }
+body.recording.vertical header { display: none; }
+body.recording.vertical #headline-box { min-height: 196px; }
+body.recording.vertical #view-split .yard-canvas, body.recording.vertical #view-room .yard-canvas { height: 400px; }
+body.recording.vertical #rec-caption.top { top: 1.4%; }
+body.recording.vertical #rec-caption.top .rec-caption-box { font-size: 44px; max-width: 22ch; }
+body.recording.vertical .score-row { padding: 6px 0; }

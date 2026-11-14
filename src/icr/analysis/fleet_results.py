@@ -71,9 +71,10 @@ def capacity_table(slo: SLO = DEFAULT_SLO) -> dict:
     """Capacity ramp on chat: per policy, the highest traffic level that meets the SLO."""
     by_policy: dict[str, list[dict]] = {}
     rates: list[float] = []
+    level_s = None
     for run in sorted(_fleet_runs("ramp"), key=lambda r: r.meta["seed"]):
         spec = run.meta["run"]
-        rates = spec["rates_rps"]
+        rates, level_s = spec["rates_rps"], spec["level_s"]
         levels = metrics.by_level(run.requests, slo)
         cap = metrics.capacity(levels, rates, spec["level_s"])
         hourly = run.meta["cost_per_hour_usd"]
@@ -117,7 +118,7 @@ def capacity_table(slo: SLO = DEFAULT_SLO) -> dict:
             "output_tokens_per_hour": spread([r["output_tokens_per_hour"] for r in repeats]),
             "lower_bound": any(r["at_top_level"] for r in repeats),
         }
-    return {"workload": "chat", "rates_rps": rates, "policies": table}
+    return {"workload": "chat", "rates_rps": rates, "level_s": level_s, "policies": table}
 
 
 def _change(new: float | None, old: float | None) -> float | None:
@@ -176,12 +177,14 @@ def autoscale_table(slo: SLO = DEFAULT_SLO) -> dict:
 
     GPU-seconds are MODELED: a replica counts from the moment the autoscaler starts it
     (startup included) until it is stopped, as if each replica were billed on its own.
-    In the real container all four GPUs are billed for the whole run.
+    In the real container all four GPUs are billed for the whole run. Both fleets are
+    counted over the same window, the planned traffic window (warmup + measured).
     """
     rows: dict[str, list[dict]] = {}
     for run in sorted(_fleet_runs("autoscale"), key=lambda r: r.meta["seed"]):
         summary = run_summary(run, slo)
-        duration = run.meta["duration_s"]
+        spec = run.meta["run"]
+        duration = spec["warmup_s"] + spec["measured_s"]  # the traffic window, same for both
         replicas = run.meta["replicas"]
         row = {
             "seed": run.meta["seed"],
@@ -224,13 +227,14 @@ def modeled_gpu_seconds(events: list[dict], duration_s: float, initial: int = 1)
     total = initial * duration_s  # the initial replicas run the whole time
     started: dict[int, float] = {}
     for e in events:
+        t = min(e["t"], duration_s)  # only the traffic window counts, for both fleets
         if e["event"] == "start":
-            started[e["replica"]] = e["t"]
+            started[e["replica"]] = t
         elif e["event"] == "stopped":
             if e["replica"] in started:
-                total += e["t"] - started.pop(e["replica"])
+                total += t - started.pop(e["replica"])
             else:  # an initial replica was stopped
-                total -= duration_s - e["t"]
+                total -= duration_s - t
     return total + sum(duration_s - t for t in started.values())
 
 

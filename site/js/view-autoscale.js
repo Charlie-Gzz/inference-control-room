@@ -31,6 +31,12 @@ function replicaSteps(replay) {
   return { billed: b, serving: s };
 }
 
+function startupRange(values) {
+  const lo = Math.round(Math.min(...values));
+  const hi = Math.round(Math.max(...values));
+  return lo === hi ? `${lo} s` : `${lo} to ${hi} s`;
+}
+
 function stepPath(steps, x, y) {
   let d = "";
   steps.forEach(([t, v], i) => {
@@ -72,7 +78,7 @@ export async function render(root, state) {
       ${card("GPU-seconds saved", saved == null ? "-" : percent(saved), `${Math.round(med("autoscaled", "gpu_seconds") || 0).toLocaleString()} vs ${Math.round(med("static", "gpu_seconds") || 0).toLocaleString()} GPU-seconds, median of ${summary.static ? summary.static.repeats.length : 0} repeats`, '<span class="tag modeled">modeled</span>')}
       ${card("p95 time to first token", `${secondsText(med("autoscaled", "ttft_p95_s"))}`, `autoscaled, against ${secondsText(med("static", "ttft_p95_s"))} with 4 replicas always on`, '<span class="tag real">measured</span>')}
       ${card("Requests within the target", percent(med("autoscaled", "goodput"), 1), `autoscaled, against ${percent(med("static", "goodput"), 1)} static`, '<span class="tag real">measured</span>')}
-      ${card("Replica startup", startups.length ? `${Math.round(Math.min(...startups))} to ${Math.round(Math.max(...startups))} s` : "-", "from the scale-up decision to the first request served: what autoscaling has to absorb", '<span class="tag real">measured</span>')}
+      ${card("Replica startup", startups.length ? startupRange(startups) : "-", "from the scale-up decision to the first request served: what autoscaling has to absorb", '<span class="tag real">measured</span>')}
     </div>
     <div class="card p-3 mt-3">
       <div class="flex flex-wrap items-center gap-4 px-1 pb-2 text-sm">
@@ -92,7 +98,7 @@ export async function render(root, state) {
 
   const holder = root.querySelector("#as-plot");
   const width = Math.max(holder.clientWidth, 320);
-  const margin = { left: 58, right: 16, top: 10, bottom: 34 };
+  const margin = { left: 58, right: 16, top: 10, bottom: 46 };
   const heights = [110, 110, 170];
   const gap = 26;
   const height = margin.top + heights.reduce((a, b) => a + b, 0) + gap * 2 + margin.bottom;
@@ -121,7 +127,7 @@ export async function render(root, state) {
   top += heights[0] + gap;
 
   // 2. Replicas.
-  const y2 = linear(0, 4.4, top + heights[1], top);
+  const y2 = linear(0, 5.2, top + heights[1], top);
   panel(heights[1], y2, [0, 1, 2, 3, 4], "replicas switched on", (v) => String(v));
   for (const [replay, color] of [[fixed, POLICY_COLORS.static], [scaled, POLICY_COLORS.autoscaled]]) {
     const steps = replicaSteps(replay);
