@@ -119,6 +119,15 @@ def results() -> None:
         typer.echo(summary["headline"]["text"])
 
 
+@app.command()
+def charts() -> None:
+    """Draw every chart (PNG + SVG) into assets/charts/ from the saved summary."""
+    from icr.assets import charts as drawing
+
+    for name, status in drawing.write_all().items():
+        typer.echo(f"{name:22} {status}")
+
+
 @app.command("replay-data")
 def replay_data(mock: bool = typer.Option(False, help="Use local MOCK runs (site development).")):
     """Build the control room's replay files in site/data/ from results/."""

@@ -44,6 +44,7 @@ ignore = ["SIM905"]  # word lists are written as split() strings on purpose
 
 [tool.ruff.lint.per-file-ignores]
 "src/icr/analysis/results.py" = ["E501"]  # markdown table rows read better on one line
+"src/icr/assets/charts.py" = ["E501"]  # chart titles and subtitles are full sentences
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
