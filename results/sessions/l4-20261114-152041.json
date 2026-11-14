@@ -1,0 +1,67 @@
+{
+ "session_id": "l4-20261114-152041",
+ "label": "l4",
+ "configs": [
+  {
+   "name": "awq",
+   "weights": "awq",
+   "quantization": null,
+   "speculative": null,
+   "prefix_caching": true,
+   "max_num_seqs": null,
+   "max_model_len": 8192,
+   "gpu_memory_utilization": 0.9,
+   "extra_args": []
+  }
+ ],
+ "tasks": [
+  "ramp:chat@4;4.4;4.8;5.2;5.6;6=fine",
+  "ramp:rag@1;1.5;2;3;4;6=cal",
+  "gsm8k",
+  "greedy"
+ ],
+ "seed": 0,
+ "ramp": {
+  "rates_rps": [],
+  "level_s": 40.0,
+  "warmup_s": 30.0
+ },
+ "budget_s": 1620,
+ "startups": {
+  "awq": {
+   "ok": true,
+   "startup_s": 177.2
+  }
+ },
+ "skipped": [],
+ "resources": {
+  "samples": 860,
+  "cpu_cores_mean": 0.67,
+  "cpu_cores_p95": 1.467,
+  "cpu_cores_max": 4.056,
+  "memory_gib_max": 20.803
+ },
+ "gpu": {
+  "gpus": [
+   "NVIDIA L4, 23034 MiB, 620.70.06"
+  ],
+  "table": "Sat Nov 14 15:40:30 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 620.70.06              KMD Version: 620.70.06     CUDA UMD Version: 13.5     |\n+-----------------------------------------+------------------------+----------------------+\n| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  NVIDIA L4                      On  |   00000000:AE:00.0 Off |                    0 |\n| N/A   52C    P8             19W /   72W |       4MiB /  23034MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n\n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|  No running processes found                                                             |\n+-----------------------------------------------------------------------------------------+"
+ },
+ "vllm_version": "0.33.0",
+ "container_seconds": 861.891807374,
+ "ledger": {
+  "date": "2026-11-14 15:54",
+  "purpose": "M3a: fine chat ramp, coarse rag ramp, gsm8k, greedy (awq)",
+  "category": "dev",
+  "gpu": "L4",
+  "gpu_count": 1,
+  "cpu": 4.0,
+  "memory_gib": 16.0,
+  "billed_seconds": 886.9,
+  "cost_usd": 0.2752,
+  "actual_cost_usd": null,
+  "app_id": "ap-2jSQBtHuGWMKTPvxeZyxp4",
+  "run_id": "l4-20261114-152041",
+  "note": ""
+ }
+}

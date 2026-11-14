@@ -12,10 +12,11 @@ Totals use the actual cost when it is known. Rendered by `icr.ledger`.
 | 2026-11-14 01:32 | M0 smoke test (AWQ, 20 requests) | dev | L4 x1 | 4 | 16 | 731 | 0.227 | 0.094 | 0.137 |
 | 2026-11-14 03:38 | download models + data (CPU only) | dev | none | 2 | 4 | 33 | 0.001 | 0.000 | 0.138 |
 | 2026-11-14 15:16 | M3a calibration ramp | dev | L4 x1 | 4 | 16 | 494 | 0.153 | 0.147 | 0.285 |
+| 2026-11-14 15:54 | M3a: fine chat ramp, coarse rag ramp, gsm8k, greedy (awq) | dev | L4 x1 | 4 | 16 | 887 | 0.275 | pending | 0.560 |
 
 ## Totals
 
-- dev: $0.28 of $10.00
+- dev: $0.56 of $10.00
 - fleet: $0.00 of $18.00
 - h100: $0.00 of $7.00
-- **all: $0.28 of $35.00**
+- **all: $0.56 of $35.00**
