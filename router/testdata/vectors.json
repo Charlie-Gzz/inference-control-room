@@ -1,0 +1,157 @@
+{
+  "comment": "Shared by Go (router/policies/router_test.go) and Python (tests/test_routing_vectors.py). With chunk_size 4 and role 'u', a content of 'aa' + k groups of 4 letters gives k+1 full chunks.",
+  "hashes": [
+    {
+      "messages": [{"role": "u", "content": "aaAAAABBBB"}],
+      "chunk_size": 4,
+      "max_chunks": 8,
+      "expect": ["8275aee6498af8f4", "fd40636d37a7b590", "2cc17d179b7b17c8"]
+    },
+    {
+      "messages": [{"role": "u", "content": "aaAAAABBBBCCCC"}],
+      "chunk_size": 4,
+      "max_chunks": 8,
+      "expect": ["8275aee6498af8f4", "fd40636d37a7b590", "2cc17d179b7b17c8", "5bd9ed4b47668864"]
+    },
+    {
+      "messages": [{"role": "u", "content": "héllo wörld, routing!"}],
+      "chunk_size": 4,
+      "max_chunks": 8,
+      "expect": ["8257f8e649727923", "48cb0d351feb2e93", "822ef8819adb3877", "8074977be826eea1", "487a6ce20f9e1053", "475535e0e3839a5b"]
+    },
+    {
+      "messages": [
+        {"role": "system", "content": "You are helpful."},
+        {"role": "user", "content": [{"type": "text", "text": "Hi "}, {"type": "text", "text": "there"}]}
+      ],
+      "chunk_size": 8,
+      "max_chunks": 3,
+      "expect": ["e13184b1d645b4a1", "8e5a4b76ad0b272f", "fa4020e3dcbeb881"]
+    }
+  ],
+  "cases": [
+    {
+      "name": "round-robin cycles through live replicas",
+      "replicas": 3,
+      "policy": "round-robin",
+      "config": {"chunk_size": 4, "max_chunks": 8, "table_chunks": 64, "load_factor": 1.5, "min_bound": 4},
+      "steps": [
+        {"op": "route", "content": "aaAAAA", "expect": {"replica": 0, "reason": "round-robin", "matched": 0}},
+        {"op": "route", "content": "aaAAAA", "expect": {"replica": 1, "reason": "round-robin", "matched": 0}},
+        {"op": "route", "content": "aaAAAA", "expect": {"replica": 2, "reason": "round-robin", "matched": 0}},
+        {"op": "route", "content": "aaAAAA", "expect": {"replica": 0, "reason": "round-robin", "matched": 0}}
+      ]
+    },
+    {
+      "name": "least-loaded picks the fewest outstanding, lowest index on ties",
+      "replicas": 3,
+      "policy": "least-loaded",
+      "config": {"chunk_size": 4, "max_chunks": 8, "table_chunks": 64, "load_factor": 1.5, "min_bound": 4},
+      "steps": [
+        {"op": "route", "content": "aaAAAA", "expect": {"replica": 0, "reason": "least-loaded", "matched": 0, "loads": [0, 0, 0]}},
+        {"op": "route", "content": "aaAAAA", "expect": {"replica": 1, "reason": "least-loaded", "matched": 0, "loads": [1, 0, 0]}},
+        {"op": "route", "content": "aaAAAA", "expect": {"replica": 2, "reason": "least-loaded", "matched": 0, "loads": [1, 1, 0]}},
+        {"op": "finish", "replica": 1},
+        {"op": "route", "content": "aaAAAA", "expect": {"replica": 1, "reason": "least-loaded", "matched": 0, "loads": [1, 0, 1]}}
+      ]
+    },
+    {
+      "name": "prefix-aware keeps each conversation on the replica that served it",
+      "replicas": 3,
+      "policy": "prefix-aware",
+      "config": {"chunk_size": 4, "max_chunks": 8, "table_chunks": 64, "load_factor": 1.5, "min_bound": 4},
+      "steps": [
+        {"op": "route", "content": "aaAAAABBBB", "expect": {"replica": 0, "reason": "no-prefix", "matched": 0}},
+        {"op": "route", "content": "bbXXXXYYYY", "expect": {"replica": 1, "reason": "no-prefix", "matched": 0}},
+        {"op": "finish", "replica": 0},
+        {"op": "finish", "replica": 1},
+        {"op": "route", "content": "bbXXXXYYYYZZZZ", "expect": {"replica": 1, "reason": "prefix-hit", "matched": 3}},
+        {"op": "route", "content": "aaAAAABBBBCCCC", "expect": {"replica": 0, "reason": "prefix-hit", "matched": 3}},
+        {"op": "route", "content": "aaAAAABBBBCCCCDDDD", "expect": {"replica": 0, "reason": "prefix-hit", "matched": 4}}
+      ]
+    },
+    {
+      "name": "prefix-aware prefers the longest match, then the less loaded replica",
+      "replicas": 2,
+      "policy": "prefix-aware",
+      "config": {"chunk_size": 4, "max_chunks": 8, "table_chunks": 64, "load_factor": 1.0, "min_bound": 1},
+      "steps": [
+        {"op": "route", "content": "aaAAAABBBB", "expect": {"replica": 0, "reason": "no-prefix", "matched": 0}},
+        {"op": "route", "content": "aaAAAABBBB", "expect": {"replica": 0, "reason": "prefix-hit", "matched": 3}},
+        {"op": "route", "content": "aaAAAABBBB", "expect": {"replica": 0, "reason": "prefix-hit", "matched": 3}},
+        {"op": "route", "content": "aaAAAAZZZZ", "expect": {"replica": 1, "reason": "prefix-overloaded", "matched": 2, "loads": [3, 0]}},
+        {"op": "finish", "replica": 0},
+        {"op": "finish", "replica": 0},
+        {"op": "finish", "replica": 0},
+        {"op": "finish", "replica": 1},
+        {"op": "route", "content": "aaAAAABBBBCCCC", "expect": {"replica": 0, "reason": "prefix-hit", "matched": 3, "loads": [0, 0]}},
+        {"op": "route", "content": "aaAAAAZZZZQQQQ", "expect": {"replica": 1, "reason": "prefix-hit", "matched": 3, "loads": [1, 0]}},
+        {"op": "finish", "replica": 1},
+        {"op": "route", "content": "aaAAAAMMMM", "expect": {"replica": 1, "reason": "prefix-hit", "matched": 2, "loads": [1, 0]}}
+      ]
+    },
+    {
+      "name": "prefix-aware falls back to least-loaded when the cached replica is over the load bound",
+      "replicas": 2,
+      "policy": "prefix-aware",
+      "config": {"chunk_size": 4, "max_chunks": 8, "table_chunks": 64, "load_factor": 1.0, "min_bound": 1},
+      "steps": [
+        {"op": "route", "content": "aaAAAABBBB", "expect": {"replica": 0, "reason": "no-prefix", "matched": 0, "loads": [0, 0]}},
+        {"op": "route", "content": "aaAAAABBBB", "expect": {"replica": 0, "reason": "prefix-hit", "matched": 3, "loads": [1, 0]}},
+        {"op": "route", "content": "aaAAAABBBB", "expect": {"replica": 0, "reason": "prefix-hit", "matched": 3, "loads": [2, 0]}},
+        {"op": "route", "content": "aaAAAABBBB", "expect": {"replica": 1, "reason": "prefix-overloaded", "matched": 3, "loads": [3, 0]}},
+        {"op": "route", "content": "aaAAAABBBB", "expect": {"replica": 1, "reason": "prefix-hit", "matched": 3, "loads": [3, 1]}}
+      ]
+    },
+    {
+      "name": "a replica that leaves the live set gets no traffic and loses its prefixes",
+      "replicas": 2,
+      "policy": "prefix-aware",
+      "config": {"chunk_size": 4, "max_chunks": 8, "table_chunks": 64, "load_factor": 1.5, "min_bound": 4},
+      "steps": [
+        {"op": "route", "content": "aaAAAABBBB", "expect": {"replica": 0, "reason": "no-prefix", "matched": 0}},
+        {"op": "finish", "replica": 0},
+        {"op": "set_live", "live": [1]},
+        {"op": "route", "content": "aaAAAABBBB", "expect": {"replica": 1, "reason": "no-prefix", "matched": 0, "loads": [0]}},
+        {"op": "finish", "replica": 1},
+        {"op": "set_live", "live": [0, 1]},
+        {"op": "route", "content": "aaAAAABBBB", "expect": {"replica": 1, "reason": "prefix-hit", "matched": 3, "loads": [0, 0]}}
+      ]
+    },
+    {
+      "name": "reset forgets every prefix",
+      "replicas": 2,
+      "policy": "prefix-aware",
+      "config": {"chunk_size": 4, "max_chunks": 8, "table_chunks": 64, "load_factor": 1.5, "min_bound": 4},
+      "steps": [
+        {"op": "route", "content": "aaAAAABBBB", "expect": {"replica": 0, "reason": "no-prefix", "matched": 0}},
+        {"op": "route", "content": "aaAAAABBBB", "expect": {"replica": 0, "reason": "prefix-hit", "matched": 3}},
+        {"op": "reset"},
+        {"op": "route", "content": "aaAAAABBBB", "expect": {"replica": 1, "reason": "no-prefix", "matched": 0, "loads": [2, 0]}}
+      ]
+    },
+    {
+      "name": "the prefix table evicts the least recently used prefixes",
+      "replicas": 1,
+      "policy": "prefix-aware",
+      "config": {"chunk_size": 4, "max_chunks": 8, "table_chunks": 3, "load_factor": 1.5, "min_bound": 4},
+      "steps": [
+        {"op": "route", "content": "aaAAAABBBB", "expect": {"replica": 0, "reason": "no-prefix", "matched": 0}},
+        {"op": "route", "content": "bbXXXXYYYY", "expect": {"replica": 0, "reason": "no-prefix", "matched": 0}},
+        {"op": "route", "content": "aaAAAABBBB", "expect": {"replica": 0, "reason": "no-prefix", "matched": 0}},
+        {"op": "route", "content": "aaAAAABBBBCCCC", "expect": {"replica": 0, "reason": "prefix-hit", "matched": 3}},
+        {"op": "route", "content": "aaAAAABBBBCCCC", "expect": {"replica": 0, "reason": "prefix-hit", "matched": 3}}
+      ]
+    },
+    {
+      "name": "max_chunks caps how much of the prompt is hashed",
+      "replicas": 2,
+      "policy": "prefix-aware",
+      "config": {"chunk_size": 4, "max_chunks": 2, "table_chunks": 64, "load_factor": 1.5, "min_bound": 4},
+      "steps": [
+        {"op": "route", "content": "aaAAAABBBBCCCC", "expect": {"replica": 0, "reason": "no-prefix", "matched": 0}},
+        {"op": "route", "content": "aaAAAAZZZZ", "expect": {"replica": 0, "reason": "prefix-hit", "matched": 2}}
+      ]
+    }
+  ]
+}

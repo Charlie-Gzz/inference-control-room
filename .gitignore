@@ -1,0 +1,37 @@
+# secrets
+.env
+.env.*
+!.env.example
+.modal.toml
+
+# local toolchains and caches
+.tools/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.uv-cache/
+
+# build output
+router/bin/
+dist/
+*.egg-info/
+
+# large or regenerable artifacts
+assets/video/masters/
+assets/video/frames/
+.frames/
+data/raw/
+*.safetensors
+*.gguf
+
+# editors and OS
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
+
+# scratch
+.scratch/
+*.log
