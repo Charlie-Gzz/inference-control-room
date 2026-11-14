@@ -428,6 +428,11 @@ async function main() {
   state.scenario = params.get("scenario") || scenarioOf(first);
   state.seed = params.has("seed") ? Number(params.get("seed")) : first.seed;
   if (params.has("speed")) state.speed = Number(params.get("speed"));
+  // Deep links (also used for screenshots): ?left=&right=&policy=&paused=1&pick=<request id>
+  if (params.has("paused")) state.playing = false;
+  for (const [key, side] of [["left", "left"], ["right", "right"], ["policy", "room"]]) {
+    if (params.has(key)) state.policies[side] = params.get(key);
+  }
 
   renderHeadline();
   renderPickers();
@@ -449,6 +454,10 @@ async function main() {
   jumpToStart();
   await document.fonts.ready;
   render();
+  if (params.has("pick")) {
+    const panel = activePanels().at(-1);
+    onPick(panel, panel.replay.req.id.indexOf(Number(params.get("pick"))));
+  }
   if (state.record) {
     const recorder = await import("./record.js");
     recorder.install(state, { setView, render, applySelection, loadRun });
