@@ -1,5 +1,5 @@
 {
- "run_id": "sweep-l4-awq-ramp-chat",
+ "run_id": "sweep-l4-awq-ramp-chat-cal",
  "kind": "sweep",
  "label": "l4",
  "config": {
@@ -13,7 +13,7 @@
   "gpu_memory_utilization": 0.9,
   "extra_args": []
  },
- "task": "ramp:chat",
+ "task": "ramp:chat@1;2;3;4;6;8=cal",
  "seed": 0,
  "startup_s": 154.2,
  "session_id": "l4-20261114-145654",

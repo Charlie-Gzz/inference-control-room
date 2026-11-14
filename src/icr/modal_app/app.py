@@ -190,31 +190,50 @@ def sweep(
     seed: int = 0,
     purpose: str = "",
 ):
-    """One L4 session of the config sweep: `--configs awq,fp8 --tasks ramp:chat,gsm8k`."""
+    """One L4 session of the config sweep: `--configs awq,fp8 --tasks ramp:chat,gsm8k`.
+
+    Without `--rates`, ramps use the frozen sweep levels (multiples of the baseline's
+    saturation rate from results/summaries/calibration.json).
+    """
     from icr import ledger
+    from icr.fleet import plan
     from icr.modal_app.configs import CONFIGS
 
     res = _resources(L4_SINGLE)
     ledger.check_budget("dev", "L4", 1, max_seconds=config.TIMEOUT_SWEEP_S, **res)
     names = [n.strip() for n in configs.split(",")]
+    default_rates = [float(r) for r in rates.split(",") if r]
+
+    def with_rates(task: str) -> str:
+        """Give a plain `ramp:<mix>` task the frozen sweep levels of its workload."""
+        if not task.startswith("ramp:") or "@" in task or default_rates:
+            return task
+        body, _, tag = task.partition("=")
+        levels = ";".join(str(r) for r in plan.sweep_rates(body.split(":", 1)[1]))
+        return f"{body}@{levels}" + (f"={tag}" if tag else "")
+
     session = {
         "session_id": time.strftime("l4-%Y%m%d-%H%M%S", time.gmtime()),
         "label": "l4",
         "configs": [CONFIGS[n].to_dict() for n in names],
-        "tasks": [t.strip() for t in tasks.split(",")],
+        "tasks": [with_rates(t.strip()) for t in tasks.split(",")],
         "seed": seed,
-        "ramp": {
-            "rates_rps": [float(r) for r in rates.split(",") if r],
-            "level_s": level_s,
-            "warmup_s": warmup_s,
-        },
+        "ramp": {"rates_rps": default_rates, "level_s": level_s, "warmup_s": warmup_s},
+        "budget_s": config.SWEEP_SESSION_BUDGET_S,
     }
-    result = sweep_l4_fn.remote(session)
+    purpose = purpose or f"sweep {configs} [{tasks}]"
+    ledger_args = dict(category="dev", gpu="L4", gpu_count=1, app_id=app.app_id or "",
+                       run_id=session["session_id"], **res)  # fmt: skip
+    try:
+        result = sweep_l4_fn.remote(session)
+    except BaseException as e:  # still record the spend; finished tasks are in the Volume
+        ledger.record(purpose=purpose, container_seconds=config.TIMEOUT_SWEEP_S,
+                      note=f"FAILED ({type(e).__name__}); billed time is the worst case",
+                      **ledger_args)  # fmt: skip
+        raise
     row = ledger.record(
-        purpose=purpose or f"sweep {configs} [{tasks}]", category="dev", gpu="L4", gpu_count=1,
-        container_seconds=result["container_seconds"], app_id=app.app_id or "",
-        run_id=session["session_id"], **res,
-    )  # fmt: skip
+        purpose=purpose, container_seconds=result["container_seconds"], **ledger_args
+    )
     hourly = config.hourly_cost("L4", 1, res["cpu"], res["memory_gib"])
     _save_runs(result.pop("runs"), {"cost_per_hour_usd": round(hourly, 4)})
     log = config.RESULTS_DIR / "sessions" / f"{session['session_id']}.json"
@@ -227,7 +246,7 @@ def sweep(
         if "log" in info:
             print(info["log"][-3000:])
     print(f"container {result['container_seconds']:.0f}s, est ${row['cost_usd']:.3f}")
-    print("resources:", result["resources"])
+    print("resources:", result["resources"], "skipped:", result.get("skipped"))
 
 
 @app.local_entrypoint()
@@ -253,12 +272,19 @@ def fleet(items: str, purpose: str = "", max_runs: int = 0):
         "autoscaler": calib["autoscaler"],
         "budget_s": config.FLEET_SESSION_BUDGET_S,
     }
-    result = fleet_l4_fn.remote(session)
+    purpose = purpose or f"fleet {items}"
+    ledger_args = dict(category="fleet", gpu="L4", gpu_count=n, app_id=app.app_id or "",
+                       run_id=session["session_id"], **res)  # fmt: skip
+    try:
+        result = fleet_l4_fn.remote(session)
+    except BaseException as e:  # still record the spend; finished runs are in the Volume
+        ledger.record(purpose=purpose, container_seconds=config.TIMEOUT_FLEET_S,
+                      note=f"FAILED ({type(e).__name__}); billed time is the worst case",
+                      **ledger_args)  # fmt: skip
+        raise
     row = ledger.record(
-        purpose=purpose or f"fleet {items}", category="fleet", gpu="L4", gpu_count=n,
-        container_seconds=result["container_seconds"], app_id=app.app_id or "",
-        run_id=session["session_id"], **res,
-    )  # fmt: skip
+        purpose=purpose, container_seconds=result["container_seconds"], **ledger_args
+    )
     hourly = config.hourly_cost("L4", n, res["cpu"], res["memory_gib"])
     _save_runs(result.pop("runs"), {"cost_per_hour_usd": round(hourly, 4)})
     log = config.RESULTS_DIR / "sessions" / f"{session['session_id']}.json"

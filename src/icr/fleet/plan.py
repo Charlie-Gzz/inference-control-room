@@ -34,9 +34,18 @@ PROXYCHECK_RATE_RPS, PROXYCHECK_S = 1.0, 60.0
 
 ITEMS = ("proxycheck", "chat", "ramp", "rag", "no-sharing", "autoscale", "agentic")
 
+# Single-replica config sweep (M3a): traffic levels as multiples of the baseline's R_sat.
+SWEEP_LEVELS = (0.5, 0.7, 0.85, 1.0, 1.15, 1.3)
+
 
 def calibration() -> dict:
     return json.loads(CALIBRATION_FILE.read_text("utf-8"))
+
+
+def sweep_rates(workload: str = "chat") -> list[float]:
+    """Frozen ramp levels of the config sweep for one workload."""
+    r_sat = calibration()["baseline_r_sat"][workload]
+    return [round(level * r_sat, 2) for level in SWEEP_LEVELS]
 
 
 def fixed_runs(workload: str, r_sat: float, replicas: int = 4) -> list[dict]:

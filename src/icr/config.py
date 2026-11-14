@@ -45,9 +45,10 @@ BUDGET_BY_CATEGORY = {"dev": 10.0, "fleet": 18.0, "h100": 7.0}
 # Fleet container: 4 vLLM replicas + router + load generator + recorder.
 # Sized from the measured CPU and RAM of one replica (docs/DECISIONS.md, "Fleet sizing").
 FLEET_REPLICAS = 4
-FLEET_CPU = 16.0
+FLEET_CPU = 8.0
 FLEET_MEMORY_MIB = 49152
 FLEET_SESSION_BUDGET_S = 50 * 60  # stop starting new runs after this; the timeout is 60 min
+SWEEP_SESSION_BUDGET_S = 27 * 60  # same idea for single-replica sessions (timeout 30 min)
 
 TIMEOUT_DEFAULT_S = 15 * 60
 TIMEOUT_SWEEP_S = 30 * 60

@@ -90,6 +90,22 @@ def mock_run(workload: str = "chat", rate: float = 30.0, duration: float = 40.0,
         typer.echo("".join(f"{v:>14}" for v in row))
 
 
+@app.command("replay-data")
+def replay_data(mock: bool = typer.Option(False, help="Use local MOCK runs (site development).")):
+    """Build the control room's replay files in site/data/ from results/."""
+    from icr.analysis import site_data
+
+    typer.echo(site_data.build_all(mock=mock))
+
+
+@app.command()
+def site(port: int = 8765, mock: bool = typer.Option(False, help="Serve MOCK replay data.")):
+    """Serve the control room on http://127.0.0.1:<port> (localhost only)."""
+    from icr import siteserver
+
+    siteserver.serve(port, mock=mock)
+
+
 @app.command()
 def version() -> None:
     """Print the package version."""

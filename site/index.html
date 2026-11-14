@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Switchyard: Inference Control Room</title>
+<meta name="description" content="A 4-GPU LLM serving fleet with prefix-cache-aware routing. Watch real recorded runs replay request by request.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Switchyard: Inference Control Room">
+<meta property="og:description" content="Same 4 GPUs, same traffic, different router. A replay of real recorded LLM serving runs.">
+<meta property="og:image" content="assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Switchyard: Inference Control Room">
+<meta name="twitter:description" content="Same 4 GPUs, same traffic, different router. A replay of real recorded LLM serving runs.">
+<meta name="twitter:image" content="assets/og.png">
+<link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script>
+tailwind.config = { theme: { extend: {
+  colors: { bg: "#0B0F17", panel: "#131A26", line: "#1F2937", ink: "#E5E7EB", muted: "#9CA3AF", accent: "#FB7185" },
+  fontFamily: { sans: ["Inter", "sans-serif"], mono: ["JetBrains Mono", "monospace"] } } } };
+</script>
+<link rel="stylesheet" href="css/site.css">
+</head>
+<body class="font-sans antialiased">
+
+<header class="border-b border-line">
+  <div class="max-w-[1500px] mx-auto px-4 py-3 flex flex-wrap items-center gap-x-4 gap-y-2 justify-between">
+    <a href="./" class="flex items-center gap-2.5 font-semibold">
+      <img src="assets/logo.svg" alt="" width="28" height="28">
+      <span>Switchyard</span>
+      <span class="hidden sm:inline text-muted font-normal text-sm">Inference Control Room</span>
+    </a>
+    <nav class="flex flex-wrap items-center gap-1" id="nav">
+      <button class="nav-btn" data-view="split">Same traffic, two routers</button>
+      <button class="nav-btn" data-view="room">Control room</button>
+      <button class="nav-btn" data-view="whatif">What-if</button>
+      <button class="nav-btn" data-view="autoscale">Autoscaling</button>
+      <button class="nav-btn" data-view="about">Method</button>
+      <button class="tour-btn ml-1" id="tour-start">Walk me through it</button>
+    </nav>
+  </div>
+</header>
+
+<main class="max-w-[1500px] mx-auto px-4 pt-4 pb-6 space-y-3">
+  <div id="mock-banner" class="mock-banner hidden-view">MOCK data from the local simulator, for site development only. These are not real numbers.</div>
+
+  <section id="headline-box" class="flex flex-wrap items-end justify-between gap-3">
+    <h1 class="headline" id="headline">Loading the recorded runs.</h1>
+    <div class="flex items-center gap-2 text-sm" id="pickers"></div>
+  </section>
+
+  <section id="view-split" class="view grid gap-3 lg:grid-cols-[minmax(0,1fr)_230px_minmax(0,1fr)] items-start">
+    <div id="yard-left"></div>
+    <div class="scoreboard order-last lg:order-none" id="scoreboard"></div>
+    <div id="yard-right"></div>
+  </section>
+
+  <section id="view-room" class="view hidden-view grid gap-3 lg:grid-cols-[minmax(0,1fr)_340px] items-start">
+    <div id="yard-room"></div>
+    <div class="space-y-3">
+      <div class="card p-4 text-sm space-y-2" id="room-legend"></div>
+      <div id="inspector-dock"></div>
+    </div>
+  </section>
+
+  <section id="view-whatif" class="view hidden-view"></section>
+  <section id="view-autoscale" class="view hidden-view"></section>
+  <section id="view-about" class="view hidden-view"></section>
+
+  <section class="transport" id="transport">
+    <button class="play-btn" id="play" aria-label="Play or pause"></button>
+    <div class="speed-group" id="speeds"></div>
+    <div class="scrub-wrap">
+      <canvas id="scrub-canvas"></canvas>
+      <input type="range" id="scrub" min="0" max="1000" value="0" step="1" aria-label="Run timeline">
+    </div>
+    <div class="time-readout" id="time"></div>
+  </section>
+
+  <footer class="honest flex flex-wrap gap-x-5 gap-y-1 items-center pt-1" id="honest"></footer>
+</main>
+
+<div class="inspector floating hidden-view" id="inspector"></div>
+<div class="tip hidden-view" id="tip"></div>
+<div class="tour-layer hidden-view" id="tour"></div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

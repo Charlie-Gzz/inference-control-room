@@ -5,7 +5,9 @@ against it, stop it. Each finished (config, task) is written to the Volume right
 and a rerun skips what is already there.
 
 Tasks:
-- `ramp:<mix>`  stepped traffic ramp, to find the capacity at the SLO
+- `ramp:<mix>`  stepped traffic ramp at the session's rates, to find the capacity at the SLO
+- `ramp:<mix>@<r1>;<r2>;...=<tag>`  the same with its own rates; the tag (`cal`, `fine`)
+                names calibration ramps, so they never collide with the sweep's own ramp
 - `gsm8k`       accuracy on the GSM8K subset
 - `greedy`      greedy outputs for a fixed prompt sample, twice (for the match-rate check)
 """
@@ -15,6 +17,7 @@ from __future__ import annotations
 import asyncio
 import json
 import subprocess
+import time
 from pathlib import Path
 
 from icr import clock, config
@@ -26,11 +29,36 @@ from icr.workloads import generator
 
 GREEDY_PROMPTS = 100
 GREEDY_SEED = 123
+STARTUP_ALLOWANCE_S = 240.0  # measured: 154 s for AWQ with warm JIT caches
 RUN_FILES = ("requests.jsonl", "replicas.jsonl", "meta.json", "result.json", "metrics.txt")
 
 
+def parse_task(task: str) -> dict:
+    """`ramp:chat@4;5;6=fine` -> kind, mix, rates (or None) and tag (or '')."""
+    body, _, tag = task.partition("=")
+    body, _, rates = body.partition("@")
+    kind, _, mix = body.partition(":")
+    return {
+        "kind": kind,
+        "mix": mix,
+        "rates": [float(r) for r in rates.split(";")] if rates else None,
+        "tag": tag,
+    }
+
+
 def run_id(label: str, cfg_name: str, task: str) -> str:
-    return f"sweep-{label}-{cfg_name}-{task.replace(':', '-')}"
+    t = parse_task(task)
+    parts = ["sweep", label, cfg_name, t["kind"], t["mix"], t["tag"]]
+    return "-".join(p for p in parts if p)
+
+
+def task_seconds(task: str, ramp: dict) -> float:
+    """Rough time one task needs, for the session's time guard."""
+    t = parse_task(task)
+    if t["kind"] == "ramp":
+        levels = len(t["rates"] or ramp["rates_rps"])
+        return ramp["warmup_s"] + levels * ramp["level_s"] + 150
+    return 300 if t["kind"] == "gsm8k" else 150
 
 
 def read_run(directory: Path) -> dict:
@@ -56,6 +84,12 @@ def run_session(session: dict, commit) -> dict:
     }
     runs: dict[str, dict] = {}
     startups: dict[str, dict] = {}
+    skipped: list[str] = []
+    deadline = time.monotonic() + session["budget_s"]
+
+    def fits(task: str, startup: float = 0.0) -> bool:
+        return time.monotonic() + startup + task_seconds(task, session["ramp"]) < deadline
+
     for cfg_dict in session["configs"]:
         cfg = ServerConfig(**{**cfg_dict, "extra_args": tuple(cfg_dict.get("extra_args", ()))})
         todo = [t for t in session["tasks"] if not _done(label, cfg.name, t)]
@@ -64,6 +98,9 @@ def run_session(session: dict, commit) -> dict:
                 rid = run_id(label, cfg.name, task)
                 runs[rid] = read_run(Path(config.VOL_RUNS) / rid)
         if not todo:
+            continue
+        if not fits(todo[0], startup=STARTUP_ALLOWANCE_S):  # no time to start another server
+            skipped += [run_id(label, cfg.name, t) for t in todo]
             continue
         server = VllmServer(cfg, port=8000)
         try:
@@ -77,6 +114,9 @@ def run_session(session: dict, commit) -> dict:
         try:
             for task in todo:
                 rid = run_id(label, cfg.name, task)
+                if not fits(task):
+                    skipped.append(rid)  # rerun the session later: finished tasks are kept
+                    continue
                 out = Path(config.VOL_RUNS) / rid
                 meta = {
                     "run_id": rid, "kind": "sweep", "label": label, "config": cfg.to_dict(),
@@ -95,7 +135,10 @@ def run_session(session: dict, commit) -> dict:
         finally:
             server.stop()
     sampler.stop()
-    return {"runs": runs, "startups": startups, "resources": sampler.summary(), **environment}
+    return {
+        "runs": runs, "startups": startups, "skipped": skipped,
+        "resources": sampler.summary(), **environment,
+    }  # fmt: skip
 
 
 def _done(label: str, cfg_name: str, task: str) -> bool:
@@ -112,9 +155,10 @@ def _annotate(out: Path, extra: dict) -> None:
 
 async def _run_task(task: str, server: VllmServer, session: dict, out: Path, meta: dict) -> None:
     out.mkdir(parents=True, exist_ok=True)
-    if task.startswith("ramp:"):
-        mix = task.split(":", 1)[1]
-        ramp = session["ramp"]
+    parsed = parse_task(task)
+    if parsed["kind"] == "ramp":
+        mix = parsed["mix"]
+        ramp = {**session["ramp"], "rates_rps": parsed["rates"] or session["ramp"]["rates_rps"]}
         server.reset_prefix_cache()
         specs = generator.ramp_workload(
             mix, session["seed"], ramp["rates_rps"], ramp["level_s"], ramp["warmup_s"]
