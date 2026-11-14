@@ -16,47 +16,70 @@ being built in parallel against mock data while GPU sessions run.
 | M3a L4 single-replica sweeps and quality | **in progress**: calibration done, stage 1 running |
 | M4 Fleet experiments | code written and dry-run against mock replicas (`tests/test_fleet_session.py`); **not yet run on GPUs** |
 | M3b H100 session (after M4, if budget allows) | not started (needs an `h100` sweep function and label) |
-| M5 Optimizer and results pipeline | `icr results`, `icr calibrate`, `icr replay-data` work; charts not written |
-| M6 Control room site | split view, control room, tour, what-if, autoscaling and method views written; only seen with mock data; record mode not written |
-| M7 Assets and portfolio kit | chart theme only |
+| M5 Optimizer and results pipeline | `icr results`, `icr calibrate`, `icr replay-data`, `icr charts` work on real sweep data |
+| M6 Control room site | split view, control room, tour, what-if, autoscaling and method views written; only seen with mock data; record mode written; seen with mock and rehearsal data, what-if with real sweep data |
+| M7 Assets and portfolio kit | charts, interactive page, diagram, screenshots, video capture and storyboards written (`icr assets`); tested on mock data only |
 | M8 README and handoff | not started |
 
-GPU spend so far: **$0.55 of $35** (actual, reconciled). See `docs/GPU_LEDGER.md`.
+GPU spend so far: **$1.72 of $35** (actual, reconciled). See `docs/GPU_LEDGER.md`.
 
-## Measured so far (real, one L4, baseline AWQ)
+## Measured so far (real, one L4, chat workload unless noted)
 
-- Coarse chat ramp: meets the SLO up to 4 req/s, misses at 6 (ITL p95 108 ms).
-- Fine chat ramp: **R_sat(chat) = 5.2 req/s** (5.6 misses with ITL p95 100.2 ms).
+Stage 1 after 3 sessions (capacity = highest ramp level within the SLO; levels are 2.6,
+3.64, 4.42, 5.2, 5.98, 6.76 req/s):
+
+| Config | Max req/s at SLO | $ per M output tokens | GSM8K |
+|---|---|---|---|
+| awq (baseline) | 5.98 | 0.525 | 92.4% |
+| fp8 | 5.98 (tie) | 0.525 | 89.6% |
+| awq-seqs32, awq-seqs64 | 5.20 | 0.675 | |
+| awq-ngram (speculative) | 3.64 | 0.915 | acceptance 12.9% |
+| bf16 | 2.60 | 1.349 | 90.8% |
+| awq-nocache | fails every level | | |
+
 - The binding limit is inter-token latency, not time to first token.
-- Coarse rag ramp: meets the SLO at 2 req/s, misses at 3. Fine ramp still to run.
-- GSM8K (250 questions): 92.4%. Greedy outputs, same server twice: 92% identical.
-- Startup with warm JIT caches: 154 to 177 s. One replica plus the load generator uses
-  about 0.5 CPU cores and 11 GiB while serving.
-- L4 capacity on Modal is slow to arrive: 15 to 20 minutes of (unbilled) queue per session.
+- Prefix caching off: misses the SLO even at 2.6 req/s. Speculative decoding (n-gram)
+  lowers capacity under load. Unquantized weights cost more than half the capacity.
+- Calibration: R_sat(chat) = 5.2 req/s (fine ramp). Coarse rag: 2 passes, 3 fails.
+- Greedy outputs: baseline vs itself 92% identical, n-gram vs baseline 93%.
+- Startup with warm JIT caches: 83 to 246 s. One replica plus the load generator uses
+  about 0.5 to 0.8 CPU cores and 11 GiB while serving.
+- L4 queue on Modal: anywhere from 0 to 25 minutes (unbilled).
 
 ## Exact next step
 
-1. Stage 1 is driven by one repeatable command. Finished tasks are skipped and tasks
-   that do not fit a session's time are left for the next call:
-   `uv run modal run -m icr.modal_app.app::sweep --jobs stage1 --purpose "M3a stage 1 sweep, session N"`
-   Repeat until the output says `skipped: []`. After **each** session: commit results and
-   ledger, then `uv run python -c "from icr import ledger; ledger.reconcile()"`.
+1. Session 4 (launched 16:21 EST, log `.scratch/sweep-6.log`): awq-draft and awq-suffix
+   (ramp + greedy), then the fine rag ramp on awq. If it was cut short, repeat:
+   `uv run modal run -m icr.modal_app.app::sweep --jobs "awq-draft=ramp:chat,greedy|awq-suffix=ramp:chat,greedy|awq=calib:rag@2;2.2;2.4;2.6;2.8;3"`
+   After **each** session: commit results and ledger, then
+   `uv run python -c "from icr import ledger; ledger.reconcile()"`.
    A config that fails to start three times is dropped (PLAN 1.7) and logged.
-2. `uv run icr results` and look at `results/RESULTS.md`. Pick 2 or 3 stage-2 combos of the
-   winners, add them to `STAGE_2` in `src/icr/modal_app/configs.py`, log in DECISIONS, run.
-3. Finalists on rag: first `ramp:rag@2.0;2.2;2.4;2.6;2.8;3.0=fine` on `awq`, then
-   `icr calibrate`, then `ramp:rag` for the finalists.
-4. Fleet config = cheapest config meeting the SLO on chat. `uv run icr calibrate --fleet-config <name>`.
-   It needs fine ramps of that config on chat, rag and no-sharing (coarse first where
-   missing; `icr calibrate` prints the fine levels).
+2. `uv run icr results`, read `results/RESULTS.md`. Pick 2 or 3 stage-2 combos, add them
+   to `STAGE_2` in `src/icr/modal_app/configs.py`, log in DECISIONS, run them (ramp:chat).
+3. Finalists on rag: `uv run icr calibrate`, then `ramp:rag` for the finalists.
+4. Fleet config = cheapest config meeting the SLO on chat (ties: GSM8K, then baseline).
+   `uv run icr calibrate --fleet-config <name>`. It needs fine ramps of that config on
+   chat, rag and no-sharing. One task does coarse then fine:
+   `--jobs "<name>=calib:no-sharing@0.5;1;1.5;2;3;4"` (and `calib:agentic@1;1.5;2;3;4;6`
+   only if agentic will run).
 5. M4, in priority order, one item per session (finished runs are skipped on rerun):
-   `uv run modal run -m icr.modal_app.app::fleet --items proxycheck,chat` then `ramp`,
-   `rag`, `no-sharing`, `autoscale`. Estimated $16.5 of the $18 reserve at $3.96/hour.
-   `agentic` only if at least $3 of the reserve is left afterwards.
+   `uv run modal run -m icr.modal_app.app::fleet --items proxycheck,chat` then `ramp`
+   (needs two sessions), `rag`, `no-sharing`, `autoscale` (two sessions).
+   About $4.09 per hour: estimated $17 of the $18 reserve. `agentic` only if at least
+   $3 of the reserve is left afterwards.
    If `L4:4` is refused, set `GPU_L4_FLEET` to the `L4:2` fallback and say so on every chart.
-6. M3b (H100) only after M4 and only if it fits the budget.
-7. Then: `icr results`, `icr replay-data`, look at every site view with real data,
-   charts, record mode and video, README, DESIGN_FAQ, HANDOFF.
+6. M3b (H100) only after M4 and only if it fits: `--gpu h100`, calibrate first with
+   `--jobs "awq=calib:chat@8;12;16;24;32;48" --gpu h100`, then `icr calibrate`.
+7. `uv run icr assets --video` (results, charts, site data, storyboards, screenshots,
+   videos). Look at every picture. Then README, DESIGN_FAQ, DEMO_SCRIPT, SLIDES_OUTLINE,
+   PORTFOLIO_CARD, secret scan (gitleaks in Docker), HANDOFF.
+
+## Rehearsed locally (free)
+
+The whole M4 plan ran against mock replicas (32 runs, no errors), and the summary,
+fleet charts, autoscaling view, method tables and all three storyboards were built from
+it and looked at. Mock numbers are never published. The fleet code path is therefore
+exercised, but **`L4:4` itself has not been requested yet**.
 
 ## Notes for restarts
 

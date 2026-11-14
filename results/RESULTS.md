@@ -12,10 +12,12 @@ SLO: p95 time to first token <= 2.0 s and p95 inter-token latency <= 100 ms, wit
 | `fp8` | FP8 | off | yes | 128 | 5.98 | 0.525 | 0.327 | 85.4 | 89.6% | - | - |
 | `awq-seqs32` | AWQ 4-bit | off | yes | 32 | 5.20 | 0.675 | 0.355 | 64.4 | - | - | - |
 | `awq-seqs64` | AWQ 4-bit | off | yes | 64 | 5.20 | 0.675 | 0.346 | 64.9 | - | - | - |
+| `awq-ngram` | AWQ 4-bit | ngram | yes | 128 | 3.64 | 0.915 | 0.427 | 85.5 | - | 12.9% | 93% |
+| `bf16` | bf16 | off | yes | 128 | 2.60 | 1.349 | 0.402 | 88.2 | 90.8% | - | - |
 | `awq-nocache` | AWQ 4-bit | off | no | 128 | 0.00 | - | - | - | - | - | - |
 
 Cheapest config that meets the SLO: `awq`.
 
 ## Spend
 
-Total: $1.30 over 7 Modal runs (dev $1.30, fleet $0.00, h100 $0.00). See `docs/GPU_LEDGER.md`.
+Total: $1.72 over 8 Modal runs (dev $1.72, fleet $0.00, h100 $0.00). See `docs/GPU_LEDGER.md`.
