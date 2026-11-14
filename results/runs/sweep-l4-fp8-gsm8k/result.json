@@ -1,0 +1,42 @@
+{
+ "run_id": "sweep-l4-fp8-gsm8k",
+ "kind": "sweep",
+ "label": "l4",
+ "config": {
+  "name": "fp8",
+  "weights": "bf16",
+  "quantization": "fp8_per_tensor",
+  "speculative": null,
+  "prefix_caching": true,
+  "max_num_seqs": null,
+  "max_model_len": 8192,
+  "gpu_memory_utilization": 0.9,
+  "extra_args": []
+ },
+ "task": "gsm8k",
+ "seed": 0,
+ "startup_s": 142.2,
+ "session_id": "l4-20261114-200620",
+ "gpu": {
+  "gpus": [
+   "NVIDIA L4, 23034 MiB, 610.57.04"
+  ],
+  "table": "Sat Nov 14 20:25:27 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 610.57.04              KMD Version: 610.57.04     CUDA UMD Version: 13.3     |\n+-----------------------------------------+------------------------+----------------------+\n| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  NVIDIA L4                      On  |   00000000:00:05.0 Off |                    0 |\n| N/A   67C    P8             21W /   72W |       4MiB /  23034MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n\n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|  No running processes found                                                             |\n+-----------------------------------------------------------------------------------------+"
+ },
+ "vllm_version": "0.33.0",
+ "gsm8k": {
+  "questions": 250,
+  "correct": 224,
+  "accuracy": 0.896,
+  "unparsed": 0,
+  "seconds": 64.6
+ },
+ "container_resources": {
+  "samples": 64,
+  "cpu_cores_mean": 0.549,
+  "cpu_cores_p95": 0.739,
+  "cpu_cores_max": 0.848,
+  "memory_gib_max": 11.535
+ },
+ "cost_per_hour_usd": 1.1172
+}
