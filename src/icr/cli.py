@@ -101,7 +101,9 @@ def calibrate(fleet_config: str = typer.Option("", help="Server config the fleet
     typer.echo(f"KV cache: {data['kv_cache_tokens']} tokens per replica")
     for where, found in data["sources"].items():
         for workload, src in found.items():
-            if src["stage"] == "cal" and src["first_miss"] is not None:
+            if src.get("note"):
+                typer.echo(f"  {where} {workload}: {src['note']}")
+            elif src["stage"] == "cal" and src["first_miss"] is not None:
                 levels = ";".join(str(x) for x in calibration.fine_levels(src))
                 typer.echo(
                     f"  {where} {workload}: coarse only. Fine ramp: ramp:{workload}@{levels}=fine"

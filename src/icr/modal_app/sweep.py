@@ -108,7 +108,7 @@ def run_session(session: dict, commit) -> dict:
 
     for job in session["jobs"]:  # one job = one server config and the tasks to run on it
         cfg_dict = job["config"]
-        cfg = ServerConfig(**{**cfg_dict, "extra_args": tuple(cfg_dict.get("extra_args", ()))})
+        cfg = ServerConfig.from_dict(cfg_dict)
         todo = [t for t in job["tasks"] if not _done(label, cfg.name, t)]
         for task in job["tasks"]:
             if task not in todo:

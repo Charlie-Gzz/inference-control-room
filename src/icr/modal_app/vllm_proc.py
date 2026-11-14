@@ -9,6 +9,7 @@ import json
 import os
 import signal
 import subprocess
+import sys
 import time
 import urllib.error
 import urllib.request
@@ -31,9 +32,19 @@ class ServerConfig:
     max_model_len: int = 8192
     gpu_memory_utilization: float = 0.90
     extra_args: tuple[str, ...] = field(default_factory=tuple)
+    # Extra packages this config needs, installed in the container just before the server
+    # starts (suffix decoding needs one). Such a config runs last in its session, so the
+    # package cannot touch any other config's measurements.
+    pip: tuple[str, ...] = field(default_factory=tuple)
 
     def to_dict(self) -> dict:
         return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: dict) -> ServerConfig:
+        """Rebuild a config that travelled as JSON (lists become tuples again)."""
+        fixed = {k: tuple(data.get(k, ())) for k in ("extra_args", "pip")}
+        return cls(**{**data, **fixed})
 
 
 def build_command(cfg: ServerConfig, port: int) -> list[str]:
@@ -90,6 +101,9 @@ class VllmServer:
         }
         self.started_at = time.monotonic()
         log = self.log_path.open("w")
+        if self.cfg.pip:
+            install = [sys.executable, "-m", "pip", "install", "--quiet", *self.cfg.pip]
+            subprocess.run(install, stdout=log, stderr=subprocess.STDOUT, timeout=300, check=False)
         self.process = subprocess.Popen(
             build_command(self.cfg, self.port),
             env=env,

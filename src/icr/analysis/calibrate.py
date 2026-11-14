@@ -33,12 +33,23 @@ def ramp_capacity(run: runs.Run) -> dict:
 
 
 def r_sat(config_name: str, workload: str, label: str = "l4") -> dict | None:
-    """Best available calibration of one config on one workload: fine, else coarse."""
+    """Best available calibration of one config on one workload: fine, else coarse.
+
+    A fine ramp starts at a high rate on an empty prefix cache. If its very first level
+    misses the SLO for that reason, the ramp says nothing about saturation (the capacity
+    rule gives 0), and the coarse ramp's value is kept. Seen on rag, where one replica
+    cannot warm 160 documents in the 30 s warmup at 2 req/s.
+    """
+    found = {}
     for tag in ("fine", "cal"):
         rid = f"sweep-{label}-{config_name}-ramp-{workload}-{tag}"
         if (runs.config.RUNS_DIR / rid).exists():
-            return {**ramp_capacity(runs.load(rid)), "source": rid, "stage": tag}
-    return None
+            found[tag] = {**ramp_capacity(runs.load(rid)), "source": rid, "stage": tag}
+    fine, coarse = found.get("fine"), found.get("cal")
+    if fine and coarse and fine["r_sat"] == 0 and coarse["r_sat"] > 0:
+        note = "the fine ramp's first level missed the SLO on a cold cache; coarse value kept"
+        return {**coarse, "note": note, "fine_source": fine["source"]}
+    return fine or coarse
 
 
 def fine_levels(coarse: dict, steps: int = 6) -> list[float]:
