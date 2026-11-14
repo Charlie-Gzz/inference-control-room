@@ -90,7 +90,7 @@ class Fleet:
         )  # fmt: skip
         self.startups: dict[int, float] = {}
 
-    def ensure_all_up(self, timeout: float = 420) -> None:
+    def ensure_all_up(self, timeout: float = 900) -> None:
         """Start every replica that is not running (in parallel) and wait for all of them."""
         down = [
             i for i, s in self.servers.items() if s.process is None or s.process.poll() is not None

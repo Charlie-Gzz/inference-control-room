@@ -46,7 +46,7 @@ BUDGET_BY_CATEGORY = {"dev": 10.0, "fleet": 18.0, "h100": 7.0}
 # Sized from the measured CPU and RAM of one replica (docs/DECISIONS.md, "Fleet sizing").
 FLEET_REPLICAS = 4
 FLEET_CPU = 8.0
-FLEET_MEMORY_MIB = 49152
+FLEET_MEMORY_MIB = 65536
 FLEET_SESSION_BUDGET_S = 50 * 60  # stop starting new runs after this; the timeout is 60 min
 SWEEP_SESSION_BUDGET_S = 27 * 60  # same idea for single-replica sessions (timeout 30 min)
 
