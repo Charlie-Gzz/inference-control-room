@@ -102,4 +102,6 @@ def save(fig, name: str) -> list[Path]:
     for path in paths:
         fig.savefig(path, dpi=DPI)
     plt.close(fig)
+    svg = paths[1]  # same line endings on every OS, so the file does not change between machines
+    svg.write_text(svg.read_text("utf-8"), encoding="utf-8", newline="\n")
     return paths

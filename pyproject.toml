@@ -46,6 +46,7 @@ ignore = ["SIM905"]  # word lists are written as split() strings on purpose
 "src/icr/analysis/results.py" = ["E501"]  # markdown table rows read better on one line
 "src/icr/assets/charts.py" = ["E501"]  # chart titles and subtitles are full sentences
 "src/icr/assets/interactive.py" = ["E501"]  # HTML template and hover text
+"src/icr/assets/story.py" = ["E501"]  # captions are full sentences
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
