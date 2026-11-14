@@ -34,8 +34,9 @@ export function niceTicks(lo, hi, target = 5) {
 
 export function logTicks(lo, hi) {
   const ticks = [];
+  const steps = Math.log10(hi / lo) < 1.3 ? [1, 1.5, 2, 3, 5, 7] : [1, 2, 5]; // denser on a short axis
   for (let e = Math.floor(Math.log10(lo)); e <= Math.ceil(Math.log10(hi)); e++) {
-    for (const m of [1, 2, 5]) {
+    for (const m of steps) {
       const v = m * 10 ** e;
       if (v >= lo * 0.999 && v <= hi * 1.001) ticks.push(Number(v.toPrecision(6)));
     }

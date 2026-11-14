@@ -111,6 +111,10 @@ input[type="range"].slo::-moz-range-thumb { width: 14px; height: 14px; border-ra
   .yard-canvas { height: var(--yard-h-mobile, 300px); }
 }
 
+@media (min-width: 1024px) {
+  #view-room .yard-canvas { height: var(--yard-h, 470px); }
+}
+
 /* Page layouts. Plain CSS (not Tailwind classes) so they apply before the first paint. */
 .layout-split, .layout-side { display: grid; gap: 12px; align-items: start; grid-template-columns: minmax(0, 1fr); }
 .layout-split .scoreboard { order: 3; }

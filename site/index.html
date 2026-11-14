@@ -35,7 +35,7 @@ tailwind.config = { theme: { extend: {
       <span>Switchyard</span>
       <span class="hidden sm:inline text-muted font-normal text-sm">Inference Control Room</span>
     </a>
-    <nav class="flex flex-wrap items-center gap-1" id="nav">
+    <nav class="flex items-center gap-1 overflow-x-auto max-w-full" id="nav">
       <button class="nav-btn" data-view="split">Same traffic, two routers</button>
       <button class="nav-btn" data-view="room">Control room</button>
       <button class="nav-btn" data-view="whatif">What-if</button>
@@ -63,8 +63,8 @@ tailwind.config = { theme: { extend: {
   <section id="view-room" class="view hidden-view layout-side">
     <div id="yard-room"></div>
     <div class="space-y-3">
-      <div class="card p-4 text-sm space-y-2" id="room-legend"></div>
       <div id="inspector-dock"></div>
+      <div class="card p-4 space-y-1.5" id="room-legend" style="font-size:12.5px"></div>
     </div>
   </section>
 
