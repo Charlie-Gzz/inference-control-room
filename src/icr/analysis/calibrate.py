@@ -32,10 +32,10 @@ def ramp_capacity(run: runs.Run) -> dict:
     return {"r_sat": cap["max_rps_at_slo"], "first_miss": first_miss, "rates": ramp["rates_rps"]}
 
 
-def r_sat(config_name: str, workload: str) -> dict | None:
+def r_sat(config_name: str, workload: str, label: str = "l4") -> dict | None:
     """Best available calibration of one config on one workload: fine, else coarse."""
     for tag in ("fine", "cal"):
-        rid = f"sweep-l4-{config_name}-ramp-{workload}-{tag}"
+        rid = f"sweep-{label}-{config_name}-ramp-{workload}-{tag}"
         if (runs.config.RUNS_DIR / rid).exists():
             return {**ramp_capacity(runs.load(rid)), "source": rid, "stage": tag}
     return None
@@ -87,6 +87,11 @@ def build(fleet_config: str | None = None) -> dict:
             if found:
                 out[key][workload] = found["r_sat"]
                 out["sources"][where][workload] = found
+    # M3b: the baseline's saturation rate on one H100, when that calibration ramp exists.
+    h100 = {w: found for w in WORKLOADS if (found := r_sat(BASELINE, w, "h100"))}
+    if h100:
+        out["baseline_r_sat_h100"] = {w: found["r_sat"] for w, found in h100.items()}
+        out["sources"]["baseline_h100"] = h100
     return out
 
 

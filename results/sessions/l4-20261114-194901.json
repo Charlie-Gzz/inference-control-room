@@ -1,0 +1,230 @@
+{
+ "session_id": "l4-20261114-194901",
+ "label": "l4",
+ "jobs": [
+  {
+   "config": {
+    "name": "awq",
+    "weights": "awq",
+    "quantization": null,
+    "speculative": null,
+    "prefix_caching": true,
+    "max_num_seqs": null,
+    "max_model_len": 8192,
+    "gpu_memory_utilization": 0.9,
+    "extra_args": []
+   },
+   "tasks": [
+    "ramp:chat@2.6;3.64;4.42;5.2;5.98;6.76",
+    "gsm8k",
+    "greedy"
+   ]
+  },
+  {
+   "config": {
+    "name": "awq-nocache",
+    "weights": "awq",
+    "quantization": null,
+    "speculative": null,
+    "prefix_caching": false,
+    "max_num_seqs": null,
+    "max_model_len": 8192,
+    "gpu_memory_utilization": 0.9,
+    "extra_args": []
+   },
+   "tasks": [
+    "ramp:chat@2.6;3.64;4.42;5.2;5.98;6.76"
+   ]
+  },
+  {
+   "config": {
+    "name": "awq-seqs32",
+    "weights": "awq",
+    "quantization": null,
+    "speculative": null,
+    "prefix_caching": true,
+    "max_num_seqs": 32,
+    "max_model_len": 8192,
+    "gpu_memory_utilization": 0.9,
+    "extra_args": []
+   },
+   "tasks": [
+    "ramp:chat@2.6;3.64;4.42;5.2;5.98;6.76"
+   ]
+  },
+  {
+   "config": {
+    "name": "awq-seqs64",
+    "weights": "awq",
+    "quantization": null,
+    "speculative": null,
+    "prefix_caching": true,
+    "max_num_seqs": 64,
+    "max_model_len": 8192,
+    "gpu_memory_utilization": 0.9,
+    "extra_args": []
+   },
+   "tasks": [
+    "ramp:chat@2.6;3.64;4.42;5.2;5.98;6.76"
+   ]
+  },
+  {
+   "config": {
+    "name": "fp8",
+    "weights": "bf16",
+    "quantization": "fp8_per_tensor",
+    "speculative": null,
+    "prefix_caching": true,
+    "max_num_seqs": null,
+    "max_model_len": 8192,
+    "gpu_memory_utilization": 0.9,
+    "extra_args": []
+   },
+   "tasks": [
+    "ramp:chat@2.6;3.64;4.42;5.2;5.98;6.76",
+    "gsm8k"
+   ]
+  },
+  {
+   "config": {
+    "name": "bf16",
+    "weights": "bf16",
+    "quantization": null,
+    "speculative": null,
+    "prefix_caching": true,
+    "max_num_seqs": null,
+    "max_model_len": 8192,
+    "gpu_memory_utilization": 0.9,
+    "extra_args": []
+   },
+   "tasks": [
+    "ramp:chat@2.6;3.64;4.42;5.2;5.98;6.76",
+    "gsm8k"
+   ]
+  },
+  {
+   "config": {
+    "name": "awq-ngram",
+    "weights": "awq",
+    "quantization": null,
+    "speculative": {
+     "method": "ngram",
+     "num_speculative_tokens": 4,
+     "prompt_lookup_min": 2,
+     "prompt_lookup_max": 4
+    },
+    "prefix_caching": true,
+    "max_num_seqs": null,
+    "max_model_len": 8192,
+    "gpu_memory_utilization": 0.9,
+    "extra_args": []
+   },
+   "tasks": [
+    "ramp:chat@2.6;3.64;4.42;5.2;5.98;6.76",
+    "greedy"
+   ]
+  },
+  {
+   "config": {
+    "name": "awq-draft",
+    "weights": "awq",
+    "quantization": null,
+    "speculative": {
+     "method": "draft_model",
+     "model": "/vol/hf/hub/models--Qwen--Qwen2.5-0.5B-Instruct/snapshots/7ae557604adf67be50417f59c2c2f167def9a775",
+     "num_speculative_tokens": 5
+    },
+    "prefix_caching": true,
+    "max_num_seqs": null,
+    "max_model_len": 8192,
+    "gpu_memory_utilization": 0.9,
+    "extra_args": []
+   },
+   "tasks": [
+    "ramp:chat@2.6;3.64;4.42;5.2;5.98;6.76",
+    "greedy"
+   ]
+  },
+  {
+   "config": {
+    "name": "awq-suffix",
+    "weights": "awq",
+    "quantization": null,
+    "speculative": {
+     "method": "suffix",
+     "num_speculative_tokens": 8
+    },
+    "prefix_caching": true,
+    "max_num_seqs": null,
+    "max_model_len": 8192,
+    "gpu_memory_utilization": 0.9,
+    "extra_args": []
+   },
+   "tasks": [
+    "ramp:chat@2.6;3.64;4.42;5.2;5.98;6.76",
+    "greedy"
+   ]
+  }
+ ],
+ "seed": 0,
+ "ramp": {
+  "rates_rps": [],
+  "level_s": 40.0,
+  "warmup_s": 30.0
+ },
+ "budget_s": 1620,
+ "startups": {
+  "awq": {
+   "ok": true,
+   "startup_s": 200.2
+  },
+  "awq-nocache": {
+   "ok": true,
+   "startup_s": 83.1
+  }
+ },
+ "skipped": [
+  "sweep-l4-awq-seqs32-ramp-chat",
+  "sweep-l4-awq-seqs64-ramp-chat",
+  "sweep-l4-fp8-ramp-chat",
+  "sweep-l4-fp8-gsm8k",
+  "sweep-l4-bf16-ramp-chat",
+  "sweep-l4-bf16-gsm8k",
+  "sweep-l4-awq-ngram-ramp-chat",
+  "sweep-l4-awq-ngram-greedy",
+  "sweep-l4-awq-draft-ramp-chat",
+  "sweep-l4-awq-draft-greedy",
+  "sweep-l4-awq-suffix-ramp-chat",
+  "sweep-l4-awq-suffix-greedy"
+ ],
+ "resources": {
+  "samples": 989,
+  "cpu_cores_mean": 0.734,
+  "cpu_cores_p95": 1.339,
+  "cpu_cores_max": 4.517,
+  "memory_gib_max": 20.895
+ },
+ "gpu": {
+  "gpus": [
+   "NVIDIA L4, 23034 MiB, 610.57.04"
+  ],
+  "table": "Sat Nov 14 19:49:09 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 610.57.04              KMD Version: 610.57.04     CUDA UMD Version: 13.3     |\n+-----------------------------------------+------------------------+----------------------+\n| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  NVIDIA L4                      On  |   00000000:00:05.0 Off |                    0 |\n| N/A   63C    P8             18W /   72W |       5MiB /  23034MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n\n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|  No running processes found                                                             |\n+-----------------------------------------------------------------------------------------+"
+ },
+ "vllm_version": "0.33.0",
+ "container_seconds": 991.968501886,
+ "ledger": {
+  "date": "2026-11-14 20:05",
+  "purpose": "M3a stage 1 sweep, session 1",
+  "category": "dev",
+  "gpu": "L4",
+  "gpu_count": 1,
+  "cpu": 4.0,
+  "memory_gib": 16.0,
+  "billed_seconds": 1017.0,
+  "cost_usd": 0.3156,
+  "actual_cost_usd": null,
+  "app_id": "ap-sVKLLWP5UohNleCFMpboxM",
+  "run_id": "l4-20261114-194901",
+  "note": ""
+ }
+}

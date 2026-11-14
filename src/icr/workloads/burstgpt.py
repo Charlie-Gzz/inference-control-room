@@ -95,10 +95,13 @@ def scaled_arrivals(
     second before rescaling. Linear rescaling keeps the shape of the bursts.
     """
     segment = load_segment(name)
-    if offset + count > len(segment):
-        raise ValueError(f"segment {name!r} has {len(segment)} arrivals, need {offset + count}")
+    n = len(segment)
+    # A run that needs more arrivals than the segment has continues from its start again
+    # (the long fleet capacity ramp needs slightly more than 8,000).
+    period = segment[-1] + (segment[-1] - segment[0]) / (n - 1)
+    picked = [segment[i % n] + (i // n) * period for i in range(offset, offset + count)]
     rng = random.Random(seed)
-    raw = sorted(t + rng.random() for t in segment[offset : offset + count])
+    raw = sorted(t + rng.random() for t in picked)
     span = raw[-1] - raw[0]
     # The last arrival lands one mean gap before the end of the window, so consecutive
     # windows (ramp levels) join without two arrivals at the same instant.

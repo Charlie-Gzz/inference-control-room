@@ -42,9 +42,10 @@ def calibration() -> dict:
     return json.loads(CALIBRATION_FILE.read_text("utf-8"))
 
 
-def sweep_rates(workload: str = "chat") -> list[float]:
-    """Frozen ramp levels of the config sweep for one workload."""
-    r_sat = calibration()["baseline_r_sat"][workload]
+def sweep_rates(workload: str = "chat", gpu: str = "l4") -> list[float]:
+    """Frozen ramp levels of the config sweep for one workload on one GPU type."""
+    key = "baseline_r_sat" if gpu == "l4" else f"baseline_r_sat_{gpu}"
+    r_sat = calibration()[key][workload]
     return [round(level * r_sat, 2) for level in SWEEP_LEVELS]
 
 

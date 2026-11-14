@@ -376,6 +376,8 @@ function renderLegend() {
 
 async function setView(view) {
   state.view = VIEWS.includes(view) ? view : "split";
+  // Before any fleet run exists there is nothing to replay: show the sweep results instead.
+  if (!state.index.runs.length && (state.view === "split" || state.view === "room")) state.view = "whatif";
   for (const v of VIEWS) $(`view-${v}`).classList.toggle("hidden-view", v !== state.view);
   for (const b of $("nav").querySelectorAll("[data-view]")) b.classList.toggle("active", b.dataset.view === state.view);
   const replaying = state.view === "split" || state.view === "room";
@@ -425,8 +427,10 @@ async function main() {
 
   const split = index.default_split && index.runs.find((r) => r.id === index.default_split.left);
   const first = split || index.runs[0];
-  state.scenario = params.get("scenario") || scenarioOf(first);
-  state.seed = params.has("seed") ? Number(params.get("seed")) : first.seed;
+  if (first) {
+    state.scenario = params.get("scenario") || scenarioOf(first);
+    state.seed = params.has("seed") ? Number(params.get("seed")) : first.seed;
+  }
   if (params.has("speed")) state.speed = Number(params.get("speed"));
   // Deep links (also used for screenshots): ?left=&right=&policy=&paused=1&pick=<request id>
   if (params.has("paused")) state.playing = false;

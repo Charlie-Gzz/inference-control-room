@@ -57,6 +57,12 @@ VOLUMES = {config.VOLUME_MOUNT: volume}
 CPU_DOWNLOAD = {"cpu": 2.0, "memory": 4096}
 L4_SINGLE = {"cpu": 4.0, "memory": 16384}
 L4_FLEET = {"cpu": config.FLEET_CPU, "memory": config.FLEET_MEMORY_MIB}
+H100_SINGLE = {"cpu": 8.0, "memory": 32768}  # more load generator work at H100 request rates
+# Per GPU label of the sweep: remote function name, resources, ledger GPU and budget category.
+SWEEP_TARGETS = {
+    "l4": ("sweep_l4_fn", L4_SINGLE, "L4", "dev"),
+    "h100": ("sweep_h100_fn", H100_SINGLE, "H100", "h100"),
+}
 
 
 def _resources(spec: dict) -> dict:
@@ -99,6 +105,19 @@ def smoke_fn(run_id: str) -> dict:
 @app.function(image=gpu_image, gpu=config.GPU_L4, volumes=VOLUMES,
               timeout=config.TIMEOUT_SWEEP_S, max_containers=1, **L4_SINGLE)  # fmt: skip
 def sweep_l4_fn(session: dict) -> dict:
+    from icr.modal_app import sweep
+
+    start = time.monotonic()
+    result = sweep.run_session(session, volume.commit)
+    volume.commit()
+    result["container_seconds"] = time.monotonic() - start
+    return result
+
+
+@app.function(image=gpu_image, gpu=config.GPU_H100, volumes=VOLUMES,
+              timeout=config.TIMEOUT_SWEEP_S, max_containers=1, **H100_SINGLE)  # fmt: skip
+def sweep_h100_fn(session: dict) -> dict:
+    """M3b: the same sweep session on one H100 (runs last, only if the budget allows)."""
     from icr.modal_app import sweep
 
     start = time.monotonic()
@@ -202,8 +221,11 @@ def sweep(
     warmup_s: float = 30.0,
     seed: int = 0,
     purpose: str = "",
+    gpu: str = "l4",
 ):
-    """One L4 session of the config sweep: `--configs awq,fp8 --tasks ramp:chat,gsm8k`.
+    """One session of the config sweep: `--configs awq,fp8 --tasks ramp:chat,gsm8k`.
+
+    `--gpu h100` runs it on one H100 (M3b) against the `h100` budget.
 
     `--jobs "awq=ramp:chat,gsm8k|fp8=ramp:chat"` gives each config its own tasks instead.
     Finished tasks are skipped, and tasks that do not fit the session's time are left for
@@ -215,8 +237,9 @@ def sweep(
     from icr.fleet import plan
     from icr.modal_app.configs import CONFIGS
 
-    res = _resources(L4_SINGLE)
-    ledger.check_budget("dev", "L4", 1, max_seconds=config.TIMEOUT_SWEEP_S, **res)
+    fn_name, spec, gpu_name, category = SWEEP_TARGETS[gpu]
+    res = _resources(spec)
+    ledger.check_budget(category, gpu_name, 1, max_seconds=config.TIMEOUT_SWEEP_S, **res)
     default_rates = [float(r) for r in rates.split(",") if r]
 
     def with_rates(task: str) -> str:
@@ -224,12 +247,12 @@ def sweep(
         if not task.startswith("ramp:") or "@" in task or default_rates:
             return task
         body, _, tag = task.partition("=")
-        levels = ";".join(str(r) for r in plan.sweep_rates(body.split(":", 1)[1]))
+        levels = ";".join(str(r) for r in plan.sweep_rates(body.split(":", 1)[1], gpu))
         return f"{body}@{levels}" + (f"={tag}" if tag else "")
 
     session = {
-        "session_id": time.strftime("l4-%Y%m%d-%H%M%S", time.gmtime()),
-        "label": "l4",
+        "session_id": time.strftime(f"{gpu}-%Y%m%d-%H%M%S", time.gmtime()),
+        "label": gpu,
         "jobs": [
             {"config": CONFIGS[name].to_dict(), "tasks": [with_rates(t) for t in job_tasks]}
             for name, job_tasks in _parse_jobs(configs, tasks, jobs)
@@ -239,10 +262,10 @@ def sweep(
         "budget_s": config.SWEEP_SESSION_BUDGET_S,
     }
     purpose = purpose or f"sweep {jobs or configs + ' [' + tasks + ']'}"
-    ledger_args = dict(category="dev", gpu="L4", gpu_count=1, app_id=app.app_id or "",
+    ledger_args = dict(category=category, gpu=gpu_name, gpu_count=1, app_id=app.app_id or "",
                        run_id=session["session_id"], **res)  # fmt: skip
     try:
-        result = sweep_l4_fn.remote(session)
+        result = globals()[fn_name].remote(session)
     except BaseException as e:  # still record the spend; finished tasks are in the Volume
         ledger.record(purpose=purpose, container_seconds=config.TIMEOUT_SWEEP_S,
                       note=f"FAILED ({type(e).__name__}); billed time is the worst case",
@@ -251,7 +274,7 @@ def sweep(
     row = ledger.record(
         purpose=purpose, container_seconds=result["container_seconds"], **ledger_args
     )
-    hourly = config.hourly_cost("L4", 1, res["cpu"], res["memory_gib"])
+    hourly = config.hourly_cost(gpu_name, 1, res["cpu"], res["memory_gib"])
     _save_runs(result.pop("runs"), {"cost_per_hour_usd": round(hourly, 4)})
     log = config.RESULTS_DIR / "sessions" / f"{session['session_id']}.json"
     log.parent.mkdir(parents=True, exist_ok=True)

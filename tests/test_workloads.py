@@ -86,6 +86,21 @@ def test_scaled_arrivals_hit_the_target_rate():
     assert arrivals == burstgpt.scaled_arrivals("steady", 600, rate_rps=10.0, seed=3)
 
 
+def test_a_long_run_wraps_around_the_segment():
+    size = len(burstgpt.load_segment("steady"))
+    arrivals = burstgpt.scaled_arrivals("steady", 300, rate_rps=20.0, seed=0, offset=size - 100)
+    assert len(arrivals) == 300 and arrivals == sorted(arrivals)
+    assert arrivals[-1] == pytest.approx(15.0, rel=0.01)
+    gaps = [b - a for a, b in zip(arrivals, arrivals[1:], strict=False)]
+    assert max(gaps) < 2.0  # no hole where the segment starts over
+
+
+def test_the_full_fleet_capacity_ramp_can_be_generated():
+    rates = [12.48, 15.6, 18.72, 21.84, 24.96, 28.08]  # 0.6 .. 1.35 x 4 x 5.2 req/s
+    specs = generator.ramp_workload("chat", 0, rates, level_s=60.0, warmup_s=60.0)
+    assert len(specs) > 8000 and specs[-1].level == 5
+
+
 def test_bursty_segment_is_burstier_than_steady():
     steady = burstgpt.burstiness(burstgpt.load_segment("steady"))
     bursty = burstgpt.burstiness(burstgpt.load_segment("bursty"))
