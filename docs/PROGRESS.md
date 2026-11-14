@@ -5,18 +5,18 @@ work, run `uv run modal app list` and stop anything running.
 
 ## Status
 
-**Paused on 2026-11-13 at Charlie's request. Resume with `/autonomous-build`.**
-Next up: finish the M2 mock check, then M3a (first GPU sweep).
+**Resumed 2026-11-14.** M2 closed. M3a in progress: the calibration ramp was launched
+(`.scratch/sweep-calib.log`) and waited several minutes for an L4.
 
 | Milestone | State |
 |---|---|
 | M0 Setup and smoke test | **done** |
 | M1 Workloads, load generator, recorder, mock fleet | **done** (tests pass) |
-| M2 Go router and autoscaler | code and tests done; mock comparison needs a rerun at a sane load |
-| M3a L4 single-replica sweeps and quality | code written, **not yet run** |
-| M4 Fleet experiments | not started |
+| M2 Go router and autoscaler | **done** (mock check at 8 rps: prefix-aware 78% cache hits vs 64% on chat, 0% and no gain on no-sharing; mock only) |
+| M3a L4 single-replica sweeps and quality | **in progress**: calibration ramp running |
+| M4 Fleet experiments | code written (`modal_app/fleet.py`, `fleet/plan.py`, `fleet` entry point), **never run** |
 | M3b H100 session (after M4, if budget allows) | not started |
-| M5 Optimizer and results pipeline | metrics module only |
+| M5 Optimizer and results pipeline | `analysis/runs.py`, `optimizer.py`, `sweeps.py`, `replay.py` written with tests; `icr results` and `icr replay-data` commands not wired yet |
 | M6 Control room site | not started |
 | M7 Assets and portfolio kit | not started |
 | M8 README and handoff | not started |

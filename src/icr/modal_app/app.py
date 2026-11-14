@@ -56,6 +56,7 @@ VOLUMES = {config.VOLUME_MOUNT: volume}
 # Requested resources per function (billed even if unused, so keep them tight).
 CPU_DOWNLOAD = {"cpu": 2.0, "memory": 4096}
 L4_SINGLE = {"cpu": 4.0, "memory": 16384}
+L4_FLEET = {"cpu": config.FLEET_CPU, "memory": config.FLEET_MEMORY_MIB}
 
 
 def _resources(spec: dict) -> dict:
@@ -107,18 +108,30 @@ def sweep_l4_fn(session: dict) -> dict:
     return result
 
 
+@app.function(image=gpu_image, gpu=config.GPU_L4_FLEET, volumes=VOLUMES,
+              timeout=config.TIMEOUT_FLEET_S, max_containers=1, **L4_FLEET)  # fmt: skip
+def fleet_l4_fn(session: dict) -> dict:
+    from icr.modal_app import fleet
+
+    start = time.monotonic()
+    result = fleet.run_session(session, volume.commit)
+    volume.commit()
+    result["container_seconds"] = time.monotonic() - start
+    return result
+
+
 # --- local entry points -----------------------------------------------------
 
 
 def _save_runs(runs: dict[str, dict], extra_meta: dict) -> None:
     """Write run files returned by a remote function into results/runs/."""
+    from icr.analysis import runs as saved
+
     for run_id, files in runs.items():
-        out = config.RUNS_DIR / run_id
-        out.mkdir(parents=True, exist_ok=True)
         for name, text in files.items():
             if name in ("meta.json", "result.json"):
                 text = json.dumps({**json.loads(text), **extra_meta}, indent=1)
-            (out / name).write_text(text, encoding="utf-8", newline="\n")
+            saved.write_file(config.RUNS_DIR / run_id, name, text)
 
 
 @app.local_entrypoint()
@@ -213,5 +226,50 @@ def sweep(
         print(name, {k: v for k, v in info.items() if k != "log"})
         if "log" in info:
             print(info["log"][-3000:])
+    print(f"container {result['container_seconds']:.0f}s, est ${row['cost_usd']:.3f}")
+    print("resources:", result["resources"])
+
+
+@app.local_entrypoint()
+def fleet(items: str, purpose: str = "", max_runs: int = 0):
+    """One L4:4 session of fleet runs: `--items chat` or `--items proxycheck,ramp`."""
+    from icr import ledger
+    from icr.fleet import plan
+    from icr.fleet.local import table_chunks_for
+    from icr.modal_app.configs import CONFIGS
+
+    res = _resources(L4_FLEET)
+    n = config.FLEET_REPLICAS
+    ledger.check_budget("fleet", "L4", n, max_seconds=config.TIMEOUT_FLEET_S, **res)
+    calib = plan.calibration()
+    runs = [r for item in items.split(",") for r in plan.runs_for(item.strip(), calib, n)]
+    session = {
+        "session_id": time.strftime("fleet-%Y%m%d-%H%M%S", time.gmtime()),
+        "label": f"l4x{n}",
+        "replicas": n,
+        "config": CONFIGS[calib["fleet_config"]].to_dict(),
+        "runs": runs[:max_runs] if max_runs else runs,
+        "table_chunks": table_chunks_for(calib["kv_cache_tokens"]),
+        "autoscaler": calib["autoscaler"],
+        "budget_s": config.FLEET_SESSION_BUDGET_S,
+    }
+    result = fleet_l4_fn.remote(session)
+    row = ledger.record(
+        purpose=purpose or f"fleet {items}", category="fleet", gpu="L4", gpu_count=n,
+        container_seconds=result["container_seconds"], app_id=app.app_id or "",
+        run_id=session["session_id"], **res,
+    )  # fmt: skip
+    hourly = config.hourly_cost("L4", n, res["cpu"], res["memory_gib"])
+    _save_runs(result.pop("runs"), {"cost_per_hour_usd": round(hourly, 4)})
+    log = config.RESULTS_DIR / "sessions" / f"{session['session_id']}.json"
+    log.parent.mkdir(parents=True, exist_ok=True)
+    log.write_text(
+        json.dumps({**session, **result, "ledger": row}, indent=1), "utf-8", newline="\n"
+    )
+    print(f"startup: {result.get('startup_s')}  skipped: {result['skipped']}")
+    if "error" in result:
+        print("ERROR:", result["error"])
+        for i, text in result.get("logs", {}).items():
+            print(f"--- replica {i}\n{text[-2000:]}")
     print(f"container {result['container_seconds']:.0f}s, est ${row['cost_usd']:.3f}")
     print("resources:", result["resources"])
