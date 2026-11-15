@@ -175,7 +175,9 @@ function draw(root, data) {
   svg("line", { x1: margin.left, x2: width - margin.right, y1: ly, y2: ly, stroke: "#EF4444", "stroke-dasharray": "5 4" }, root_);
   svg("text", { x: width - margin.right - 4, y: ly - 6, fill: "#EF4444", "font-size": 11, "text-anchor": "end", "font-family": "JetBrains Mono, monospace" }, root_, `target ${unit(limit)}`);
 
-  const frontier = pareto(all, ui.yKey);
+  // The frontier only counts points that meet your target on the latency not on this axis.
+  const otherOk = (p) => (ui.yKey === "itl_p95_s" ? p.ttft_p95_s <= ui.ttft : (p.itl_p95_s || 0) <= ui.itl);
+  const frontier = pareto(all.filter(otherOk), ui.yKey);
   if (frontier.length > 1) {
     svg("polyline", { points: frontier.map((p) => `${x(p.cost_per_m_output)},${y(p[ui.yKey])}`).join(" "), fill: "none", stroke: "#E5E7EB", "stroke-width": 1.5, "stroke-opacity": 0.75 }, root_);
   }

@@ -17,11 +17,11 @@ Totals use the actual cost when it is known. Rendered by `icr.ledger`.
 | 2026-11-14 20:49 | M3a stage 1 sweep, session 2 | dev | L4 x1 | 4 | 16 | 1446 | 0.449 | 0.443 | 1.307 |
 | 2026-11-14 21:20 | M3a stage 1 sweep, session 3 | dev | L4 x1 | 4 | 16 | 1345 | 0.417 | 0.412 | 1.719 |
 | 2026-11-14 21:33 | M3a stage 1 sweep, session 4 (draft, suffix) | dev | L4 x1 | 4 | 16 | 578 | 0.179 | 0.174 | 1.893 |
-| 2026-11-14 22:07 | M3a stage 2 (seqs256 x2) + suffix decoding retry | dev | L4 x1 | 4 | 16 | 1459 | 0.453 | pending | 2.346 |
+| 2026-11-14 22:07 | M3a stage 2 (seqs256 x2) + suffix decoding retry | dev | L4 x1 | 4 | 16 | 1459 | 0.453 | 0.448 | 2.340 |
 
 ## Totals
 
-- dev: $2.35 of $10.00
+- dev: $2.34 of $10.00
 - fleet: $0.00 of $18.00
 - h100: $0.00 of $7.00
-- **all: $2.35 of $35.00**
+- **all: $2.34 of $35.00**

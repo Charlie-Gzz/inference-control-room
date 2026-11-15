@@ -325,6 +325,13 @@ def cost_by_config(s: dict):
     )
 
 
+def _other_ok(point: dict, y_key: str) -> bool:
+    """Does the point meet the SLO on the latency that is NOT on the chart's y axis?"""
+    if y_key == "itl_p95_s":
+        return point["ttft_p95_s"] <= 2.0
+    return (point["itl_p95_s"] or 0) <= 0.1
+
+
 def pareto(s: dict, y_key: str = "itl_p95_s"):
     fig = theme.figure(980)
     ax = fig.subplots()
@@ -345,7 +352,11 @@ def pareto(s: dict, y_key: str = "itl_p95_s"):
             ax.plot(xs, ys, color=color, lw=1, alpha=0.45, zorder=2)
             ax.scatter(xs, ys, s=36, color=color, marker=marker, edgecolor=edge, lw=0.9, zorder=3,
                        label=f"{c['config']} ({label.upper()})")  # fmt: skip
-    front = optimizer.pareto(every, y=y_key)
+            # A point that misses the target on the other latency is drawn hollow.
+            miss = [p for p in pts if not _other_ok(p, y_key)]
+            ax.scatter([p["cost_per_m_output"] for p in miss], [p[y_key] * scale for p in miss],
+                       s=36, color=theme.BG, marker=marker, edgecolor=color, lw=1.2, zorder=4)  # fmt: skip
+    front = optimizer.pareto([p for p in every if _other_ok(p, y_key)], y=y_key)
     ax.plot([p["cost_per_m_output"] for p in front], [p[y_key] * scale for p in front], color=INK,
             lw=1.5, alpha=0.8, zorder=1, label="Pareto frontier")  # fmt: skip
     limit = 100 if y_key == "itl_p95_s" else 2.0
@@ -376,7 +387,8 @@ def pareto(s: dict, y_key: str = "itl_p95_s"):
     ax.legend(loc="upper left", bbox_to_anchor=(1.01, 1.0), fontsize=8)
     title = "Cheaper tokens cost latency: every measured operating point and the frontier"
     sub = ("Each marker is one server config at one traffic level of its ramp (lines join a config's levels). "
-           "Down and left is better. Levels where requests failed are not drawn.")  # fmt: skip
+           "Down and left is better. Hollow markers miss the 2 s time-to-first-token target and are not on "
+           "the frontier. Levels where requests failed are not drawn.")  # fmt: skip
     return _finish(
         fig,
         "pareto",

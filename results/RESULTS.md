@@ -10,8 +10,11 @@ SLO: p95 time to first token <= 2.0 s and p95 inter-token latency <= 100 ms, wit
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | `awq` | AWQ 4-bit | off | yes | 128 | 5.98 | 0.525 | 0.384 | 86.7 | 92.4% | - | 92% (self) |
 | `fp8` | FP8 | off | yes | 128 | 5.98 | 0.525 | 0.327 | 85.4 | 89.6% | - | - |
+| `fp8-seqs256` | FP8 | off | yes | 256 | 5.98 | 0.525 | 0.325 | 80.8 | - | - | - |
+| `awq-seqs256` | AWQ 4-bit | off | yes | 256 | 5.20 | 0.675 | 0.330 | 60.1 | - | - | - |
 | `awq-seqs32` | AWQ 4-bit | off | yes | 32 | 5.20 | 0.675 | 0.355 | 64.4 | - | - | - |
 | `awq-seqs64` | AWQ 4-bit | off | yes | 64 | 5.20 | 0.675 | 0.346 | 64.9 | - | - | - |
+| `awq-suffix` | AWQ 4-bit | suffix | yes | 128 | 5.20 | 0.675 | 0.377 | 65.2 | - | - | - |
 | `awq-ngram` | AWQ 4-bit | ngram | yes | 128 | 3.64 | 0.915 | 0.427 | 85.5 | - | 12.9% | 93% |
 | `bf16` | bf16 | off | yes | 128 | 2.60 | 1.349 | 0.402 | 88.2 | 90.8% | - | - |
 | `awq-nocache` | AWQ 4-bit | off | no | 128 | 0.00 | - | - | - | - | - | - |
@@ -20,4 +23,4 @@ Cheapest config that meets the SLO: `awq`.
 
 ## Spend
 
-Total: $1.89 over 9 Modal runs (dev $1.89, fleet $0.00, h100 $0.00). See `docs/GPU_LEDGER.md`.
+Total: $2.34 over 10 Modal runs (dev $2.34, fleet $0.00, h100 $0.00). See `docs/GPU_LEDGER.md`.
