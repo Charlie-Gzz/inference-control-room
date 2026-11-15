@@ -13,7 +13,7 @@ work, run `uv run modal app list` and stop anything running.
 | M1 Workloads, load generator, recorder, mock fleet | **done** |
 | M2 Go router and autoscaler | **done** |
 | M3a L4 single-replica sweeps and quality | **done** except one leftover ramp (`fp8` on rag, see next steps) |
-| M4 Fleet experiments | **in progress**: session 1 (`proxycheck,chat`) launched 20:51 EST, log `.scratch/fleet-1.log` |
+| M4 Fleet experiments | **blocked on GPU capacity**: no 4-GPU machine yet; a 2-GPU pilot is queued (see below) |
 | M3b H100 session (after M4, if budget allows) | not started; code ready (`--gpu h100`) |
 | M5 Optimizer and results pipeline | works on real sweep data (`icr results`, `icr calibrate`, `icr charts`, `icr replay-data`) |
 | M6 Control room site | every view written; seen with mock, rehearsal and real sweep data; needs real fleet runs |
@@ -43,16 +43,37 @@ Config sweep on chat (capacity = highest ramp level within the SLO; one level is
 - awq on rag (sweep levels 1.0 to 2.6 req/s): meets the SLO at every level.
 - The binding limit is inter-token latency, not time to first token.
 
-## Waiting on Modal for 4 GPUs (read this first)
+## State at the pause (2026-11-15, 12:00 EST): read this first
 
-Fleet session 1 was launched at 20:51 EST on 2026-11-14 and had still not been given a
-4-GPU L4 machine at 21:55 (no container, nothing billed). Modal's GPU guide says requests
-for more than 2 GPUs per container "will usually result in larger wait times", so this is
-a queue, not a refusal. Decision: keep waiting (it is free) for up to about 3 hours before
-using the plan's 2-GPU fallback, because the 4-GPU fleet is the point of the project.
-If the `modal run` process is gone on restart, just launch it again. The fallback is
-ready: `uv run modal run -m icr.modal_app.app::fleet --items proxycheck,chat --replicas 2`
-(then the headline, charts, tour, story captions and diagram must say 2 GPUs, not 4).
+Paused for the usage limit. A wakeup at 15:15 EST runs `/autonomous-build` again.
+
+- **`L4:4` has not been available.** Two requests waited in Modal's queue (over an hour
+  on the evening of 2026-11-14, 80 minutes on the morning of 2026-11-15). No container
+  ever started and nothing was billed. Both are in the ledger at $0 with notes.
+- **A 2-GPU pilot is queued right now**: `fleet --items proxycheck,chat --max-runs 4
+  --replicas 2`, launched 11:38 EST, log `.scratch/fleet-3.log`, app
+  `ap-gB1sVwX5U6bYOhwBpWk5DD`. At 12:00 it was still waiting for GPUs. If it ran while
+  nobody was watching, its runs are in `results/runs/fleetx2-*` and the ledger has a new
+  row: **commit them first**, then `ledger.reconcile()`. If its log ends with an error
+  (for example an expired login token) and there are no `fleetx2-*` runs, nothing ran:
+  settle the ledger row to $0 with `ledger.settle(app_id, 0.0, note)` and launch again.
+- Pilot runs are named `fleetx2-...` on purpose. `icr results` ignores them. To look at
+  them: `icr.analysis.runs.all_runs("fleetx2-")` and `metrics.summarize`.
+
+On restart, in this order:
+1. `git status`, commit anything uncommitted (results and ledger first).
+2. `uv run modal app list`. If the pilot app is still queued or running, let it finish.
+   Stop anything else that is not expected (`modal app stop --yes <id>`).
+3. Read the pilot: errors, CPU use (`container_resources` in meta.json, the fleet asked
+   for 5 cores for 2 replicas), cache hit rate and latency per policy. Fix any bug it
+   shows before spending on 4 GPUs.
+4. Request `L4:4` again: `uv run modal run -m icr.modal_app.app::fleet --items proxycheck,chat`.
+   Watch with `modal app list --json` (tasks goes from 0 to 1 when the container starts).
+   Waiting is free. If 4 GPUs still cannot be had after a long wait, use the plan's
+   fallback for the whole fleet plan: add `--replicas 2` to every fleet command, set the
+   analysis to read `fleetx2-` runs (`_fleet_runs` in `src/icr/analysis/fleet_results.py`
+   and `all_runs("fleet-")` in `site_data.py`, `results.py`, `story.py`), and change the
+   fixed texts that say 4 GPUs (`site/index.html` meta tags, `assets/diagram.py`, README).
 
 ## Exact next step
 
