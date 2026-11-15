@@ -36,6 +36,7 @@ def _facts(calib: dict) -> dict:
         model = "Qwen2.5-7B-Instruct (FP8)"
     return {
         "gpu": f"{len(gpus)} x {name}" if len(gpus) > 1 else name,
+        "replicas": len(gpus),
         "model": model,
         "engine": f"vLLM {sample.meta.get('vllm_version', '')}".strip(),
         "fleet_config": calib.get("fleet_config"),

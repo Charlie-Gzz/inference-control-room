@@ -23,6 +23,7 @@ REPO_URL = "github.com/Charlie-Gzz/inference-control-room"
 WINDOW_S = 40.0  # replay seconds shown in the comparison scenes
 STEP_S = 5.0
 A, B = "round-robin", "prefix-aware"
+NUMBER_WORDS = {2: "Two", 4: "Four"}
 
 
 def window_stats(rows: list[dict], t0: float, t1: float) -> dict:
@@ -155,13 +156,15 @@ def build(summary: dict, a: Run, b: Run, vertical: bool = False, loop: bool = Fa
     base = _scene_base(a)
     speed = 2.0
     headline = summary.get("headline", {})
+    n = a.meta.get("replicas", 4)
+    gpu = summary.get("facts", {}).get("gpu", f"{n} GPUs")
     room_b = {"view": "room", **base, "policies": {"room": B}}
     room_a = {"view": "room", **base, "policies": {"room": A}}
     split = {"view": "split", **base, "policies": {"left": A, "right": B}}
     number = {
         "kind": "number", "seconds": 9.0, "items": number_items(headline),
-        "line": "Same 4 GPUs. Same traffic. Prefix-aware routing against round-robin:",
-        "foot": "Measured on 4 x NVIDIA L4 with Qwen2.5-7B. Medians of repeated runs.",
+        "line": f"Same {n} GPUs. Same traffic. Prefix-aware routing against round-robin:",
+        "foot": f"Measured on {gpu} with Qwen2.5-7B. Medians of repeated runs.",
         "fade_in": 0.4,
     }  # fmt: skip
     if loop:
@@ -181,7 +184,7 @@ def build(summary: dict, a: Run, b: Run, vertical: bool = False, loop: bool = Fa
              "captions": [{"at": 1.8, "for": 5.2, "text": "Every LLM request has a cost."}]},
             {"kind": "zoomout", "seconds": 8.0, "cold_seconds": 8.0, "run": b.run_id, "request": request,
              "speed": speed, **room_b,
-             "captions": [{"at": 1.6, "for": 5.6, "text": "Four GPUs, one model, real traffic patterns."}]},
+             "captions": [{"at": 1.6, "for": 5.6, "text": f"{NUMBER_WORDS.get(n, n)} GPUs, one model, real traffic patterns."}]},
             {"kind": "replay", "seconds": 19.0, **room_a, "t0": c["t0"], "speed": speed, "fade_in": 0.5,
              "captions": captions_a(c)},
             {"kind": "rewind", "seconds": 2.6, **room_a, "t_from": c["t0"] + 19.0 * speed, "t_to": c["t0"]},

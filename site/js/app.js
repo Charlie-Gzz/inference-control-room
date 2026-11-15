@@ -332,11 +332,11 @@ function onPolicy(panel, policy) {
 function renderHeadline() {
   const summary = state.index.summary;
   if (state.index.mock) {
-    $("headline").textContent = "Same four GPUs, same traffic, two routers. (Mock data: the real headline appears after the GPU runs.)";
+    $("headline").textContent = "Same GPUs, same traffic, two routers. (Mock data: the real headline appears after the GPU runs.)";
   } else if (summary && summary.headline) {
     $("headline").innerHTML = summary.headline.html;
   } else {
-    $("headline").textContent = "Same four GPUs, same traffic, two routers.";
+    $("headline").textContent = "Same GPUs, same traffic, two routers.";
   }
 }
 

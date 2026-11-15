@@ -91,7 +91,7 @@ def capacity_by_policy(s: dict):
         title = "Every routing policy carries the same traffic within the SLO"
     else:
         word = "more" if change > 0 else "less"
-        title = f"Prefix-aware routing serves {_pct(change)} {word} traffic within the SLO on the same 4 GPUs"
+        title = f"Prefix-aware routing serves {_pct(change)} {word} traffic within the SLO on the same {s.get('facts', {}).get('replicas', 4)} GPUs"
         if cost is not None:
             title += f", {_pct(cost)} {'cheaper' if cost < 0 else 'more expensive'} per token"
     rates = ", ".join(f"{r:g}" for r in s["capacity"]["rates_rps"])
@@ -130,7 +130,7 @@ def latency_by_policy(s: dict):
     if ttft is not None:
         title = (f"Prefix-aware routing {'cuts' if ttft < 0 else 'raises'} p95 time to first token "
                  f"on chat by {_pct(ttft)} against round-robin")  # fmt: skip
-    sub = ("Fixed traffic at 70% of four replicas' saturation rate, 60 s warmup + 180 s measured, "
+    sub = ("Fixed traffic at 70% of the fleet's saturation rate, 60 s warmup + 180 s measured, "
            "3 repeats. Bar = median, line = min to max, dots = repeats. Red dashes = SLO.")  # fmt: skip
     return _finish(fig, "latency_by_policy", title, sub, _footer(s), bottom_px=130, left=0.075,
                    right=0.98, wspace=0.3, hspace=0.42)  # fmt: skip
@@ -225,7 +225,8 @@ def autoscaling(s: dict, seed: int = 0):
     top.set_title("Traffic (identical for both fleets)")
 
     events = scaled.meta.get("autoscaler_events") or []
-    mid.plot([0, total], [4, 4], color=POLICY["least-loaded"], lw=2, label="static: 4 replicas")
+    n = static.meta["replicas"]
+    mid.plot([0, total], [n, n], color=POLICY["least-loaded"], lw=2, label=f"static: {n} replicas")
     for on, off, style, width, label in (
         ("start", "stopped", "-", 2, "autoscaled: switched on"),
         ("ready", "drain", DASH, 1.3, "autoscaled: serving"),
@@ -267,7 +268,7 @@ def autoscaling(s: dict, seed: int = 0):
         title = (f"Autoscaling {gpu} GPU-seconds (modeled), and p95 time to first token goes "
                  f"from {ttft_s:.2f} s to {ttft_a:.2f} s")  # fmt: skip
     sub = ("Bursty BurstGPT segment. Latency and replica counts are measured. GPU-seconds are MODELED as if "
-           f"each replica were billed alone; in the test all 4 GPUs were billed. Repeat {seed + 1} shown.")  # fmt: skip
+           f"each replica were billed alone; in the test all {n} GPUs were billed. Repeat {seed + 1} shown.")  # fmt: skip
     return _finish(fig, "autoscaling", title, sub, _footer(s), left=0.075, right=0.97, hspace=0.36)
 
 

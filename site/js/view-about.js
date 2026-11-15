@@ -27,7 +27,7 @@ function fleetTable(table) {
     .join("");
   return `<div class="card p-4 overflow-x-auto">
     <div class="font-semibold">${table.workload === "no-sharing" ? "no-sharing (control: no two prompts share a prefix)" : table.workload}
-      <span class="text-muted font-normal">· ${table.rate_rps} req/s on 4 GPUs · median of ${Object.values(table.policies)[0].repeats} repeats (min to max)</span></div>
+      <span class="text-muted font-normal">· ${table.rate_rps} req/s on ${table.replicas || 4} GPUs · median of ${Object.values(table.policies)[0].repeats} repeats (min to max)</span></div>
     <table class="w-full text-sm mt-3 about-table"><thead><tr>
       <th>Policy</th><th>TTFT p50</th><th>TTFT p95</th><th>ITL p95</th><th>Within SLO</th><th>Cache hit rate</th><th>Imbalance</th>
     </tr></thead><tbody>${rows}</tbody></table></div>`;
@@ -81,7 +81,7 @@ export function render(root, state) {
         <ul class="text-sm text-muted mt-2 space-y-1.5 list-disc pl-5 leading-relaxed">
           <li>One model family (Qwen2.5-7B) and one GPU type for the fleet (NVIDIA L4). Other models and GPUs will shift every number.</li>
           <li>Prompts are synthetic text with controlled lengths and shared prefixes. Arrival times and response lengths come from a real trace; prompt contents do not.</li>
-          <li>All four GPUs sit in one container on one machine. There is no network between router and replicas, so router overhead here is a lower bound.</li>
+          <li>All the GPUs sit in one container on one machine. There is no network between router and replicas, so router overhead here is a lower bound.</li>
           <li>Output length is forced (the model is told to ignore its stop token) so every policy produces the same tokens. Real traffic stops when the model decides to.</li>
           <li>Runs are minutes long. Hour-scale effects such as cache churn over a day are not measured.</li>
         </ul>

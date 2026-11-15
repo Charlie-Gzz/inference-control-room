@@ -23,7 +23,7 @@ const STEPS = [
     title: "4. Same GPUs, same traffic, different result",
     text: (ctx) =>
       ctx.result ||
-      "Both sides get exactly the same requests at exactly the same times on the same four GPUs. Only the router differs. The scoreboard counts what each one did with them.",
+      "Both sides get exactly the same requests at exactly the same times on the same GPUs. Only the router differs. The scoreboard counts what each one did with them.",
     target: () => document.getElementById("scoreboard").getBoundingClientRect(),
   },
 ];

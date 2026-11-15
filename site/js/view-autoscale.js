@@ -85,8 +85,8 @@ export async function render(root, state) {
         <span class="font-semibold">Bursty traffic window</span>
         <label class="text-muted flex items-center gap-1.5">Repeat
           <select id="as-seed" class="bg-panel border border-line rounded-md text-ink px-2 py-1">${seeds.map((s) => `<option value="${s}"${s === seed ? " selected" : ""}>${s + 1}</option>`).join("")}</select></label>
-        <span class="text-muted"><span class="legend-dot" style="background:${POLICY_COLORS.static}"></span>static, 4 replicas</span>
-        <span class="text-muted"><span class="legend-dot" style="background:${POLICY_COLORS.autoscaled}"></span>autoscaled, 1 to 4 replicas</span>
+        <span class="text-muted"><span class="legend-dot" style="background:${POLICY_COLORS.static}"></span>static, ${fixed.replicas} replicas</span>
+        <span class="text-muted"><span class="legend-dot" style="background:${POLICY_COLORS.autoscaled}"></span>autoscaled, 1 to ${fixed.replicas} replicas</span>
       </div>
       <div id="as-plot"></div>
       <div class="px-1 pt-2 text-xs text-muted">Top: requests per second (the same arrivals for both fleets). Middle: replicas switched on, with the dashed line showing replicas actually serving (a new replica needs time to load the model). Bottom: p95 time to first token per ${BUCKET} seconds, on a log scale. The saving is modeled: it counts each replica from the moment it is started until it is stopped, as if replicas were billed one by one. In the real test all four GPUs sat in one container and were billed for the whole run.</div>

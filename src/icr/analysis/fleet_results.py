@@ -48,10 +48,10 @@ def run_summary(run: Run, slo: SLO = DEFAULT_SLO) -> dict:
 def policy_table(workload: str, slo: SLO = DEFAULT_SLO) -> dict:
     """Fixed-traffic comparison on one workload: policy -> metric -> spread over repeats."""
     by_policy: dict[str, dict[int, dict]] = {}
-    rate = None
+    rate = replicas = None
     for run in _fleet_runs("fixed", workload):
         by_policy.setdefault(run.meta["policy"], {})[run.meta["seed"]] = run_summary(run, slo)
-        rate = run.meta["run"]["rate_rps"]
+        rate, replicas = run.meta["run"]["rate_rps"], run.meta.get("replicas")
     table = {}
     for policy in POLICIES:
         seeds = by_policy.get(policy)
@@ -64,7 +64,7 @@ def policy_table(workload: str, slo: SLO = DEFAULT_SLO) -> dict:
             "requests": [s["requests"] for s in ordered],
             **{m: spread([s.get(m) for s in ordered]) for m in COMPARED},
         }
-    return {"workload": workload, "rate_rps": rate, "policies": table}
+    return {"workload": workload, "rate_rps": rate, "replicas": replicas, "policies": table}
 
 
 def capacity_table(slo: SLO = DEFAULT_SLO) -> dict:
@@ -162,7 +162,7 @@ def headline(chat: dict, capacity: dict, a: str = "round-robin", b: str = "prefi
                 f", which is <b>{pct(cost)}</b> {'lower' if cost < 0 else 'higher'} "
                 "cost per million tokens"
             )
-    html = f"On the same 4 GPUs and the same traffic, {first}{second}."
+    html = f"On the same {chat.get('replicas') or 4} GPUs and the same traffic, {first}{second}."
     text = html.replace("<b>", "").replace("</b>", "")
     return {
         "ttft_p95_change": ttft, "capacity_change": cap, "cost_change": cost,
