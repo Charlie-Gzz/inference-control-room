@@ -20,7 +20,7 @@ work, run `uv run modal app list` and stop anything running.
 | M7 Assets and portfolio kit | `icr assets [--video]` written and rehearsed on mock data; real assets not generated yet |
 | M8 README and handoff | not started |
 
-GPU spend so far: **$2.68 of $35** (all in the dev budget of $10; fleet $0 of $18; H100 $0 of $7).
+GPU spend so far: **$3.33 of $35** (dev $2.68 of $10; fleet $0.65 of $18; H100 $0 of $7).
 
 ## Measured so far (real, one L4)
 
@@ -43,37 +43,24 @@ Config sweep on chat (capacity = highest ramp level within the SLO; one level is
 - awq on rag (sweep levels 1.0 to 2.6 req/s): meets the SLO at every level.
 - The binding limit is inter-token latency, not time to first token.
 
-## State at the pause (2026-11-15, 12:00 EST): read this first
+## State (2026-11-15, 15:30 EST): read this first
 
-Paused for the usage limit. A wakeup at 15:15 EST runs `/autonomous-build` again.
-
-- **`L4:4` has not been available.** Two requests waited in Modal's queue (over an hour
-  on the evening of 2026-11-14, 80 minutes on the morning of 2026-11-15). No container
-  ever started and nothing was billed. Both are in the ledger at $0 with notes.
-- **A 2-GPU pilot is queued right now**: `fleet --items proxycheck,chat --max-runs 4
-  --replicas 2`, launched 11:38 EST, log `.scratch/fleet-3.log`, app
-  `ap-gB1sVwX5U6bYOhwBpWk5DD`. At 12:00 it was still waiting for GPUs. If it ran while
-  nobody was watching, its runs are in `results/runs/fleetx2-*` and the ledger has a new
-  row: **commit them first**, then `ledger.reconcile()`. If its log ends with an error
-  (for example an expired login token) and there are no `fleetx2-*` runs, nothing ran:
-  settle the ledger row to $0 with `ledger.settle(app_id, 0.0, note)` and launch again.
-- Pilot runs are named `fleetx2-...` on purpose. `icr results` ignores them. To look at
-  them: `icr.analysis.runs.all_runs("fleetx2-")` and `metrics.summarize`.
-
-On restart, in this order:
-1. `git status`, commit anything uncommitted (results and ledger first).
-2. `uv run modal app list`. If the pilot app is still queued or running, let it finish.
-   Stop anything else that is not expected (`modal app stop --yes <id>`).
-3. Read the pilot: errors, CPU use (`container_resources` in meta.json, the fleet asked
-   for 5 cores for 2 replicas), cache hit rate and latency per policy. Fix any bug it
-   shows before spending on 4 GPUs.
-4. Request `L4:4` again: `uv run modal run -m icr.modal_app.app::fleet --items proxycheck,chat`.
-   Watch with `modal app list --json` (tasks goes from 0 to 1 when the container starts).
-   Waiting is free. If 4 GPUs still cannot be had after a long wait, use the plan's
-   fallback for the whole fleet plan: add `--replicas 2` to every fleet command, set the
-   analysis to read `fleetx2-` runs (`_fleet_runs` in `src/icr/analysis/fleet_results.py`
-   and `all_runs("fleet-")` in `site_data.py`, `results.py`, `story.py`), and change the
-   fixed texts that say 4 GPUs (`site/index.html` meta tags, `assets/diagram.py`, README).
+- **The 2-GPU pilot ran** (11:38 to about 12:20 EST, $0.65, no errors, 5 runs in
+  `results/runs/fleetx2-*`). The fleet code works on real GPUs. Chat at 7.28 req/s, one
+  repeat: round-robin p95 TTFT 0.47 s, ITL p95 66 ms, 75% of prompt tokens from cache;
+  least-loaded 0.59 s, 68 ms, 75%; prefix-aware 0.29 s, 43 ms, 84%. CPU use was about 1.1
+  cores of the 5 requested. Pilot runs are ignored by `icr results` on purpose.
+- **`L4:4` is being requested for the third time** (launched 15:16 EST, log
+  `.scratch/fleet-4.log`). The first two requests waited over an hour each and never got a
+  container (both in the ledger at $0). Waiting is free.
+- If the log ends with an error and there are no new `fleet-*` runs, nothing ran: settle
+  the ledger row to $0 with `ledger.settle(app_id, 0.0, note)` and launch again.
+- If 4 GPUs cannot be had after another long wait, the plan's fallback applies to the
+  whole fleet plan: add `--replicas 2` to every fleet command (the pilot's 4 runs are
+  then reused), make the analysis read `fleetx2-` runs (`_fleet_runs` in
+  `src/icr/analysis/fleet_results.py`, and `all_runs("fleet-")` in `site_data.py`,
+  `results.py`, `story.py`), and change the fixed texts that say 4 GPUs
+  (`site/index.html` meta tags, `src/icr/assets/diagram.py`, README).
 
 ## Exact next step
 
