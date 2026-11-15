@@ -19,6 +19,12 @@ Totals use the actual cost when it is known. Rendered by `icr.ledger`.
 | 2026-11-14 21:33 | M3a stage 1 sweep, session 4 (draft, suffix) | dev | L4 x1 | 4 | 16 | 578 | 0.179 | 0.174 | 1.893 |
 | 2026-11-14 22:07 | M3a stage 2 (seqs256 x2) + suffix decoding retry | dev | L4 x1 | 4 | 16 | 1459 | 0.453 | 0.448 | 2.340 |
 | 2026-11-15 01:49 | M3a finalists on rag + no-sharing calibration (awq) | dev | L4 x1 | 4 | 16 | 1126 | 0.349 | 0.343 | 2.684 |
+| 2026-11-15 15:16 | M4 session 1: proxy check + chat 3 policies x 3 repeats | fleet | L4 x4 | 8 | 64 | 3625 | 4.119 | 0.000 | 2.684 |
+
+## Notes
+
+- 2026-11-14 01:32, M0 smoke test (AWQ, 20 requests): first estimate used wall-clock time, which included a 7-minute wait for an L4 that Modal does not bill
+- 2026-11-15 15:16, M4 session 1: proxy check + chat 3 policies x 3 repeats: NEVER RAN: waited in the queue for a 4-GPU L4 machine from 20:51 EST, no container was ever started, and the client login token expired overnight. No fleet run exists. Modal billing report has no entry for this app.
 
 ## Totals
 

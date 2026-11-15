@@ -128,6 +128,17 @@ def reconcile(period: str = "this month") -> list[dict]:
     return all_rows
 
 
+def settle(app_id: str, actual_cost_usd: float, note: str) -> dict:
+    """Set a row's actual cost by hand, with the reason. For runs Modal never bills
+    (a request that waited in the queue and never got a container has no billing entry)."""
+    all_rows = rows()
+    row = next(r for r in all_rows if r["app_id"] == app_id)
+    row["actual_cost_usd"] = actual_cost_usd
+    row["note"] = note
+    _write(all_rows)
+    return row
+
+
 def render() -> None:
     """Write docs/GPU_LEDGER.md from the JSONL ledger."""
     lines = [
@@ -154,6 +165,10 @@ def render() -> None:
             f"| {r['memory_gib']:g} | {r['billed_seconds']:.0f} | {r['cost_usd']:.3f} "
             f"| {actual} | {total:.3f} |"
         )
+    noted = [r for r in rows() if r.get("note")]
+    if noted:
+        lines += ["", "## Notes", ""]
+        lines += [f"- {r['date']}, {r['purpose']}: {r['note']}" for r in noted]
     lines += ["", "## Totals", ""]
     for cat, cap in config.BUDGET_BY_CATEGORY.items():
         lines.append(f"- {cat}: ${spent(cat):.2f} of ${cap:.2f}")
