@@ -164,3 +164,31 @@ req/s instead of 5.2. A single replica that sees all the traffic served about 83
 chat prompt tokens from cache.
 
 Runs: `sweep-l4-awq-nocache-ramp-chat`, `sweep-l4-awq-ramp-no-sharing-fine`.
+
+## Scale and limits
+
+### 13. What would change at 100 GPUs?
+
+- **The router's table.** One router process holds every replica's prefix table in
+  memory behind one mutex. That is fine for 4 replicas (a decision takes microseconds).
+  At 100 replicas the table would be sharded by prefix hash, or replaced by consistent
+  hashing on the first chunks so that no table is needed for the common case.
+- **More than one router.** Several routers would each see only part of the traffic, so
+  their tables and load counts would disagree. Either they share state, or routing
+  becomes stateless (hash the prefix to a replica, with a bounded-load fallback).
+- **Load signal.** The router counts its own requests in flight per replica. With several
+  routers it would need the replicas' own numbers (running and waiting from `/metrics`).
+- **Cache truth.** The table is a guess about what each replica has cached. At scale,
+  evictions make the guess go stale faster. Reading real cache state from the engine
+  (stretch item 1) matters more.
+- **Failure handling.** Here a replica is either in the live set or not. A real fleet
+  needs health checks, retries on another replica, and draining.
+- **Autoscaling.** A new replica took 83 to 256 s to start here. At scale you keep warm
+  spares or scale on a forecast, because a two-minute burst is over before a cold
+  replica is ready.
+
+### 14. What is not measured here?
+
+One model family, one GPU type for the fleet, synthetic prompt text with real arrival
+times and real response lengths, runs of minutes not hours, and no network between the
+router and the replicas. The README's Limitations section lists them in full.
