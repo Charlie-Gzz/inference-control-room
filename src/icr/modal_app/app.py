@@ -57,6 +57,7 @@ VOLUMES = {config.VOLUME_MOUNT: volume}
 CPU_DOWNLOAD = {"cpu": 2.0, "memory": 4096}
 L4_SINGLE = {"cpu": 4.0, "memory": 16384}
 L4_FLEET = {"cpu": config.FLEET_CPU, "memory": config.FLEET_MEMORY_MIB}
+L4_FLEET_2 = {"cpu": config.FLEET_CPU / 2 + 1, "memory": config.FLEET_MEMORY_MIB // 2}
 H100_SINGLE = {"cpu": 8.0, "memory": 32768}  # more load generator work at H100 request rates
 # Per GPU label of the sweep: remote function name, resources, ledger GPU and budget category.
 SWEEP_TARGETS = {
@@ -130,6 +131,19 @@ def sweep_h100_fn(session: dict) -> dict:
 @app.function(image=gpu_image, gpu=config.GPU_L4_FLEET, volumes=VOLUMES,
               timeout=config.TIMEOUT_FLEET_S, max_containers=1, **L4_FLEET)  # fmt: skip
 def fleet_l4_fn(session: dict) -> dict:
+    from icr.modal_app import fleet
+
+    start = time.monotonic()
+    result = fleet.run_session(session, volume.commit)
+    volume.commit()
+    result["container_seconds"] = time.monotonic() - start
+    return result
+
+
+@app.function(image=gpu_image, gpu=config.GPU_L4_FLEET_FALLBACK, volumes=VOLUMES,
+              timeout=config.TIMEOUT_FLEET_S, max_containers=1, **L4_FLEET_2)  # fmt: skip
+def fleet_l4x2_fn(session: dict) -> dict:
+    """PLAN 1.7 fallback: the same fleet session on 2 GPUs, used only if L4:4 is unavailable."""
     from icr.modal_app import fleet
 
     start = time.monotonic()
@@ -290,15 +304,19 @@ def sweep(
 
 
 @app.local_entrypoint()
-def fleet(items: str, purpose: str = "", max_runs: int = 0):
-    """One L4:4 session of fleet runs: `--items chat` or `--items proxycheck,ramp`."""
+def fleet(items: str, purpose: str = "", max_runs: int = 0, replicas: int = 0):
+    """One L4:4 session of fleet runs: `--items chat` or `--items proxycheck,ramp`.
+
+    `--replicas 2` is the plan's fallback when a 4-GPU container cannot be had.
+    """
     from icr import ledger
     from icr.fleet import plan
     from icr.fleet.local import table_chunks_for
     from icr.modal_app.configs import CONFIGS
 
-    res = _resources(L4_FLEET)
-    n = config.FLEET_REPLICAS
+    n = replicas or config.FLEET_REPLICAS
+    remote, spec = (fleet_l4_fn, L4_FLEET) if n == 4 else (fleet_l4x2_fn, L4_FLEET_2)
+    res = _resources(spec)
     ledger.check_budget("fleet", "L4", n, max_seconds=config.TIMEOUT_FLEET_S, **res)
     calib = plan.calibration()
     runs = [r for item in items.split(",") for r in plan.runs_for(item.strip(), calib, n)]
@@ -309,14 +327,14 @@ def fleet(items: str, purpose: str = "", max_runs: int = 0):
         "config": CONFIGS[calib["fleet_config"]].to_dict(),
         "runs": runs[:max_runs] if max_runs else runs,
         "table_chunks": table_chunks_for(calib["kv_cache_tokens"]),
-        "autoscaler": calib["autoscaler"],
+        "autoscaler": {**calib["autoscaler"], "max_replicas": n},
         "budget_s": config.FLEET_SESSION_BUDGET_S,
     }
     purpose = purpose or f"fleet {items}"
     ledger_args = dict(category="fleet", gpu="L4", gpu_count=n, app_id=app.app_id or "",
                        run_id=session["session_id"], **res)  # fmt: skip
     try:
-        result = fleet_l4_fn.remote(session)
+        result = remote.remote(session)
     except BaseException as e:  # still record the spend; finished runs are in the Volume
         ledger.record(purpose=purpose, container_seconds=config.TIMEOUT_FLEET_S,
                       note=f"FAILED ({type(e).__name__}); billed time is the worst case",

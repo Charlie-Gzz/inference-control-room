@@ -73,12 +73,14 @@ def ramp_runs(r_sat_chat: float, replicas: int = 4) -> list[dict]:
     ]  # fmt: skip
 
 
-def autoscale_runs(r_sat_chat: float) -> list[dict]:
+def autoscale_runs(r_sat_chat: float, replicas: int = 4) -> list[dict]:
+    """Mean load = a quarter of the fleet's saturation rate (one replica's worth of four)."""
+    rate = round(0.25 * replicas * r_sat_chat, 2)
     return [
         {
             "kind": "autoscale", "workload": "chat", "policy": variant, "seed": seed,
             "router_policy": AUTOSCALE_ROUTER_POLICY, "segment": "bursty",
-            "rate_rps": round(r_sat_chat, 2), "warmup_s": AUTOSCALE_WARMUP_S,
+            "rate_rps": rate, "warmup_s": AUTOSCALE_WARMUP_S,
             "measured_s": AUTOSCALE_MEASURED_S,
         }
         for seed in SEEDS
@@ -104,7 +106,7 @@ def runs_for(item: str, calib: dict | None = None, replicas: int = 4) -> list[di
     if item == "ramp":
         return ramp_runs(r_sat["chat"], replicas)
     if item == "autoscale":
-        return autoscale_runs(r_sat["chat"])
+        return autoscale_runs(r_sat["chat"], replicas)
     if item in ("chat", "rag", "no-sharing", "agentic"):
         return fixed_runs(item, r_sat[item], replicas)
     raise ValueError(f"unknown fleet item {item!r}; choose from {ITEMS}")
