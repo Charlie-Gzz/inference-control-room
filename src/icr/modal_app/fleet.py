@@ -35,8 +35,13 @@ DRAIN_ALLOWANCE_S = 45.0  # time after the last arrival for requests to finish
 
 
 def run_id(run: dict) -> str:
-    """Stable id of one run: kind, workload, policy (or variant) and seed."""
-    return f"fleet-{run['kind']}-{run['workload']}-{run['policy']}-s{run['seed']}"
+    """Stable id of one run: kind, workload, policy (or variant) and seed.
+
+    Runs of the 2-GPU fallback fleet carry a tag (`fleetx2-...`), so they can never be
+    mistaken for, or skipped in place of, a 4-GPU run.
+    """
+    prefix = f"fleet{run.get('tag', '')}"
+    return f"{prefix}-{run['kind']}-{run['workload']}-{run['policy']}-s{run['seed']}"
 
 
 def planned_seconds(run: dict) -> float:

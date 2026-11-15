@@ -320,6 +320,8 @@ def fleet(items: str, purpose: str = "", max_runs: int = 0, replicas: int = 0):
     ledger.check_budget("fleet", "L4", n, max_seconds=config.TIMEOUT_FLEET_S, **res)
     calib = plan.calibration()
     runs = [r for item in items.split(",") for r in plan.runs_for(item.strip(), calib, n)]
+    if n != config.FLEET_REPLICAS:  # fallback fleet: its runs get their own ids (fleetx2-...)
+        runs = [{**r, "tag": f"x{n}"} for r in runs]
     session = {
         "session_id": time.strftime("fleet-%Y%m%d-%H%M%S", time.gmtime()),
         "label": f"l4x{n}",

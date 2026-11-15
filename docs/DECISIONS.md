@@ -111,3 +111,10 @@ R_sat(no-sharing) = 1.1. No fleet run had happened when these were written.
 | Autoscaling window: mean 5.2 req/s (one replica's R_sat) on the bursty segment | | Same. | no (frozen) |
 | The rag fleet load is known to be on the low side | raise it | The sweep ramp later showed `awq` meeting the SLO on rag up to 2.6 req/s (its top level), so R_sat(rag) = 2.0 understates one replica by 30% or more and the rag fleet runs sit near 50% of capacity, not 70%. The value was frozen from the calibration ramps before that sweep ramp ran, and it is not changed after the fact. It is stated wherever rag results are shown. | no (frozen) |
 | Order of fleet sessions: `proxycheck,chat`, then `ramp`, `rag`, `no-sharing`, `autoscale`, and `agentic` only if at least $3 of the $18 reserve is left | | The plan's priority order. Estimated $4.09 per hour for 8 cores and 64 GiB next to the 4 GPUs. | yes |
+
+## L4:4 availability (2026-11-15)
+
+| Decision | Options considered | Why | Easy to change? |
+|---|---|---|---|
+| Run a short **2-GPU pilot** (`L4:2`: the router check and one repeat of the chat comparison) before going back to the queue for 4 GPUs | keep waiting for `L4:4` only; switch the whole fleet plan to `L4:2` now | Two requests for `L4:4` waited more than an hour each (evening of 2026-11-14 and morning of 2026-11-15) without a container ever starting. Modal's GPU guide says requests for more than 2 GPUs per container "will usually result in larger wait times", so this is a queue, not a refusal, and nothing was billed. Switching everything to 2 GPUs now would spend about half of the fleet reserve and leave too little to redo it on 4 GPUs later. A pilot of about 20 minutes costs under $1, proves the fleet code on real GPUs (it had only run against mocks), and gives a first real comparison. Its runs are named `fleetx2-...`, are analysed separately and are never mixed into 4-GPU numbers. | yes |
+| If `L4:4` still cannot be had after the pilot and a further long wait, the plan's fallback applies in full: the fleet plan runs on `L4:2`, and every chart, the headline and the site say 2 GPUs | stop the project; exceed the budget | PLAN 1.7. | yes |
