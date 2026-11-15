@@ -137,6 +137,8 @@ class LoadGenerator:
                 rec.itl_s = round((last - first) / (rec.completion_tokens - 1), 5)
         elif not rec.error:
             rec.error = "no tokens received"
+        if first is not None and rec.completion_tokens is None and not rec.error:
+            rec.error = "stream ended before the usage block"  # cut off, e.g. a server crash
         return rec
 
 

@@ -21,6 +21,14 @@ def test_percentile_interpolates():
     assert metrics.percentile([], 95) is None
 
 
+def test_a_stream_cut_off_before_its_usage_block_counts_as_failed():
+    cut = {**record(1), "completion_tokens": None}  # first token arrived, then the server died
+    assert metrics.failed(cut) and not metrics.is_good(cut)
+    assert not metrics.failed(record(2))
+    summary = metrics.summarize([record(0), cut])
+    assert summary["errors"] == 1 and summary["output_tokens"] == 100
+
+
 def test_summary_excludes_warmup_and_counts_errors():
     rows = [record(0, phase="warmup", ttft=99)] + [record(i) for i in range(1, 11)]
     rows.append(record(11, error="boom"))

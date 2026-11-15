@@ -30,8 +30,18 @@ def percentile(values: list[float], q: float) -> float | None:
     return ordered[lo] + (ordered[hi] - ordered[lo]) * (pos - lo)
 
 
+def failed(record: dict) -> bool:
+    """A request failed if it errored, never produced a token, or its stream was cut off
+    before the final usage block (seen when a server dies mid-response)."""
+    return bool(
+        record.get("error")
+        or record.get("ttft_s") is None
+        or record.get("completion_tokens") is None
+    )
+
+
 def is_good(record: dict, slo: SLO = DEFAULT_SLO) -> bool:
-    if record.get("error") or record.get("ttft_s") is None:
+    if failed(record):
         return False
     itl = record.get("itl_s")
     return record["ttft_s"] <= slo.ttft_s and (itl is None or itl <= slo.itl_s)
@@ -44,7 +54,7 @@ def measured(records: list[dict]) -> list[dict]:
 def summarize(records: list[dict], slo: SLO = DEFAULT_SLO, replicas: int | None = None) -> dict:
     """Headline metrics for one run (or one traffic level of a ramp)."""
     rows = measured(records)
-    ok = [r for r in rows if not r.get("error") and r.get("ttft_s") is not None]
+    ok = [r for r in rows if not failed(r)]
     if not rows:
         return {"requests": 0}
     ttft = [r["ttft_s"] for r in ok]

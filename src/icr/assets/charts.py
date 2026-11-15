@@ -417,16 +417,19 @@ def spec_decode(s: dict):
             c["max_rps_at_slo"] / base["max_rps_at_slo"] if base["max_rps_at_slo"] else 0
             for c in spec
         ]
-        accept = [((c.get("spec_decode") or {}).get("acceptance_rate") or 0) * 100 for c in spec]
+        rates = [(c.get("spec_decode") or {}).get("acceptance_rate") for c in spec]
+        accept = [None if r is None else r * 100 for r in rates]  # None: counters not recorded
         if workload == "chat":
             best = max(zip(ratios, names, strict=True))
         for ax, values, fmt, ylabel in (
             (axes[0][j], ratios, "{:.2f}x", "capacity vs baseline"),
             (axes[1][j], accept, "{:.0f}%", "drafts accepted (%)"),
         ):
-            ax.bar(range(len(names)), values, width=0.55, color=theme.SERIES[2], zorder=2)
+            ax.bar(range(len(names)), [v or 0 for v in values], width=0.55, color=theme.SERIES[2],
+                   zorder=2)  # fmt: skip
             for k, v in enumerate(values):
-                ax.annotate(fmt.format(v), (k, v), xytext=(0, 4), textcoords="offset points",
+                text = fmt.format(v) if v is not None else "not recorded"
+                ax.annotate(text, (k, v or 0), xytext=(0, 4), textcoords="offset points",
                             ha="center", fontsize=9, fontfamily=theme.MONO)  # fmt: skip
             ax.set_xticks(range(len(names)), names)
             ax.set_xlim(-0.8, max(len(names), 4) - 0.2)
@@ -434,6 +437,7 @@ def spec_decode(s: dict):
             ax.grid(axis="x", visible=False)
             ax.margins(y=0.22)
             ax.set_ylim(bottom=0)
+        axes[0][j].set_ylim(0, max(1.25, max(ratios) * 1.2))
         axes[0][j].axhline(1.0, color=MUTED, lw=1, ls=DASH)
         axes[0][j].set_title(f"{workload}: capacity relative to the baseline", color=INK)
         axes[1][j].set_title(f"{workload}: acceptance rate")
@@ -447,7 +451,8 @@ def spec_decode(s: dict):
         else:
             title = "Speculative decoding does not change single-GPU capacity at the SLO on chat"
     sub = ("One L4, AWQ weights. Capacity = highest ramp level within the SLO (steps of about 15%). "
-           "Acceptance = accepted / proposed draft tokens, from vLLM's counters.")  # fmt: skip
+           "Acceptance = accepted / proposed draft tokens, from vLLM's counters (not recorded for suffix: its "
+           "server crashed at the overload level).")  # fmt: skip
     return _finish(fig, "spec_decode", title, sub, _footer(s, "1 x NVIDIA L4", model=SWEEP_MODEL), left=0.08, right=0.97,
                    wspace=0.25, hspace=0.5)  # fmt: skip
 

@@ -28,7 +28,7 @@ A, B = "round-robin", "prefix-aware"
 def window_stats(rows: list[dict], t0: float, t1: float) -> dict:
     """Goodput, p95 TTFT and cache hit rate of the requests arriving in [t0, t1)."""
     inside = [r for r in rows if t0 <= r["scheduled_s"] < t1]
-    ok = [r for r in inside if not r.get("error") and r.get("ttft_s") is not None]
+    ok = [r for r in inside if not metrics.failed(r)]
     prompt = sum(r.get("prompt_tokens") or 0 for r in ok)
     return {
         "requests": len(inside),
