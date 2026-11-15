@@ -7,12 +7,14 @@
   "baseline": "awq",
   "baseline_r_sat": {
    "chat": 5.2,
-   "rag": 2.0
+   "rag": 2.0,
+   "no-sharing": 1.1
   },
   "fleet_config": "awq",
   "r_sat": {
    "chat": 5.2,
-   "rag": 2.0
+   "rag": 2.0,
+   "no-sharing": 1.1
   },
   "sources": {
    "baseline": {
@@ -45,6 +47,20 @@
      "stage": "cal",
      "note": "the fine ramp's first level missed the SLO on a cold cache; coarse value kept",
      "fine_source": "sweep-l4-awq-ramp-rag-fine"
+    },
+    "no-sharing": {
+     "r_sat": 1.1,
+     "first_miss": 1.2,
+     "rates": [
+      1.0,
+      1.1,
+      1.2,
+      1.3,
+      1.4,
+      1.5
+     ],
+     "source": "sweep-l4-awq-ramp-no-sharing-fine",
+     "stage": "fine"
     }
    },
    "fleet": {
@@ -77,6 +93,20 @@
      "stage": "cal",
      "note": "the fine ramp's first level missed the SLO on a cold cache; coarse value kept",
      "fine_source": "sweep-l4-awq-ramp-rag-fine"
+    },
+    "no-sharing": {
+     "r_sat": 1.1,
+     "first_miss": 1.2,
+     "rates": [
+      1.0,
+      1.1,
+      1.2,
+      1.3,
+      1.4,
+      1.5
+     ],
+     "source": "sweep-l4-awq-ramp-no-sharing-fine",
+     "stage": "fine"
     }
    }
   },
@@ -1367,17 +1397,165 @@
      }
     ],
     "cheapest_at_default_slo": "awq"
+   },
+   "rag": {
+    "configs": [
+     {
+      "config": "awq",
+      "quantization": "AWQ 4-bit",
+      "speculative": "off",
+      "prefix_caching": true,
+      "max_num_seqs": 128,
+      "gpu": "l4",
+      "workload": "rag",
+      "startup_s": 152.2,
+      "cost_per_hour_usd": 1.1172,
+      "max_rps_at_slo": 2.6,
+      "capacity_is_lower_bound": true,
+      "points": [
+       {
+        "config": "awq",
+        "level": 0,
+        "rate_rps": 1.0,
+        "requests": 40,
+        "errors": 0,
+        "ttft_p50_s": 0.5669,
+        "ttft_p95_s": 1.0855,
+        "itl_p95_s": 0.05578,
+        "goodput": 1.0,
+        "cache_hit_rate": 0.5253,
+        "output_tokens_per_hour": 272250,
+        "total_tokens_per_hour": 8940060,
+        "cost_per_m_output": 4.1036,
+        "cost_per_m_total": 0.125
+       },
+       {
+        "config": "awq",
+        "level": 1,
+        "rate_rps": 1.4,
+        "requests": 56,
+        "errors": 0,
+        "ttft_p50_s": 0.0777,
+        "ttft_p95_s": 0.8722,
+        "itl_p95_s": 0.035,
+        "goodput": 0.9821,
+        "cache_hit_rate": 0.8095,
+        "output_tokens_per_hour": 514170,
+        "total_tokens_per_hour": 12757860,
+        "cost_per_m_output": 2.1728,
+        "cost_per_m_total": 0.0876
+       },
+       {
+        "config": "awq",
+        "level": 2,
+        "rate_rps": 1.7,
+        "requests": 68,
+        "errors": 0,
+        "ttft_p50_s": 0.0859,
+        "ttft_p95_s": 0.8762,
+        "itl_p95_s": 0.07066,
+        "goodput": 0.9853,
+        "cache_hit_rate": 0.8235,
+        "output_tokens_per_hour": 655740,
+        "total_tokens_per_hour": 15558030,
+        "cost_per_m_output": 1.7037,
+        "cost_per_m_total": 0.0718
+       },
+       {
+        "config": "awq",
+        "level": 3,
+        "rate_rps": 2.0,
+        "requests": 80,
+        "errors": 0,
+        "ttft_p50_s": 0.0861,
+        "ttft_p95_s": 0.7801,
+        "itl_p95_s": 0.05908,
+        "goodput": 1.0,
+        "cache_hit_rate": 0.8151,
+        "output_tokens_per_hour": 683280,
+        "total_tokens_per_hour": 18086040,
+        "cost_per_m_output": 1.6351,
+        "cost_per_m_total": 0.0618
+       },
+       {
+        "config": "awq",
+        "level": 4,
+        "rate_rps": 2.3,
+        "requests": 92,
+        "errors": 0,
+        "ttft_p50_s": 0.0814,
+        "ttft_p95_s": 1.0159,
+        "itl_p95_s": 0.05184,
+        "goodput": 1.0,
+        "cache_hit_rate": 0.8699,
+        "output_tokens_per_hour": 678150,
+        "total_tokens_per_hour": 20689110,
+        "cost_per_m_output": 1.6474,
+        "cost_per_m_total": 0.054
+       },
+       {
+        "config": "awq",
+        "level": 5,
+        "rate_rps": 2.6,
+        "requests": 104,
+        "errors": 0,
+        "ttft_p50_s": 0.0856,
+        "ttft_p95_s": 1.2918,
+        "itl_p95_s": 0.06691,
+        "goodput": 0.9712,
+        "cache_hit_rate": 0.8467,
+        "output_tokens_per_hour": 862020,
+        "total_tokens_per_hour": 23424300,
+        "cost_per_m_output": 1.296,
+        "cost_per_m_total": 0.0477
+       }
+      ],
+      "cost_per_m_output": 1.296,
+      "cost_per_m_total": 0.0477,
+      "output_tokens_per_hour": 862020,
+      "ttft_p50_s": 0.0856,
+      "ttft_p95_s": 1.2918,
+      "itl_p95_s": 0.06691,
+      "cache_hit_rate": 0.8467,
+      "spec_decode": null,
+      "gsm8k": {
+       "questions": 250,
+       "correct": 231,
+       "accuracy": 0.924,
+       "unparsed": 0,
+       "seconds": 45.9
+      },
+      "greedy": {
+       "self": {
+        "prompts": 100,
+        "exact_match": 0.92,
+        "mean_common_prefix": 0.951
+       }
+      }
+     }
+    ],
+    "frontier": [
+     {
+      "config": "awq",
+      "level": 5
+     },
+     {
+      "config": "awq",
+      "level": 3
+     }
+    ],
+    "cheapest_at_default_slo": "awq"
    }
   }
  },
  "fleet": {},
  "spend": {
-  "total_usd": 2.34,
+  "total_usd": 2.68,
   "by_category": {
-   "dev": 2.34,
+   "dev": 2.68,
    "fleet": 0,
    "h100": 0
   },
-  "runs": 10
+  "runs": 11
  }
 }

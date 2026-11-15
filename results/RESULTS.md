@@ -21,6 +21,14 @@ SLO: p95 time to first token <= 2.0 s and p95 inter-token latency <= 100 ms, wit
 
 Cheapest config that meets the SLO: `awq`.
 
+## Single-replica configs on L4: `rag`
+
+| Config | Weights | Spec. decoding | Prefix cache | Max seqs | Max req/s at SLO | $ per M output at SLO | TTFT p95 (s) | ITL p95 (ms) | GSM8K | Draft acceptance | Greedy match |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| `awq` | AWQ 4-bit | off | yes | 128 | 2.60 or more | 1.296 | 1.292 | 66.9 | 92.4% | - | 92% (self) |
+
+Cheapest config that meets the SLO: `awq`.
+
 ## Spend
 
-Total: $2.34 over 10 Modal runs (dev $2.34, fleet $0.00, h100 $0.00). See `docs/GPU_LEDGER.md`.
+Total: $2.68 over 11 Modal runs (dev $2.68, fleet $0.00, h100 $0.00). See `docs/GPU_LEDGER.md`.
