@@ -2,12 +2,14 @@
  "baseline": "awq",
  "baseline_r_sat": {
   "chat": 5.2,
-  "rag": 2.0
+  "rag": 2.0,
+  "no-sharing": 1.1
  },
  "fleet_config": "awq",
  "r_sat": {
   "chat": 5.2,
-  "rag": 2.0
+  "rag": 2.0,
+  "no-sharing": 1.1
  },
  "sources": {
   "baseline": {
@@ -40,6 +42,20 @@
     "stage": "cal",
     "note": "the fine ramp's first level missed the SLO on a cold cache; coarse value kept",
     "fine_source": "sweep-l4-awq-ramp-rag-fine"
+   },
+   "no-sharing": {
+    "r_sat": 1.1,
+    "first_miss": 1.2,
+    "rates": [
+     1.0,
+     1.1,
+     1.2,
+     1.3,
+     1.4,
+     1.5
+    ],
+    "source": "sweep-l4-awq-ramp-no-sharing-fine",
+    "stage": "fine"
    }
   },
   "fleet": {
@@ -72,6 +88,20 @@
     "stage": "cal",
     "note": "the fine ramp's first level missed the SLO on a cold cache; coarse value kept",
     "fine_source": "sweep-l4-awq-ramp-rag-fine"
+   },
+   "no-sharing": {
+    "r_sat": 1.1,
+    "first_miss": 1.2,
+    "rates": [
+     1.0,
+     1.1,
+     1.2,
+     1.3,
+     1.4,
+     1.5
+    ],
+    "source": "sweep-l4-awq-ramp-no-sharing-fine",
+    "stage": "fine"
    }
   }
  },

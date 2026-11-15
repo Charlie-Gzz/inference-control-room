@@ -98,3 +98,16 @@ Stage 2 and the suffix retry, chat workload: `fp8-seqs256` met the SLO at 5.98 r
 | One-level differences in capacity are reported as "within noise" | treat every level as a real difference | The 5.98 req/s level sits on AWQ's limit. Of four AWQ ramps near it, one passed (86.7 ms p95 inter-token latency against the 100 ms target) and three missed by 0.2 to 11 ms (5.6 and 6.0 req/s in the fine ramp, 5.98 with `max_num_seqs` 256). Levels are 40 s long with about 200 requests, so a config's capacity is known to about one level (15%). Differences of two levels or more (bf16, n-gram speculation, prefix caching off) are real. | yes |
 | Suffix decoding: its ramp is kept as a result, and the method is not combined further | drop the run; rerun it | With the package installed the server started and served levels 1 to 5 of the ramp with no errors (capacity 5.20 req/s, one level under the baseline). Then the vLLM engine died (EngineDeadError) 2.5 s before the end of the ramp, during the overload level. The crash is part of the result: on this stack, suffix decoding gained nothing and was less stable under overload. `/metrics` could not be read after the crash, so there is no acceptance rate for it, and the greedy-output check did not run. The run was copied from the Modal Volume by hand (the session returned an error for that task). No stage-2 combination with suffix decoding was run. | yes |
 | Speculative decoding summary: n-gram measured (capacity 3.64 req/s, 12.9% of draft tokens accepted), suffix measured (5.20 req/s, crashed under overload), draft model impossible (vocabulary mismatch) | keep trying methods | Three methods tried, as the plan's fallback list asks. None beat the baseline on this workload, where outputs are short (median 36 tokens) and most of the GPU's work is reading prompts. | yes |
+
+## Fleet method, final numbers (frozen 2026-11-14 before the first fleet run)
+
+Calibration of the fleet config (`awq`), one L4: R_sat(chat) = 5.2 req/s, R_sat(rag) = 2.0,
+R_sat(no-sharing) = 1.1. No fleet run had happened when these were written.
+
+| Decision | Options considered | Why | Easy to change? |
+|---|---|---|---|
+| Fixed-traffic fleet loads: chat 14.56 req/s, rag 5.6, no-sharing 3.08 (each 0.7 x 4 x R_sat) | other load factors | The rule frozen on 2026-11-14 with the measured R_sat values put in. | no (frozen) |
+| Capacity ramp on chat: 12.48, 15.6, 18.72, 21.84, 24.96, 28.08 req/s (0.6 to 1.35 x 4 x 5.2) | | Same. | no (frozen) |
+| Autoscaling window: mean 5.2 req/s (one replica's R_sat) on the bursty segment | | Same. | no (frozen) |
+| The rag fleet load is known to be on the low side | raise it | The sweep ramp later showed `awq` meeting the SLO on rag up to 2.6 req/s (its top level), so R_sat(rag) = 2.0 understates one replica by 30% or more and the rag fleet runs sit near 50% of capacity, not 70%. The value was frozen from the calibration ramps before that sweep ramp ran, and it is not changed after the fact. It is stated wherever rag results are shown. | no (frozen) |
+| Order of fleet sessions: `proxycheck,chat`, then `ramp`, `rag`, `no-sharing`, `autoscale`, and `agentic` only if at least $3 of the $18 reserve is left | | The plan's priority order. Estimated $4.09 per hour for 8 cores and 64 GiB next to the 4 GPUs. | yes |
