@@ -21,6 +21,7 @@ Totals use the actual cost when it is known. Rendered by `icr.ledger`.
 | 2026-11-15 01:49 | M3a finalists on rag + no-sharing calibration (awq) | dev | L4 x1 | 4 | 16 | 1126 | 0.349 | 0.343 | 2.684 |
 | 2026-11-15 15:16 | M4 session 1: proxy check + chat 3 policies x 3 repeats | fleet | L4 x4 | 8 | 64 | 3625 | 4.119 | 0.000 | 2.684 |
 | 2026-11-15 16:38 | M4 session 1 (second try): proxy check + chat | fleet | L4 x4 | 8 | 64 | 25 | 0.028 | 0.000 | 2.684 |
+| 2026-11-15 20:06 | M4 pilot on L4:2: proxy check + chat, 3 policies x 1 repeat | fleet | L4 x2 | 5 | 32 | 1134 | 0.659 | pending | 3.343 |
 
 ## Notes
 
@@ -31,6 +32,6 @@ Totals use the actual cost when it is known. Rendered by `icr.ledger`.
 ## Totals
 
 - dev: $2.68 of $10.00
-- fleet: $0.00 of $18.00
+- fleet: $0.66 of $18.00
 - h100: $0.00 of $7.00
-- **all: $2.68 of $35.00**
+- **all: $3.34 of $35.00**
