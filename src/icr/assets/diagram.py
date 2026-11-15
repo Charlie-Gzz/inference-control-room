@@ -58,11 +58,15 @@ def _marker(name: str, color: str) -> str:
 
 
 def svg() -> str:
+    n = config.FLEET_REPLICAS
+    # Replica boxes are 96 tall with a 36 gap, centered in the space four of them fill.
+    first = 140 + (492 - (n * 96 + (n - 1) * 36)) / 2
+    ys = [round(first + i * 132) for i in range(n)]
     parts = [
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" '
         'font-family="Inter, Segoe UI, Arial, sans-serif" role="img" '
         'aria-label="Switchyard architecture: workload and trace feed an open-loop load generator, '
-        "a Go router picks one of four vLLM replicas, a recorder saves every request, and the "
+        "a Go router picks one of the vLLM replicas, a recorder saves every request, and the "
         'results feed the optimizer and the control room site">',
         "<defs>" + _marker("arrow", MUTED) + _marker("arrow-rose", ROSE) + "</defs>",
         f'<rect width="{W}" height="{H}" fill="{BG}"/>',
@@ -73,7 +77,7 @@ def svg() -> str:
         f'<rect x="300" y="80" width="940" height="640" rx="18" fill="#0E1420" stroke="{LINE}" '
         'stroke-width="1.6" stroke-dasharray="7 6"/>',
         f'<text x="322" y="110" fill="{MUTED}" font-size="14" font-weight="600">ONE MODAL '
-        "CONTAINER  ·  4 x NVIDIA L4  ·  localhost only, nothing exposed</text>",
+        f"CONTAINER  ·  {n} x NVIDIA L4  ·  localhost only, nothing exposed</text>",
         # Inputs.
         _box(40, 160, 210, 96, "Workload generator", ("seeded prompts with", "shared prefixes")),
         _box(40, 310, 210, 96, "BurstGPT trace", ("real arrival times,", "rescaled (CC BY 4.0)")),
@@ -110,7 +114,7 @@ def svg() -> str:
         _arrow([(542, 285), (608, 285)], ROSE, both=True),
         _label(575, 196, "requests out, streamed tokens back"),
     ]
-    for i, y in enumerate([140, 272, 404, 536]):
+    for i, y in enumerate(ys):
         parts.append(
             _box(950, y, 260, 96, f"vLLM replica {i}", (f"GPU {i} · Qwen2.5-7B · prefix cache",))
         )
@@ -124,9 +128,9 @@ def svg() -> str:
         _label(575, 553, "load"),
         _arrow([(710, 508), (710, 342)]),
         _label(720, 430, "live replicas", "start"),
-        _arrow([(812, 600), (948, 600)]),
-        _label(880, 620, "start / stop"),
-        _arrow([(1080, 634), (1080, 668), (500, 668), (500, 622)]),
+        _arrow([(812, 600), (880, 600), (880, ys[-1] + 70), (948, ys[-1] + 70)]),
+        _label(846, 620, "start / stop"),
+        _arrow([(1080, ys[-1] + 98), (1080, 668), (500, 668), (500, 622)]),
         _label(790, 660, "/metrics every 250 ms"),
         _arrow([(400, 622), (400, 700), (1265, 700), (1265, 208), (1288, 208)]),
         _label(835, 692, "run files"),

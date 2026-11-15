@@ -1,7 +1,7 @@
 [project]
 name = "icr"
 version = "0.1.0"
-description = "Switchyard: a 4-GPU LLM serving fleet with prefix-cache-aware routing, measured and replayed in a control room."
+description = "Switchyard: a small LLM serving fleet with prefix-cache-aware routing, measured and replayed in a control room."
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 license = { text = "MIT" }
