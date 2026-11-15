@@ -1,0 +1,74 @@
+{
+ "run_id": "sweep-l4-awq-suffix-ramp-chat",
+ "kind": "sweep",
+ "label": "l4",
+ "config": {
+  "name": "awq-suffix",
+  "weights": "awq",
+  "quantization": null,
+  "speculative": {
+   "method": "suffix",
+   "num_speculative_tokens": 8
+  },
+  "prefix_caching": true,
+  "max_num_seqs": null,
+  "max_model_len": 8192,
+  "gpu_memory_utilization": 0.9,
+  "extra_args": [],
+  "pip": [
+   "arctic-inference==0.1.1"
+  ]
+ },
+ "task": "ramp:chat@2.6;3.64;4.42;5.2;5.98;6.76",
+ "seed": 0,
+ "startup_s": 256.1,
+ "session_id": "l4-20261114-213742",
+ "gpu": {
+  "gpus": [
+   "NVIDIA L4, 23034 MiB, 610.57.04"
+  ],
+  "table": "Sat Nov 14 21:43:48 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 610.57.04              KMD Version: 610.57.04     CUDA UMD Version: 13.3     |\n+-----------------------------------------+------------------------+----------------------+\n| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  NVIDIA L4                      On  |   00000000:80:01.0 Off |                    0 |\n| N/A   56C    P8             17W /   72W |       4MiB /  23034MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n\n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|  No running processes found                                                             |\n+-----------------------------------------------------------------------------------------+"
+ },
+ "vllm_version": "0.33.0",
+ "workload": "chat",
+ "policy": "direct",
+ "ramp": {
+  "rates_rps": [
+   2.6,
+   3.64,
+   4.42,
+   5.2,
+   5.98,
+   6.76
+  ],
+  "level_s": 40.0,
+  "warmup_s": 30.0
+ },
+ "started_unix": 1794693789.207,
+ "duration_s": 270.81,
+ "requests_total": 1222,
+ "summary": {
+  "requests": 1144,
+  "errors": 17,
+  "offered_rps": 4.771,
+  "ttft_p50_s": 0.2558,
+  "ttft_p95_s": 1.2055,
+  "itl_p95_s": 0.19465,
+  "e2e_p95_s": 26.202,
+  "goodput": 0.8645,
+  "output_tokens": 78719,
+  "prompt_tokens": 1267375,
+  "output_tokens_per_s": 330.4,
+  "cache_hit_rate": 0.8292,
+  "send_lag_p95_s": 0.0023
+ },
+ "container_resources": {
+  "samples": 271,
+  "cpu_cores_mean": 1.614,
+  "cpu_cores_p95": 1.908,
+  "cpu_cores_max": 2.038,
+  "memory_gib_max": 11.664
+ },
+ "cost_per_hour_usd": 1.1172,
+ "note": "The vLLM engine died (EngineDeadError) 267.5 s into this ramp, 2.5 s before its end, during the overload level (6.76 req/s). Levels 0 to 4 finished with no errors. metrics.txt could not be read after the crash, so there is no draft acceptance rate. Copied from the Modal Volume by hand."
+}

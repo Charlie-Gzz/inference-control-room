@@ -36,9 +36,12 @@ def _pct(change: float) -> str:
     return f"{abs(change) * 100:.0f}%"
 
 
-def _footer(s: dict, gpu: str | None = None, extra: str = "") -> str:
+SWEEP_MODEL = "Qwen2.5-7B-Instruct"  # sweep charts cover several quantizations of it
+
+
+def _footer(s: dict, gpu: str | None = None, extra: str = "", model: str | None = None) -> str:
     f = s.get("facts", {})
-    parts = [gpu or f.get("gpu", ""), f.get("model", ""), f.get("engine", ""), extra,
+    parts = [gpu or f.get("gpu", ""), model or f.get("model", ""), f.get("engine", ""), extra,
              "arrivals: BurstGPT trace (CC BY 4.0)"]  # fmt: skip
     return "  ·  ".join(p for p in parts if p)
 
@@ -303,12 +306,22 @@ def cost_by_config(s: dict):
         base = next((c for c in ok if c["config"] == "awq"), None)
         title = (f"{ok[0]['config']} is the cheapest config that meets the SLO: "
                  f"${ok[0]['cost_per_m_output']:.2f} per million output tokens")  # fmt: skip
+        tied = [c["config"] for c in ok if c["cost_per_m_output"] == ok[0]["cost_per_m_output"]]
+        if len(tied) > 1:
+            title = (f"{' and '.join(tied)} tie as the cheapest configs that meet the SLO: "
+                     f"${ok[0]['cost_per_m_output']:.2f} per million output tokens")  # fmt: skip
         if base and base is not ok[0]:
             title += f", {_pct(ok[0]['cost_per_m_output'] / base['cost_per_m_output'] - 1)} below the baseline"
     sub = ("One L4, chat workload. Every config ran the same 6-level ramp. Cost = hourly cost / tokens per "
            "hour at its highest level within the SLO. 'or more' = it met the SLO at the top level tested.")  # fmt: skip
     return _finish(
-        fig, "cost_by_config", title, sub, _footer(s, "1 x NVIDIA L4"), left=0.17, right=0.96
+        fig,
+        "cost_by_config",
+        title,
+        sub,
+        _footer(s, "1 x NVIDIA L4", model=SWEEP_MODEL),
+        left=0.17,
+        right=0.96,
     )
 
 
@@ -364,7 +377,15 @@ def pareto(s: dict, y_key: str = "itl_p95_s"):
     title = "Cheaper tokens cost latency: every measured operating point and the frontier"
     sub = ("Each marker is one server config at one traffic level of its ramp (lines join a config's levels). "
            "Down and left is better. Levels where requests failed are not drawn.")  # fmt: skip
-    return _finish(fig, "pareto", title, sub, _footer(s, "1 GPU per config"), left=0.08, right=0.8)
+    return _finish(
+        fig,
+        "pareto",
+        title,
+        sub,
+        _footer(s, "1 GPU per config", model=SWEEP_MODEL),
+        left=0.08,
+        right=0.8,
+    )
 
 
 def spec_decode(s: dict):
@@ -388,14 +409,15 @@ def spec_decode(s: dict):
         if workload == "chat":
             best = max(zip(ratios, names, strict=True))
         for ax, values, fmt, ylabel in (
-            (axes[0][j], ratios, "{:.2f}x", "capacity at the SLO vs no speculation"),
-            (axes[1][j], accept, "{:.0f}%", "draft tokens accepted (%)"),
+            (axes[0][j], ratios, "{:.2f}x", "capacity vs baseline"),
+            (axes[1][j], accept, "{:.0f}%", "drafts accepted (%)"),
         ):
             ax.bar(range(len(names)), values, width=0.55, color=theme.SERIES[2], zorder=2)
             for k, v in enumerate(values):
                 ax.annotate(fmt.format(v), (k, v), xytext=(0, 4), textcoords="offset points",
                             ha="center", fontsize=9, fontfamily=theme.MONO)  # fmt: skip
             ax.set_xticks(range(len(names)), names)
+            ax.set_xlim(-0.8, max(len(names), 4) - 0.2)
             ax.set_ylabel(ylabel, fontsize=8.5)
             ax.grid(axis="x", visible=False)
             ax.margins(y=0.22)
@@ -414,7 +436,7 @@ def spec_decode(s: dict):
             title = "Speculative decoding does not change single-GPU capacity at the SLO on chat"
     sub = ("One L4, AWQ weights. Capacity = highest ramp level within the SLO (steps of about 15%). "
            "Acceptance = accepted / proposed draft tokens, from vLLM's counters.")  # fmt: skip
-    return _finish(fig, "spec_decode", title, sub, _footer(s, "1 x NVIDIA L4"), left=0.08, right=0.97,
+    return _finish(fig, "spec_decode", title, sub, _footer(s, "1 x NVIDIA L4", model=SWEEP_MODEL), left=0.08, right=0.97,
                    wspace=0.25, hspace=0.5)  # fmt: skip
 
 
@@ -423,6 +445,8 @@ def quantization(s: dict):
             and c["prefix_caching"] and c["max_num_seqs"] == 128]  # fmt: skip
     fig = theme.figure(820)
     ax = fig.subplots()
+    top = max((c["max_rps_at_slo"] for c in rows), default=0)
+    ranked = sorted(rows, key=lambda c: -c["gsm8k"]["accuracy"])
     for k, c in enumerate(rows):
         g = c["gsm8k"]
         acc, n = g["accuracy"], g["questions"]
@@ -432,25 +456,39 @@ def quantization(s: dict):
                     capsize=4, lw=1.4, zorder=3)  # fmt: skip
         more = " or more" if c["capacity_is_lower_bound"] else ""
         cost = (
-            f"${c['cost_per_m_output']:.2f} per M tokens"
-            if c["cost_per_m_output"]
-            else "misses the SLO"
+            f"${c['cost_per_m_output']:.2f} per M" if c["cost_per_m_output"] else "misses the SLO"
         )
-        ax.annotate(f"{c['quantization']}\n{acc * 100:.1f}%  ·  {x:g} req/s{more}  ·  {cost}",
-                    (x, acc * 100), xytext=(12, 0), textcoords="offset points", va="center", fontsize=9)  # fmt: skip
+        # Labels go left of the fastest configs and right of the others. Configs with the
+        # same capacity are stacked by accuracy so their labels never overlap.
+        same = [r for r in ranked if r["max_rps_at_slo"] == x]
+        shift = (len(same) - 1) / 2 - same.index(c)
+        side = -1 if x == top else 1
+        ax.annotate(f"{c['quantization']}: {acc * 100:.1f}%\n{x:g} req/s{more}  ·  {cost}",
+                    (x, acc * 100), xytext=(side * 14, shift * 34), textcoords="offset points",
+                    va="center", ha="right" if side < 0 else "left", fontsize=9)  # fmt: skip
     ax.set_xlabel("capacity at the SLO on one L4, chat workload (requests per second)")
     ax.set_ylabel("GSM8K accuracy (%), 250 questions")
-    ax.margins(x=0.4, y=0.5)
+    ax.margins(x=0.25, y=0.5)
+    ax.set_xlim(left=0)
     title = "Quantization: speed against GSM8K accuracy"
     if len(rows) > 1:
-        fast = max(rows, key=lambda c: c["max_rps_at_slo"])
+        fastest = [c["quantization"] for c in rows if c["max_rps_at_slo"] == top]
+        slowest = min(rows, key=lambda c: c["max_rps_at_slo"])
         accs = [c["gsm8k"]["accuracy"] * 100 for c in rows]
-        title = (f"{fast['quantization']} carries the most traffic on an L4, and GSM8K accuracy stays within "
-                 f"{max(accs) - min(accs):.1f} points across quantizations")  # fmt: skip
+        lead = f"{' and '.join(fastest)} {'carry' if len(fastest) > 1 else 'carries'} the most traffic on an L4"
+        if slowest["max_rps_at_slo"] and top > slowest["max_rps_at_slo"]:
+            lead += f" ({top / slowest['max_rps_at_slo']:.1f}x {slowest['quantization']})"
+        title = f"{lead}, and GSM8K accuracy stays within {max(accs) - min(accs):.1f} points"
     sub = ("Bars are 95% intervals for 250 questions (about 3 points each way), so small accuracy gaps are "
            "within noise. Greedy decoding, same prompt for every config.")  # fmt: skip
     return _finish(
-        fig, "quantization", title, sub, _footer(s, "1 x NVIDIA L4"), left=0.08, right=0.96
+        fig,
+        "quantization",
+        title,
+        sub,
+        _footer(s, "1 x NVIDIA L4", model=SWEEP_MODEL),
+        left=0.08,
+        right=0.96,
     )
 
 
