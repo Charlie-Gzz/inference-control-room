@@ -1,0 +1,68 @@
+{
+ "run_id": "sweep-l4-awq-ramp-no-sharing-fine",
+ "kind": "sweep",
+ "label": "l4",
+ "config": {
+  "name": "awq",
+  "weights": "awq",
+  "quantization": null,
+  "speculative": null,
+  "prefix_caching": true,
+  "max_num_seqs": null,
+  "max_model_len": 8192,
+  "gpu_memory_utilization": 0.9,
+  "extra_args": [],
+  "pip": []
+ },
+ "task": "ramp:no-sharing@1.0;1.1;1.2;1.3;1.4;1.5=fine",
+ "seed": 0,
+ "startup_s": 152.2,
+ "session_id": "l4-20261115-013122",
+ "gpu": {
+  "gpus": [
+   "NVIDIA L4, 23034 MiB, 620.70.06"
+  ],
+  "table": "Sun Nov 15 01:31:29 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 620.70.06              KMD Version: 620.70.06     CUDA UMD Version: 13.5     |\n+-----------------------------------------+------------------------+----------------------+\n| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  NVIDIA L4                      On  |   00000000:B4:00.0 Off |                    0 |\n| N/A   44C    P8             18W /   72W |       3MiB /  23034MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n\n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|  No running processes found                                                             |\n+-----------------------------------------------------------------------------------------+"
+ },
+ "vllm_version": "0.33.0",
+ "workload": "no-sharing",
+ "policy": "direct",
+ "ramp": {
+  "rates_rps": [
+   1.0,
+   1.1,
+   1.2,
+   1.3,
+   1.4,
+   1.5
+  ],
+  "level_s": 40.0,
+  "warmup_s": 30.0
+ },
+ "started_unix": 1794707111.097,
+ "duration_s": 278.03,
+ "requests_total": 330,
+ "summary": {
+  "requests": 300,
+  "errors": 0,
+  "offered_rps": 1.253,
+  "ttft_p50_s": 0.7454,
+  "ttft_p95_s": 1.5619,
+  "itl_p95_s": 0.14571,
+  "e2e_p95_s": 19.9606,
+  "goodput": 0.88,
+  "output_tokens": 31651,
+  "prompt_tokens": 422863,
+  "output_tokens_per_s": 127.6,
+  "cache_hit_rate": 0.0114,
+  "send_lag_p95_s": 0.0023
+ },
+ "container_resources": {
+  "samples": 277,
+  "cpu_cores_mean": 0.487,
+  "cpu_cores_p95": 0.778,
+  "cpu_cores_max": 1.118,
+  "memory_gib_max": 11.182
+ },
+ "cost_per_hour_usd": 1.1172
+}
