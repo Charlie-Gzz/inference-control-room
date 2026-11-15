@@ -22,12 +22,14 @@ Totals use the actual cost when it is known. Rendered by `icr.ledger`.
 | 2026-11-15 15:16 | M4 session 1: proxy check + chat 3 policies x 3 repeats | fleet | L4 x4 | 8 | 64 | 3625 | 4.119 | 0.000 | 2.684 |
 | 2026-11-15 16:38 | M4 session 1 (second try): proxy check + chat | fleet | L4 x4 | 8 | 64 | 25 | 0.028 | 0.000 | 2.684 |
 | 2026-11-15 20:06 | M4 pilot on L4:2: proxy check + chat, 3 policies x 1 repeat | fleet | L4 x2 | 5 | 32 | 1134 | 0.659 | 0.649 | 3.332 |
+| 2026-11-15 21:06 | M4 session 1 (third try): proxy check + chat | fleet | L4 x4 | 8 | 64 | 25 | 0.028 | 0.000 | 3.332 |
 
 ## Notes
 
 - 2026-11-14 01:32, M0 smoke test (AWQ, 20 requests): first estimate used wall-clock time, which included a 7-minute wait for an L4 that Modal does not bill
 - 2026-11-15 15:16, M4 session 1: proxy check + chat 3 policies x 3 repeats: NEVER RAN: waited in the queue for a 4-GPU L4 machine from 20:51 EST, no container was ever started, and the client login token expired overnight. No fleet run exists. Modal billing report has no entry for this app.
 - 2026-11-15 16:38, M4 session 1 (second try): proxy check + chat: NEVER RAN: queued for a 4-GPU L4 machine for 80 minutes (10:17 to 11:37 EST), no container was started, request cancelled by hand. Nothing billed.
+- 2026-11-15 21:06, M4 session 1 (third try): proxy check + chat: NEVER RAN: queued for a 4-GPU L4 machine for 52 minutes (15:16 to 16:08 EST), no container was started, request cancelled by hand. Nothing billed.
 
 ## Totals
 

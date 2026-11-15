@@ -111,6 +111,7 @@ def _save(root, run_id, meta, rows):
 @pytest.fixture
 def saved_runs(tmp_path, monkeypatch):
     monkeypatch.setattr(config, "RUNS_DIR", tmp_path)
+    monkeypatch.setattr(config, "FLEET_REPLICAS", 4)  # these runs use the 4-GPU ids (fleet-...)
     ttft = {"round-robin": 1.0, "least-loaded": 0.9, "prefix-aware": 0.5}
     for seed in (0, 1, 2):
         for policy, value in ttft.items():

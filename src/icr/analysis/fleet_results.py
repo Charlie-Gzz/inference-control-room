@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import statistics
 
+from icr import config
 from icr.analysis import metrics
 from icr.analysis.metrics import DEFAULT_SLO, SLO
 from icr.analysis.runs import Run, all_runs
@@ -35,7 +36,7 @@ def spread(values: list[float | None]) -> dict:
 
 
 def _fleet_runs(kind: str, workload: str | None = None) -> list[Run]:
-    prefix = f"fleet-{kind}-" + (f"{workload}-" if workload else "")
+    prefix = f"{config.fleet_prefix()}{kind}-" + (f"{workload}-" if workload else "")
     found = [r for r in all_runs(prefix) if not r.run_id.endswith("-direct")]
     # "chat" is a prefix of nothing else, but keep the match exact anyway.
     return [r for r in found if workload is None or r.meta["workload"] == workload]
@@ -241,7 +242,7 @@ def modeled_gpu_seconds(events: list[dict], duration_s: float, initial: int = 1)
 def router_overhead() -> dict:
     """What the router adds: its own timer on every routed request, and the proxy check."""
     by_policy: dict[str, list[int]] = {}
-    for run in all_runs("fleet-"):
+    for run in all_runs(config.fleet_prefix()):
         if run.meta.get("policy") in (None, "direct"):
             continue
         policy = run.meta.get("run", {}).get("router_policy", run.meta["policy"])
@@ -259,8 +260,9 @@ def router_overhead() -> dict:
                 "p95": round(metrics.percentile(values, 95)),
                 "p99": round(metrics.percentile(values, 99)),
             }
-    proxied = [r for r in all_runs("fleet-proxycheck-") if not r.run_id.endswith("-direct")]
-    direct = [r for r in all_runs("fleet-proxycheck-") if r.run_id.endswith("-direct")]
+    checks = all_runs(f"{config.fleet_prefix()}proxycheck-")
+    proxied = [r for r in checks if not r.run_id.endswith("-direct")]
+    direct = [r for r in checks if r.run_id.endswith("-direct")]
     if proxied and direct:
         a, b = run_summary(direct[0]), run_summary(proxied[0])
         out["proxycheck"] = {

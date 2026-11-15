@@ -44,7 +44,10 @@ BUDGET_BY_CATEGORY = {"dev": 10.0, "fleet": 18.0, "h100": 7.0}
 
 # Fleet container: 4 vLLM replicas + router + load generator + recorder.
 # Sized from the measured CPU and RAM of one replica (docs/DECISIONS.md, "Fleet sizing").
-FLEET_REPLICAS = 4
+# The plan's fleet is 4 L4s in one container. Modal never scheduled `L4:4` during the build
+# (three requests, 50 to 80 minutes of queue each), so the plan's fallback is in use:
+# 2 L4s. Set this back to 4 to analyse 4-GPU runs if they are made later.
+FLEET_REPLICAS = 2
 FLEET_CPU = 8.0
 FLEET_MEMORY_MIB = 65536
 FLEET_SESSION_BUDGET_S = 50 * 60  # stop starting new runs after this; the timeout is 60 min
@@ -88,6 +91,12 @@ VOL_HF = f"{VOLUME_MOUNT}/hf"
 VOL_DATA = f"{VOLUME_MOUNT}/data"
 VOL_RUNS = f"{VOLUME_MOUNT}/runs"
 VOL_VLLM_CACHE = f"{VOLUME_MOUNT}/vllm-cache"
+
+
+def fleet_prefix(replicas: int | None = None) -> str:
+    """Run-id prefix of fleet runs: `fleet-` for 4 GPUs, `fleetx2-` for the 2-GPU fallback."""
+    n = replicas or FLEET_REPLICAS
+    return "fleet-" if n == 4 else f"fleetx{n}-"
 
 
 def hourly_cost(gpu: str, gpu_count: int, cpu_cores: float, memory_gib: float) -> float:

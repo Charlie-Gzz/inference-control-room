@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 
+from icr import config
 from icr.analysis import metrics
 from icr.analysis.runs import Run, load
 from icr.analysis.site_data import DATA_DIR
@@ -214,7 +215,8 @@ def build(summary: dict, a: Run, b: Run, vertical: bool = False, loop: bool = Fa
 
 def source_runs(summary: dict) -> tuple[Run, Run]:
     """The pair of runs the story is told with: first repeat of the fixed chat comparison."""
-    return load(f"fleet-fixed-chat-{A}-s0"), load(f"fleet-fixed-chat-{B}-s0")
+    prefix = config.fleet_prefix()
+    return load(f"{prefix}fixed-chat-{A}-s0"), load(f"{prefix}fixed-chat-{B}-s0")
 
 
 def write_all(summary: dict) -> dict[str, dict]:

@@ -24,7 +24,7 @@ MODEL_NAMES = {"awq": "Qwen2.5-7B-Instruct-AWQ (4-bit)", "bf16": "Qwen2.5-7B-Ins
 
 def _facts(calib: dict) -> dict:
     """What every view's footer states: GPU, model, engine."""
-    fleet = all_runs("fleet-fixed-")
+    fleet = all_runs(f"{config.fleet_prefix()}fixed-")
     sample = fleet[0] if fleet else next(iter(all_runs("sweep-")), None)
     if sample is None:
         return {}
@@ -70,7 +70,7 @@ def _prefix_pressure(calib: dict) -> dict:
     """
     kv = calib.get("kv_cache_tokens")
     out = {}
-    for run in all_runs("fleet-fixed-"):
+    for run in all_runs(f"{config.fleet_prefix()}fixed-"):
         if run.meta["seed"] != 0 or run.meta["policy"] != "round-robin":
             continue
         longest: dict[str, int] = {}

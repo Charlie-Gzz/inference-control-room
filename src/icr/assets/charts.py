@@ -211,8 +211,8 @@ def _steps(events: list[dict], duration: float, on: str, off: str) -> list[tuple
 
 
 def autoscaling(s: dict, seed: int = 0):
-    static = runs.load(f"fleet-autoscale-chat-static-s{seed}")
-    scaled = runs.load(f"fleet-autoscale-chat-autoscaled-s{seed}")
+    static = runs.load(f"{config.fleet_prefix()}autoscale-chat-static-s{seed}")
+    scaled = runs.load(f"{config.fleet_prefix()}autoscale-chat-autoscaled-s{seed}")
     rows = static.requests
     total = max(static.meta["duration_s"], scaled.meta["duration_s"])
     fig = theme.figure(1200)

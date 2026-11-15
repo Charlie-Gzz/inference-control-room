@@ -63,3 +63,15 @@ def test_planned_seconds_cover_warmup_and_every_level():
     assert fleet.planned_seconds(plan.runs_for("chat", CALIB)[0]) == 240
     specs = fleet.build_specs({**ramp, "warmup_s": 2.0, "level_s": 2.0})
     assert sorted({s.level for s in specs if s.phase == "measured"}) == [0, 1, 2, 3, 4, 5]
+
+
+def test_fleet_run_ids_keep_the_two_fleet_shapes_apart():
+    from icr import config
+
+    run = plan.runs_for("chat", CALIB)[0]
+    assert fleet.run_id(run).startswith("fleet-fixed-chat-")
+    assert fleet.run_id({**run, "tag": "x2"}).startswith("fleetx2-fixed-chat-")
+    assert config.fleet_prefix(4) == "fleet-" and config.fleet_prefix(2) == "fleetx2-"
+    # Half the replicas, half the load.
+    two = plan.runs_for("chat", CALIB, replicas=2)[0]
+    assert two["rate_rps"] == round(run["rate_rps"] / 2, 2)

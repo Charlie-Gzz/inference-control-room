@@ -53,7 +53,7 @@ def _pick_split(entries: list[dict]) -> dict | None:
 def build_all(mock: bool = False) -> dict:
     """Write every replay file and index.json. Returns the index."""
     out = MOCK_DATA_DIR if mock else DATA_DIR
-    found: list[Run] = all_runs("mock-", MOCK_RUNS_DIR) if mock else all_runs("fleet-")
+    found: list[Run] = all_runs("mock-", MOCK_RUNS_DIR) if mock else all_runs(config.fleet_prefix())
     if mock:  # keep only the newest mock run of each (workload, policy)
         newest = {(r.meta["workload"], r.meta["policy"]): r for r in found}
         found = list(newest.values())
