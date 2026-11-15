@@ -106,9 +106,9 @@ def latency_by_policy(s: dict):
     fleet = s["fleet"]
     workloads = [w for w in WORKLOAD_LABEL if w in fleet]
     rows = [
-        ("ttft_p95_s", "p95 time to first token (s)", 1.0, "{:.2f}"),
-        ("itl_p95_s", "p95 inter-token latency (ms)", 1000.0, "{:.0f}"),
-        ("goodput", "requests within the SLO (%)", 100.0, "{:.0f}"),
+        ("ttft_p95_s", "p95 TTFT (s)", 1.0, "{:.2f}"),
+        ("itl_p95_s", "p95 ITL (ms)", 1000.0, "{:.0f}"),
+        ("goodput", "within SLO (%)", 100.0, "{:.0f}"),
     ]
     fig = theme.figure(1300)
     axes = fig.subplots(len(rows), len(workloads), squeeze=False)
@@ -130,8 +130,11 @@ def latency_by_policy(s: dict):
     if ttft is not None:
         title = (f"Prefix-aware routing {'cuts' if ttft < 0 else 'raises'} p95 time to first token "
                  f"on chat by {_pct(ttft)} against round-robin")  # fmt: skip
-    sub = ("Fixed traffic at 70% of the fleet's saturation rate, 60 s warmup + 180 s measured, "
-           "3 repeats. Bar = median, line = min to max, dots = repeats. Red dashes = SLO.")  # fmt: skip
+    repeats = max(t["repeats"] for w in workloads for t in fleet[w]["policies"].values())
+    sub = ("Rows: p95 time to first token (TTFT), p95 inter-token latency (ITL), share of requests within "
+           "the SLO. Fixed traffic at 70% of the fleet's saturation rate, 60 s warmup + 180 s measured, "
+           f"{repeats} repeat{'s' if repeats > 1 else ''}. Bar = median, line = min to max, dots = repeats. "
+           "Red dashes = SLO.")  # fmt: skip
     return _finish(fig, "latency_by_policy", title, sub, _footer(s), bottom_px=130, left=0.075,
                    right=0.98, wspace=0.3, hspace=0.42)  # fmt: skip
 
@@ -168,7 +171,7 @@ def cache_hit_by_policy(s: dict):
         b = chat["prefix-aware"]["cache_hit_rate"]["median"] * 100
         title = f"Prefix-aware routing serves {b:.0f}% of chat prompt tokens from cache, round-robin {a:.0f}%"
     sub = ("Share of prompt tokens vLLM reported as cached (usage.prompt_tokens_details). "
-           "Median of 3 repeats, line = min to max.")  # fmt: skip
+           "Median of the repeats, line = min to max.")  # fmt: skip
     return _finish(fig, "cache_hit_by_policy", title, sub, _footer(s), left=0.07, right=0.97)
 
 

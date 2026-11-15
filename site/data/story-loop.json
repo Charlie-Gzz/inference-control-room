@@ -1,0 +1,67 @@
+{
+ "fps": 60,
+ "width": 1920,
+ "height": 1080,
+ "vertical": false,
+ "scenes": [
+  {
+   "kind": "replay",
+   "seconds": 14.0,
+   "view": "split",
+   "scenario": "fixed:chat",
+   "seed": 0,
+   "policies": {
+    "left": "round-robin",
+    "right": "prefix-aware"
+   },
+   "t0": 75.0,
+   "speed": 2.0,
+   "fade_in": 0.5,
+   "captions": [
+    {
+     "at": 0.8,
+     "for": 5.5,
+     "top": true,
+     "text": "Same traffic, two routers."
+    },
+    {
+     "at": 7.0,
+     "for": 6.0,
+     "top": true,
+     "text": "84% of prompt tokens reused, against 74% with round-robin."
+    }
+   ]
+  },
+  {
+   "kind": "number",
+   "seconds": 6.0,
+   "items": [
+    {
+     "value": 38,
+     "prefix": "-",
+     "suffix": "%",
+     "label": "p95 time to first token"
+    }
+   ],
+   "line": "Same 2 GPUs. Same traffic. Prefix-aware routing against round-robin:",
+   "foot": "Measured on 2 x NVIDIA L4 with Qwen2.5-7B. Medians of repeated runs.",
+   "fade_in": 0.4,
+   "fade_out": 0.5
+  }
+ ],
+ "window": {
+  "t0": 75.0,
+  "round-robin": {
+   "requests": 281,
+   "goodput": 0.9928825622775801,
+   "ttft_p95_s": 0.4742,
+   "cache_hit_rate": 0.7378230730386081
+  },
+  "prefix-aware": {
+   "requests": 281,
+   "goodput": 1.0,
+   "ttft_p95_s": 0.2845,
+   "cache_hit_rate": 0.8354731263421526
+  }
+ }
+}

@@ -36,7 +36,7 @@ body { background: var(--bg); color: var(--ink); font-family: Inter, system-ui, 
 .chip { display: inline-flex; align-items: center; gap: 7px; padding: 3px 10px; border-radius: 999px; font-size: 12.5px; font-weight: 600; border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); color: var(--c); background: color-mix(in srgb, var(--c) 10%, transparent); }
 .chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--c); }
 .yard-sub { font-size: 12px; color: var(--muted); }
-.yard-canvas { display: block; width: 100%; height: var(--yard-h, clamp(340px, calc(100vh - 500px), 640px)); cursor: crosshair; }
+.yard-canvas { display: block; width: 100%; height: var(--yard-h, clamp(340px, calc(100vh - 450px), 640px)); cursor: crosshair; }
 .yard-panel select { background: var(--panel); border: 1px solid var(--line); border-radius: 7px; color: var(--ink); font-size: 12.5px; padding: 3px 6px; }
 
 .dials { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); border-top: 1px solid var(--line); }

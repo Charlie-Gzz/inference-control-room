@@ -1,0 +1,191 @@
+{
+ "fps": 60,
+ "width": 1080,
+ "height": 1920,
+ "vertical": true,
+ "scenes": [
+  {
+   "kind": "cold",
+   "seconds": 8.0,
+   "run": "fleetx2-fixed-chat-prefix-aware-s0",
+   "request": 516,
+   "view": "room",
+   "scenario": "fixed:chat",
+   "seed": 0,
+   "policies": {
+    "room": "prefix-aware"
+   },
+   "fade_in": 1.2,
+   "captions": [
+    {
+     "at": 1.8,
+     "for": 5.2,
+     "text": "Every LLM request has a cost."
+    }
+   ]
+  },
+  {
+   "kind": "zoomout",
+   "seconds": 8.0,
+   "cold_seconds": 8.0,
+   "run": "fleetx2-fixed-chat-prefix-aware-s0",
+   "request": 516,
+   "speed": 2.0,
+   "view": "room",
+   "scenario": "fixed:chat",
+   "seed": 0,
+   "policies": {
+    "room": "prefix-aware"
+   },
+   "captions": [
+    {
+     "at": 1.6,
+     "for": 5.6,
+     "text": "Two GPUs, one model, real traffic patterns."
+    }
+   ]
+  },
+  {
+   "kind": "replay",
+   "seconds": 19.0,
+   "view": "room",
+   "scenario": "fixed:chat",
+   "seed": 0,
+   "policies": {
+    "room": "round-robin"
+   },
+   "t0": 75.0,
+   "speed": 2.0,
+   "fade_in": 0.5,
+   "captions": [
+    {
+     "at": 0.6,
+     "for": 5.0,
+     "top": true,
+     "text": "Round-robin routing: every GPU takes its turn."
+    },
+    {
+     "at": 6.4,
+     "for": 5.6,
+     "top": true,
+     "text": "A follow-up question often lands on a GPU that never saw the conversation."
+    },
+    {
+     "at": 12.8,
+     "for": 5.6,
+     "top": true,
+     "text": "Only 74% of the prompt comes from cache. The rest is read again."
+    }
+   ]
+  },
+  {
+   "kind": "rewind",
+   "seconds": 2.6,
+   "view": "room",
+   "scenario": "fixed:chat",
+   "seed": 0,
+   "policies": {
+    "room": "round-robin"
+   },
+   "t_from": 113.0,
+   "t_to": 75.0
+  },
+  {
+   "kind": "replay",
+   "seconds": 20.5,
+   "view": "split",
+   "scenario": "fixed:chat",
+   "seed": 0,
+   "policies": {
+    "left": "round-robin",
+    "right": "prefix-aware"
+   },
+   "t0": 75.0,
+   "speed": 2.0,
+   "captions": [
+    {
+     "at": 0.6,
+     "for": 5.4,
+     "top": true,
+     "text": "Same requests, same GPUs. This router knows where each cache is."
+    },
+    {
+     "at": 6.8,
+     "for": 5.8,
+     "top": true,
+     "text": "84% of prompt tokens reused, against 74% with round-robin."
+    },
+    {
+     "at": 13.4,
+     "for": 6.0,
+     "top": true,
+     "text": "p95 time to first token: 0.28 s, against 0.47 s."
+    }
+   ]
+  },
+  {
+   "kind": "number",
+   "seconds": 9.0,
+   "items": [
+    {
+     "value": 38,
+     "prefix": "-",
+     "suffix": "%",
+     "label": "p95 time to first token"
+    }
+   ],
+   "line": "Same 2 GPUs. Same traffic. Prefix-aware routing against round-robin:",
+   "foot": "Measured on 2 x NVIDIA L4 with Qwen2.5-7B. Medians of repeated runs.",
+   "fade_in": 0.4
+  },
+  {
+   "kind": "whatif",
+   "seconds": 11.0,
+   "from": {
+    "ttft": 3.0,
+    "itl": 0.3
+   },
+   "to": {
+    "ttft": 2.0,
+    "itl": 0.1
+   },
+   "fade_in": 0.4,
+   "captions": [
+    {
+     "at": 0.8,
+     "for": 4.6,
+     "top": true,
+     "text": "Every setup we measured: cost against latency."
+    },
+    {
+     "at": 6.0,
+     "for": 4.6,
+     "top": true,
+     "text": "For this latency target, the cheapest one is awq."
+    }
+   ]
+  },
+  {
+   "kind": "end",
+   "seconds": 6.5,
+   "url": "github.com/Charlie-Gzz/inference-control-room",
+   "fade_out": 1.0,
+   "line": "A 4-GPU LLM serving fleet, measured on real traffic and replayed request by request."
+  }
+ ],
+ "window": {
+  "t0": 75.0,
+  "round-robin": {
+   "requests": 281,
+   "goodput": 0.9928825622775801,
+   "ttft_p95_s": 0.4742,
+   "cache_hit_rate": 0.7378230730386081
+  },
+  "prefix-aware": {
+   "requests": 281,
+   "goodput": 1.0,
+   "ttft_p95_s": 0.2845,
+   "cache_hit_rate": 0.8354731263421526
+  }
+ }
+}
