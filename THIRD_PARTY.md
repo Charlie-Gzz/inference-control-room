@@ -38,6 +38,7 @@ The GSM8K subset is not committed. It lives in the Modal Volume.
 | Software | Use | License |
 |---|---|---|
 | vLLM 0.33.0 | serving engine (Modal image only) | Apache-2.0 |
+| arctic-inference 0.1.1 | required by vLLM for suffix decoding. Installed inside the container for the one `awq-suffix` run only, never part of the image | Apache-2.0 |
 | Modal client | GPU cloud | Apache-2.0 |
 | Go 1.27.4 toolchain | builds the router (downloaded to `.tools/`, not committed) | BSD-3-Clause |
 | Tailwind CSS (CDN) | site styling | MIT |
