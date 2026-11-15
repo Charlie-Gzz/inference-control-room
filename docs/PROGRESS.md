@@ -43,6 +43,17 @@ Config sweep on chat (capacity = highest ramp level within the SLO; one level is
 - awq on rag (sweep levels 1.0 to 2.6 req/s): meets the SLO at every level.
 - The binding limit is inter-token latency, not time to first token.
 
+## Waiting on Modal for 4 GPUs (read this first)
+
+Fleet session 1 was launched at 20:51 EST on 2026-11-14 and had still not been given a
+4-GPU L4 machine at 21:55 (no container, nothing billed). Modal's GPU guide says requests
+for more than 2 GPUs per container "will usually result in larger wait times", so this is
+a queue, not a refusal. Decision: keep waiting (it is free) for up to about 3 hours before
+using the plan's 2-GPU fallback, because the 4-GPU fleet is the point of the project.
+If the `modal run` process is gone on restart, just launch it again. The fallback is
+ready: `uv run modal run -m icr.modal_app.app::fleet --items proxycheck,chat --replicas 2`
+(then the headline, charts, tour, story captions and diagram must say 2 GPUs, not 4).
+
 ## Exact next step
 
 1. M4 sessions, one item per `modal run` (finished runs are skipped on rerun, so a cut
