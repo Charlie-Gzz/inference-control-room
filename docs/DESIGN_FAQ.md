@@ -119,11 +119,12 @@ Runs: `results/runs/sweep-l4-awq-ramp-chat*`.
 
 ### 9. What does the batch limit (`max_num_seqs`) change?
 
-It moves the failure from one latency to the other. With the limit at 32 or 64, the
-token gap stayed low at 5.98 req/s (73 ms) but requests queued for a slot: p95 time to
-first token rose to 2.3 s and broke the 2 s target. With the default 128 the queue
-disappears and the token gap is what breaks. Raising the limit to 256 changed nothing
-beyond noise, because a replica at its limit holds well under 128 requests.
+It moves the failure from one latency to the other. With the limit at 32, the token gap
+stayed low at 5.98 req/s (73 ms) but requests queued for a slot: p95 time to first token
+rose to 2.3 s and broke the 2 s target. With the limit at 64 the queue appeared one level
+later (9.1 s to first token at 6.76 req/s). With the default 128 nothing queues and the
+token gap is what breaks. Raising the limit to 256 changed nothing beyond noise, because
+a replica at its limit holds well under 128 requests.
 
 Runs: `sweep-l4-awq-seqs32-ramp-chat`, `-seqs64-`, `-seqs256-`.
 
@@ -145,11 +146,12 @@ Chart: `assets/charts/spec_decode.png`. Decisions: `docs/DECISIONS.md`.
 
 ### 11. Why is the 4-bit model more than twice as fast as bf16 on an L4?
 
-An L4 has 24 GB. The bf16 weights take about 15 GB of it, which leaves a small KV cache
-and makes every step read more memory. AWQ (4-bit) and FP8 both cut the weights enough
-to leave room for a KV cache of about 250,000 tokens and to speed up each step. bf16 met
-the SLO only up to 2.6 req/s, against 5.98 for AWQ and FP8, with GSM8K accuracy within 3
-points for all three.
+An L4 has 24 GB. The bf16 weights take about 15 GB of it, which makes every step read
+more memory and leaves a KV cache of only 74,000 tokens (vLLM's own figure). AWQ (4-bit)
+leaves 250,000 and FP8 185,000. With so little cache, bf16 also starts evicting prefixes:
+its cache hit rate fell from 83% to about 60% as traffic rose, while AWQ's stayed at 83%.
+bf16 met the SLO only up to 2.6 req/s, against 5.98 for AWQ and FP8, with GSM8K accuracy
+within 3 points for all three.
 
 Chart: `assets/charts/quantization.png`.
 
