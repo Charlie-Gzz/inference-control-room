@@ -42,7 +42,9 @@
       6.0
      ],
      "source": "sweep-l4-awq-ramp-rag-cal",
-     "stage": "cal"
+     "stage": "cal",
+     "note": "the fine ramp's first level missed the SLO on a cold cache; coarse value kept",
+     "fine_source": "sweep-l4-awq-ramp-rag-fine"
     }
    },
    "fleet": {
@@ -72,11 +74,13 @@
       6.0
      ],
      "source": "sweep-l4-awq-ramp-rag-cal",
-     "stage": "cal"
+     "stage": "cal",
+     "note": "the fine ramp's first level missed the SLO on a cold cache; coarse value kept",
+     "fine_source": "sweep-l4-awq-ramp-rag-fine"
     }
    }
   },
-  "kv_cache_tokens": 250592,
+  "kv_cache_tokens": 250224,
   "autoscaler": {
    "min_replicas": 1,
    "max_replicas": 4,
@@ -1008,12 +1012,12 @@
  },
  "fleet": {},
  "spend": {
-  "total_usd": 1.72,
+  "total_usd": 1.89,
   "by_category": {
-   "dev": 1.72,
+   "dev": 1.89,
    "fleet": 0,
    "h100": 0
   },
-  "runs": 8
+  "runs": 9
  }
 }

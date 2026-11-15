@@ -20,4 +20,4 @@ Cheapest config that meets the SLO: `awq`.
 
 ## Spend
 
-Total: $1.72 over 8 Modal runs (dev $1.72, fleet $0.00, h100 $0.00). See `docs/GPU_LEDGER.md`.
+Total: $1.89 over 9 Modal runs (dev $1.89, fleet $0.00, h100 $0.00). See `docs/GPU_LEDGER.md`.

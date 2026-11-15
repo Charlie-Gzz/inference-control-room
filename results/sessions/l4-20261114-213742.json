@@ -1,0 +1,117 @@
+{
+ "session_id": "l4-20261114-213742",
+ "label": "l4",
+ "jobs": [
+  {
+   "config": {
+    "name": "awq-seqs256",
+    "weights": "awq",
+    "quantization": null,
+    "speculative": null,
+    "prefix_caching": true,
+    "max_num_seqs": 256,
+    "max_model_len": 8192,
+    "gpu_memory_utilization": 0.9,
+    "extra_args": [],
+    "pip": []
+   },
+   "tasks": [
+    "ramp:chat@2.6;3.64;4.42;5.2;5.98;6.76"
+   ]
+  },
+  {
+   "config": {
+    "name": "fp8-seqs256",
+    "weights": "bf16",
+    "quantization": "fp8_per_tensor",
+    "speculative": null,
+    "prefix_caching": true,
+    "max_num_seqs": 256,
+    "max_model_len": 8192,
+    "gpu_memory_utilization": 0.9,
+    "extra_args": [],
+    "pip": []
+   },
+   "tasks": [
+    "ramp:chat@2.6;3.64;4.42;5.2;5.98;6.76"
+   ]
+  },
+  {
+   "config": {
+    "name": "awq-suffix",
+    "weights": "awq",
+    "quantization": null,
+    "speculative": {
+     "method": "suffix",
+     "num_speculative_tokens": 8
+    },
+    "prefix_caching": true,
+    "max_num_seqs": null,
+    "max_model_len": 8192,
+    "gpu_memory_utilization": 0.9,
+    "extra_args": [],
+    "pip": [
+     "arctic-inference==0.1.1"
+    ]
+   },
+   "tasks": [
+    "ramp:chat@2.6;3.64;4.42;5.2;5.98;6.76",
+    "greedy"
+   ]
+  }
+ ],
+ "seed": 0,
+ "ramp": {
+  "rates_rps": [],
+  "level_s": 40.0,
+  "warmup_s": 30.0
+ },
+ "budget_s": 1620,
+ "startups": {
+  "awq-seqs256": {
+   "ok": true,
+   "startup_s": 194.2
+  },
+  "fp8-seqs256": {
+   "ok": true,
+   "startup_s": 106.1
+  },
+  "awq-suffix": {
+   "ok": true,
+   "startup_s": 256.1,
+   "task_error": "URLError(ConnectionRefusedError(111, 'Connection refused'))",
+   "log": "(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]   File \"/usr/local/lib/python3.12/site-packages/vllm/entrypoints/openai/chat_completion/serving.py\", line 314, in _create_chat_completion\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]     result = await self.render_chat_request(request)\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]   File \"/usr/local/lib/python3.12/site-packages/vllm/entrypoints/openai/chat_completion/serving.py\", line 283, in render_chat_request\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]     self._preflight(request.n or 1)\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]   File \"/usr/local/lib/python3.12/site-packages/vllm/entrypoints/generate/base/serving.py\", line 180, in _preflight\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]     raise self.engine_client.dead_error\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54] vllm.v1.engine.exceptions.EngineDeadError: EngineCore encountered an issue. See stack trace (above) for the root cause.\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54] Engine Exception caught. Request id: None\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54] Traceback (most recent call last):\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]   File \"/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py\", line 42, in wrapped_app\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]     await app(scope, receive, sender)\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]   File \"/usr/local/lib/python3.12/site-packages/fastapi/routing.py\", line 120, in app\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]     response = await f(request)\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]                ^^^^^^^^^^^^^^^^\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]   File \"/usr/local/lib/python3.12/site-packages/fastapi/routing.py\", line 674, in app\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]     raw_response = await run_endpoint_function(\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]   File \"/usr/local/lib/python3.12/site-packages/fastapi/routing.py\", line 328, in run_endpoint_function\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]     return await dependant.call(**values)\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]   File \"/usr/local/lib/python3.12/site-packages/vllm/entrypoints/serve/utils/api_utils.py\", line 107, in wrapper\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]     return handler_task.result()\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]            ^^^^^^^^^^^^^^^^^^^^^\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]   File \"/usr/local/lib/python3.12/site-packages/vllm/entrypoints/serve/utils/api_utils.py\", line 197, in wrapper\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]     return await func(*args, **kwargs)\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]   File \"/usr/local/lib/python3.12/site-packages/vllm/entrypoints/openai/chat_completion/api_router.py\", line 67, in create_chat_completion\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]     generator = await handler.create_chat_completion(request, raw_request)\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]   File \"/usr/local/lib/python3.12/site-packages/vllm/entrypoints/openai/chat_completion/serving.py\", line 298, in create_chat_completion\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]     return await self._with_kv_transfer_rejection_cleanup(\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]   File \"/usr/local/lib/python3.12/site-packages/vllm/entrypoints/generate/base/serving.py\", line 278, in _with_kv_transfer_rejection_cleanup\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]     return await awaitable\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]            ^^^^^^^^^^^^^^^\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]   File \"/usr/local/lib/python3.12/site-packages/vllm/entrypoints/openai/chat_completion/serving.py\", line 314, in _create_chat_completion\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]     result = await self.render_chat_request(request)\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]   File \"/usr/local/lib/python3.12/site-packages/vllm/entrypoints/openai/chat_completion/serving.py\", line 283, in render_chat_request\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]     self._preflight(request.n or 1)\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]   File \"/usr/local/lib/python3.12/site-packages/vllm/entrypoints/generate/base/serving.py\", line 180, in _preflight\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]     raise self.engine_client.dead_error\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54] vllm.v1.engine.exceptions.EngineDeadError: EngineCore encountered an issue. See stack trace (above) for the root cause.\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54] Engine Exception caught. Request id: None\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54] Traceback (most recent call last):\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]   File \"/usr/local/lib/python3.12/site-packages/starlette/_exception_handler.py\", line 42, in wrapped_app\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]     await app(scope, receive, sender)\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]   File \"/usr/local/lib/python3.12/site-packages/fastapi/routing.py\", line 120, in app\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]     response = await f(request)\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]                ^^^^^^^^^^^^^^^^\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]   File \"/usr/local/lib/python3.12/site-packages/fastapi/routing.py\", line 674, in app\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]     raw_response = await run_endpoint_function(\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]   File \"/usr/local/lib/python3.12/site-packages/fastapi/routing.py\", line 328, in run_endpoint_function\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]     return await dependant.call(**values)\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]   File \"/usr/local/lib/python3.12/site-packages/vllm/entrypoints/serve/utils/api_utils.py\", line 107, in wrapper\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]     return handler_task.result()\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]            ^^^^^^^^^^^^^^^^^^^^^\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]   File \"/usr/local/lib/python3.12/site-packages/vllm/entrypoints/serve/utils/api_utils.py\", line 197, in wrapper\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]     return await func(*args, **kwargs)\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]   File \"/usr/local/lib/python3.12/site-packages/vllm/entrypoints/openai/chat_completion/api_router.py\", line 67, in create_chat_completion\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]     generator = await handler.create_chat_completion(request, raw_request)\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]   File \"/usr/local/lib/python3.12/site-packages/vllm/entrypoints/openai/chat_completion/serving.py\", line 298, in create_chat_completion\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]     return await self._with_kv_transfer_rejection_cleanup(\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]   File \"/usr/local/lib/python3.12/site-packages/vllm/entrypoints/generate/base/serving.py\", line 278, in _with_kv_transfer_rejection_cleanup\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]     return await awaitable\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]            ^^^^^^^^^^^^^^^\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]   File \"/usr/local/lib/python3.12/site-packages/vllm/entrypoints/openai/chat_completion/serving.py\", line 314, in _create_chat_completion\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]     result = await self.render_chat_request(request)\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]   File \"/usr/local/lib/python3.12/site-packages/vllm/entrypoints/openai/chat_completion/serving.py\", line 283, in render_chat_request\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]     self._preflight(request.n or 1)\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]   File \"/usr/local/lib/python3.12/site-packages/vllm/entrypoints/generate/base/serving.py\", line 180, in _preflight\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54]     raise self.engine_client.dead_error\n(APIServer pid=499) ERROR 11-14 22:07:39 [vllm_error.py:54] vllm.v1.engine.exceptions.EngineDeadError: EngineCore encountered an issue. See stack trace (above) for the root cause."
+  }
+ },
+ "skipped": [],
+ "resources": {
+  "samples": 1426,
+  "cpu_cores_mean": 1.184,
+  "cpu_cores_p95": 2.406,
+  "cpu_cores_max": 11.314,
+  "memory_gib_max": 24.588
+ },
+ "gpu": {
+  "gpus": [
+   "NVIDIA L4, 23034 MiB, 610.57.04"
+  ],
+  "table": "Sat Nov 14 21:43:48 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 610.57.04              KMD Version: 610.57.04     CUDA UMD Version: 13.3     |\n+-----------------------------------------+------------------------+----------------------+\n| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  NVIDIA L4                      On  |   00000000:80:01.0 Off |                    0 |\n| N/A   56C    P8             17W /   72W |       4MiB /  23034MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n\n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|  No running processes found                                                             |\n+-----------------------------------------------------------------------------------------+"
+ },
+ "vllm_version": "0.33.0",
+ "container_seconds": 1434.147122508,
+ "ledger": {
+  "date": "2026-11-14 22:07",
+  "purpose": "M3a stage 2 (seqs256 x2) + suffix decoding retry",
+  "category": "dev",
+  "gpu": "L4",
+  "gpu_count": 1,
+  "cpu": 4.0,
+  "memory_gib": 16.0,
+  "billed_seconds": 1459.1,
+  "cost_usd": 0.4528,
+  "actual_cost_usd": null,
+  "app_id": "ap-PQ7T0FYM3FC3lxaBR3CjdH",
+  "run_id": "l4-20261114-213742",
+  "note": ""
+ }
+}
