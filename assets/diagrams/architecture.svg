@@ -30,7 +30,7 @@
 <path d="M710,508 L710,342" fill="none" stroke="#9CA3AF" stroke-width="1.8" marker-end="url(#arrow)"/>
 <text x="720" y="430" text-anchor="start" fill="#9CA3AF" font-size="12.5" font-family="JetBrains Mono, Consolas, monospace">live replicas</text>
 <path d="M812,600 L880,600 L880,474 L948,474" fill="none" stroke="#9CA3AF" stroke-width="1.8" marker-end="url(#arrow)"/>
-<text x="846" y="620" text-anchor="middle" fill="#9CA3AF" font-size="12.5" font-family="JetBrains Mono, Consolas, monospace">start / stop</text>
+<text x="820" y="622" text-anchor="start" fill="#9CA3AF" font-size="12.5" font-family="JetBrains Mono, Consolas, monospace">start / stop</text>
 <path d="M1080,502 L1080,668 L500,668 L500,622" fill="none" stroke="#9CA3AF" stroke-width="1.8" marker-end="url(#arrow)"/>
 <text x="790" y="660" text-anchor="middle" fill="#9CA3AF" font-size="12.5" font-family="JetBrains Mono, Consolas, monospace">/metrics every 250 ms</text>
 <path d="M400,622 L400,700 L1265,700 L1265,208 L1288,208" fill="none" stroke="#9CA3AF" stroke-width="1.8" marker-end="url(#arrow)"/>
