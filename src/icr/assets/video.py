@@ -52,7 +52,7 @@ def capture(story: str, mock: bool = False, max_frames: int | None = None) -> di
                 page.screenshot(path=str(out / f"{frame:05d}.png"))
             browser.close()
     finally:
-        server.shutdown()
+        siteserver.stop(server)
     return {"fps": info["fps"], "frames": frames, "dir": out,
             "width": size["width"], "height": size["height"]}  # fmt: skip
 

@@ -69,5 +69,5 @@ def capture(items: list[Shot], mock: bool = False) -> list[Path]:
             written += [svg, png]
             browser.close()
     finally:
-        server.shutdown()
+        siteserver.stop(server)
     return written

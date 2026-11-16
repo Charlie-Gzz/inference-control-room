@@ -45,7 +45,17 @@ def serve(port: int, mock: bool = False) -> None:
 
 
 def serve_in_thread(port: int, mock: bool = False) -> http.server.ThreadingHTTPServer:
-    """For screenshots and video capture: returns the running server (call `.shutdown()`)."""
+    """For screenshots and video capture: returns the running server (end it with `stop`)."""
     server = make_server(port, mock)
     threading.Thread(target=server.serve_forever, daemon=True).start()
     return server
+
+
+def stop(server: http.server.ThreadingHTTPServer) -> None:
+    """Stop a server from `serve_in_thread` and close its socket.
+
+    Without the close the port stays bound. On Windows a later server can still bind it,
+    and connections then land on the dead socket and time out.
+    """
+    server.shutdown()
+    server.server_close()

@@ -105,6 +105,10 @@ Config sweep on chat (capacity = highest ramp level within the SLO; one level is
   `assets/video/frames/`, play nothing else, then commit `assets/video/*.mp4` and
   `hero.gif`. `.scratch/frames.py <story> <frame...>` captures single frames in seconds.
   The videos must be rebuilt once more when the fleet data is final.
+- The second build stopped after the main story: the capture server never closed its
+  socket, so the next story's server on the same port timed out (Windows). Fixed with
+  `siteserver.stop` and `tests/test_siteserver.py`. The main story is rebuilt and its
+  frames are right. Loop, vertical and GIF are being rebuilt (log `.scratch/video3.log`).
 - The README hero is now `assets/video/hero.gif`.
 
 ## Paused for the night (2026-11-15, 22:15 EST)
