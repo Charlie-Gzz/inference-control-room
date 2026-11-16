@@ -177,6 +177,7 @@ body.recording.vertical #view-split .yard-canvas { height: 384px; } /* footer st
 body.recording.vertical #view-room { grid-template-columns: minmax(0, 1fr); }
 body.recording.vertical #view-room > div:last-child { display: none; }
 body.recording.vertical #view-room .yard-canvas { height: 1380px; }
+body.recording.vertical #view-whatif .layout-side { grid-template-columns: minmax(0, 1fr); } /* chart on top, full width */
 body.recording #rec-badge { top: 8.5%; }
 body.recording.vertical #rec-badge { top: 4%; }
 body.recording.vertical #rec-caption.top { top: 1.4%; }
