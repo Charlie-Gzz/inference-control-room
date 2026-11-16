@@ -24,11 +24,11 @@ Totals use the actual cost when it is known. Rendered by `icr.ledger`.
 | 2026-11-15 20:06 | M4 pilot on L4:2: proxy check + chat, 3 policies x 1 repeat | fleet | L4 x2 | 5 | 32 | 1134 | 0.659 | 0.649 | 3.332 |
 | 2026-11-15 21:06 | M4 session 1 (third try): proxy check + chat | fleet | L4 x4 | 8 | 64 | 25 | 0.028 | 0.000 | 3.332 |
 | 2026-11-16 00:14 | M4 session (L4:2): chat, remaining 2 repeats x 3 policies | fleet | L4 x2 | 5 | 32 | 1761 | 1.024 | 1.017 | 4.350 |
-| 2026-11-16 03:40 | M4 session (L4:2): capacity ramp on chat, 3 policies x 2 repeats | fleet | L4 x2 | 5 | 32 | 2666 | 1.550 | 1.534 | 5.883 |
-| 2026-11-16 15:59 | M4 session (L4:2): capacity ramp, the one skipped run | fleet | L4 x2 | 5 | 32 | 3625 | 2.107 | 0.000 | 5.883 |
-| 2026-11-16 17:00 | M4 4-GPU rerun: proxy check + chat, 3 policies x 3 repeats | fleet | L4 x4 | 8 | 64 | 3625 | 4.119 | 0.000 | 5.883 |
-| 2026-11-16 19:00 | M4 session (L4:2): capacity ramp, the one skipped run | fleet | L4 x2 | 5 | 32 | 3625 | 2.107 | 0.000 | 5.883 |
-| 2026-11-16 19:31 | M3a leftover: fp8 on rag (finalist) | dev | L4 x1 | 4 | 16 | 517 | 0.160 | pending | 6.043 |
+| 2026-11-16 03:40 | M4 session (L4:2): capacity ramp on chat, 3 policies x 2 repeats | fleet | L4 x2 | 5 | 32 | 2666 | 1.550 | 1.543 | 5.893 |
+| 2026-11-16 15:59 | M4 session (L4:2): capacity ramp, the one skipped run | fleet | L4 x2 | 5 | 32 | 3625 | 2.107 | 0.000 | 5.893 |
+| 2026-11-16 17:00 | M4 4-GPU rerun: proxy check + chat, 3 policies x 3 repeats | fleet | L4 x4 | 8 | 64 | 3625 | 4.119 | 0.000 | 5.893 |
+| 2026-11-16 19:00 | M4 session (L4:2): capacity ramp, the one skipped run | fleet | L4 x2 | 5 | 32 | 3625 | 2.107 | 0.000 | 5.893 |
+| 2026-11-16 19:31 | M3a leftover: fp8 on rag (finalist) | dev | L4 x1 | 4 | 16 | 517 | 0.160 | 0.145 | 6.037 |
 
 ## Notes
 
@@ -42,7 +42,7 @@ Totals use the actual cost when it is known. Rendered by `icr.ledger`.
 
 ## Totals
 
-- dev: $2.84 of $10.00
-- fleet: $3.20 of $35.00
+- dev: $2.83 of $10.00
+- fleet: $3.21 of $35.00
 - h100: $0.00 of $7.00
 - **all: $6.04 of $52.00**
