@@ -28,10 +28,10 @@ Totals use the actual cost when it is known. Rendered by `icr.ledger`.
 | 2026-11-16 15:59 | M4 session (L4:2): capacity ramp, the one skipped run | fleet | L4 x2 | 5 | 32 | 3625 | 2.107 | 0.000 | 5.893 |
 | 2026-11-16 17:00 | M4 4-GPU rerun: proxy check + chat, 3 policies x 3 repeats | fleet | L4 x4 | 8 | 64 | 3625 | 4.119 | 0.000 | 5.893 |
 | 2026-11-16 19:00 | M4 session (L4:2): capacity ramp, the one skipped run | fleet | L4 x2 | 5 | 32 | 3625 | 2.107 | 0.000 | 5.893 |
-| 2026-11-16 19:31 | M3a leftover: fp8 on rag (finalist) | dev | L4 x1 | 4 | 16 | 517 | 0.160 | 0.145 | 6.037 |
-| 2026-11-16 20:32 | M4 4-GPU rerun (fifth try): proxy check + chat, 3 policies x 3 repeats | fleet | L4 x4 | 8 | 64 | 3625 | 4.119 | 0.000 | 6.037 |
-| 2026-11-16 21:11 | M4 session (L4:2): capacity ramp, the one skipped run | fleet | L4 x2 | 5 | 32 | 3625 | 2.107 | 0.000 | 6.037 |
-| 2026-11-16 21:18 | M3b H100: coarse calibration ramp of the baseline on chat | h100 | H100 x1 | 8 | 32 | 445 | 0.567 | pending | 6.604 |
+| 2026-11-16 19:31 | M3a leftover: fp8 on rag (finalist) | dev | L4 x1 | 4 | 16 | 517 | 0.160 | 0.154 | 6.047 |
+| 2026-11-16 20:32 | M4 4-GPU rerun (fifth try): proxy check + chat, 3 policies x 3 repeats | fleet | L4 x4 | 8 | 64 | 3625 | 4.119 | 0.000 | 6.047 |
+| 2026-11-16 21:11 | M4 session (L4:2): capacity ramp, the one skipped run | fleet | L4 x2 | 5 | 32 | 3625 | 2.107 | 0.000 | 6.047 |
+| 2026-11-16 21:18 | M3b H100: coarse calibration ramp of the baseline on chat | h100 | H100 x1 | 8 | 32 | 445 | 0.567 | 0.537 | 6.585 |
 
 ## Notes
 
@@ -47,7 +47,7 @@ Totals use the actual cost when it is known. Rendered by `icr.ledger`.
 
 ## Totals
 
-- dev: $2.83 of $10.00
+- dev: $2.84 of $10.00
 - fleet: $3.21 of $18.00
-- h100: $0.57 of $7.00
-- **all: $6.60 of $35.00**
+- h100: $0.54 of $7.00
+- **all: $6.58 of $35.00**

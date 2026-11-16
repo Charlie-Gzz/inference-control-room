@@ -74,6 +74,14 @@ Config sweep on chat (capacity = highest ramp level within the SLO; one level is
      repeated until `skipped: []`
   4. `icr results`, look at the Pareto chart (L4 and H100) and the what-if GPU switch.
   The H100 budget guard refuses a session whose worst case passes $7.
+  **State at 16:35 EST:** step 1 ran ($0.54). All six levels met the SLO (at 48 req/s:
+  p95 TTFT 42 ms, p95 ITL 8.5 ms). So the coarse ramp is being extended:
+  `sweep --jobs "awq=ramp:chat@64;96;128;192;256;384=cal2" --gpu h100` (queued 16:35,
+  log `.scratch/h100-2.log`). `calibrate.r_sat` now reads `-cal2` (tests in
+  `tests/test_calibrate.py`). After it: commit, reconcile, **check send lag and CPU per
+  level** (a limit set by the load generator or vLLM's front end must be reported as
+  that), `uv run icr calibrate` prints the fine ramp to run, then steps 3 and 4. Watch
+  the size of the run files (tens of thousands of requests per run).
 - **After the H100 session:** request the 2-GPU fleet with the whole remaining list in
   one session: `fleet --items ramp,rag,no-sharing,autoscale --replicas 2`, watchdog 120
   minutes, repeated until `skipped: []`.
