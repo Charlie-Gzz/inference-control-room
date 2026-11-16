@@ -132,6 +132,18 @@
      "prefix": "-",
      "suffix": "%",
      "label": "p95 time to first token"
+    },
+    {
+     "value": 20,
+     "prefix": "+",
+     "suffix": "%",
+     "label": "traffic served within the latency target"
+    },
+    {
+     "value": 14,
+     "prefix": "-",
+     "suffix": "%",
+     "label": "cost per million tokens"
     }
    ],
    "line": "Same 2 GPUs. Same traffic. Prefix-aware routing against round-robin:",
@@ -170,7 +182,7 @@
    "seconds": 6.5,
    "url": "github.com/Charlie-Gzz/inference-control-room",
    "fade_out": 1.0,
-   "line": "A 4-GPU LLM serving fleet, measured on real traffic and replayed request by request."
+   "line": "A small LLM serving fleet, measured on real traffic patterns and replayed request by request."
   }
  ],
  "window": {

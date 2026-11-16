@@ -41,6 +41,18 @@
      "prefix": "-",
      "suffix": "%",
      "label": "p95 time to first token"
+    },
+    {
+     "value": 20,
+     "prefix": "+",
+     "suffix": "%",
+     "label": "traffic served within the latency target"
+    },
+    {
+     "value": 14,
+     "prefix": "-",
+     "suffix": "%",
+     "label": "cost per million tokens"
     }
    ],
    "line": "Same 2 GPUs. Same traffic. Prefix-aware routing against round-robin:",

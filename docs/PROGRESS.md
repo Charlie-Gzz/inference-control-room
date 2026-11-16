@@ -61,6 +61,18 @@ Config sweep on chat (capacity = highest ramp level within the SLO; one level is
   `.scratch/fleet-7.log`. Next on 2 GPUs: `rag`, `no-sharing`, `autoscale`.
 - `.scratch/queue_watchdog.ps1 -Log <log> -Minutes <n>` stops a request that is still
   in the queue after n minutes (unbilled). Start it in the background next to each launch.
+- **Drafted on the 2-GPU numbers as of 2026-11-16 (free work while the queue waits):**
+  `README.md`, `docs/DEMO_SCRIPT.md`, `docs/SLIDES_OUTLINE.md`, `docs/PORTFOLIO_CARD.md`.
+  They quote the headline (41%, 20%, 14%), the per-policy table, "2 GPUs", the spend
+  ($5.88, 17 runs) and "rag, no-sharing, autoscaling not run yet" by omission. **Refresh
+  all four when the fleet data changes** (new runs, or 4 GPUs becoming the headline),
+  and add the rag, no-sharing and autoscaling results and charts to the README then.
+  The README hero is `assets/screenshots/hero.png` until the GIF exists.
+- `icr assets` (no video) was rerun on the current data: capacity chart is new, charts
+  and the interactive page are now byte-stable between runs, storyboards carry all
+  three headline numbers. Every screenshot was looked at.
+- Docker Desktop is **not running**. It is needed for `icr assets --video` (ffmpeg) and
+  the secret scan (gitleaks). Start it before those steps.
 
 ## Paused for the night (2026-11-15, 22:15 EST)
 
