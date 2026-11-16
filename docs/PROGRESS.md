@@ -5,7 +5,8 @@ work, run `uv run modal app list` and stop anything running.
 
 ## Status
 
-**In progress (2026-11-14, evening): M4 fleet experiments.** M3a is done.
+**Paused 2026-11-15, 22:15 EST, in the middle of M4 (fleet experiments).** M3a is done.
+Read "Paused for the night" below before anything else.
 
 | Milestone | State |
 |---|---|
@@ -13,7 +14,7 @@ work, run `uv run modal app list` and stop anything running.
 | M1 Workloads, load generator, recorder, mock fleet | **done** |
 | M2 Go router and autoscaler | **done** |
 | M3a L4 single-replica sweeps and quality | **done** except one leftover ramp (`fp8` on rag, see next steps) |
-| M4 Fleet experiments | **in progress on 2 GPUs** (fallback): chat done, capacity ramp queued |
+| M4 Fleet experiments | **in progress on 2 GPUs** (fallback): chat done, capacity ramp running at the pause. A 4-GPU rerun is approved (see below) |
 | M3b H100 session (after M4, if budget allows) | not started; code ready (`--gpu h100`) |
 | M5 Optimizer and results pipeline | works on real sweep data (`icr results`, `icr calibrate`, `icr charts`, `icr replay-data`) |
 | M6 Control room site | every view written; seen with mock, rehearsal and real sweep data; needs real fleet runs |
@@ -43,7 +44,60 @@ Config sweep on chat (capacity = highest ramp level within the SLO; one level is
 - awq on rag (sweep levels 1.0 to 2.6 req/s): meets the SLO at every level.
 - The binding limit is inter-token latency, not time to first token.
 
-## State (2026-11-15, 20:50 EST): read this first
+## Paused for the night (2026-11-15, 22:15 EST): read this first
+
+Charlie is turning the PC off for the night. Work resumes on 2026-11-16.
+
+**What was running at the pause.** The 2-GPU capacity ramp (`--items ramp`, app
+`ap-TqLsegvuuS7Fkl305hIZGs`, log `.scratch/fleet-6.log`). It waited in the queue from
+19:53 and its container started at **21:56 EST**. Expected end about 22:50 EST. Six ramp
+runs of about 8 minutes each; the last one may be skipped by the time guard.
+
+**On resume, first:**
+
+1. `uv run modal app list`. Stop anything still listed as running
+   (`uv run modal app stop --yes <app id>`).
+2. Check whether the ramp session was recorded: `git log --oneline -3`, and look for
+   `results/runs/fleetx2-ramp-*` and a ledger row for `ap-TqLsegvuuS7Fkl305hIZGs`.
+   - **Recorded and committed:** nothing to do.
+   - **Not recorded** (the PC went off or the app was stopped mid-session): turning the
+     PC off kills the `modal run` client, and Modal then stops the app, so billing ends
+     on its own. Each finished run was committed to the Modal Volume under
+     `runs/fleetx2-ramp-*`. List them with
+     `uv run modal volume ls inference-control-room runs`, copy them down with
+     `uv run modal volume get inference-control-room runs/<id> results/runs/` (same
+     by-hand import as the `awq-suffix` run), and add the ledger row by hand from the
+     app's billed time on the Modal dashboard. Then commit results and ledger.
+3. `uv run python -c "from icr import ledger; ledger.reconcile()"`.
+
+**Decision from Charlie (2026-11-15, 22:05 EST): retry the fleet on 4 GPUs.** His words:
+"I say we go for it, I still have credits available if not, I can put $17 more for sure."
+See `docs/QUESTIONS_FOR_CHARLIE.md` Q1 and `docs/DECISIONS.md`. My reading of it:
+
+- The full fleet plan is rerun on `L4:4` (about $17), on top of the 2-GPU results.
+- The budget rises by up to $17 for this: **total hard stop $52, fleet reserve $35**
+  (dev $10 and H100 $7 unchanged). `BUDGET_TOTAL`, `BUDGET_SOFT_STOP` and
+  `BUDGET_BY_CATEGORY` in `src/icr/config.py` still hold the old values. Change them
+  first thing (total 52, soft stop 45, fleet 35) and fix any test that pins them.
+- Charlie handles the Modal side (credits, workspace spend limit). Never change billing
+  or account settings from here. On any quota or spend-limit error: stop and ask.
+
+**Order for 2026-11-16:**
+
+1. Finish the resume steps above. Rerun `--items ramp` if the session log shows skipped
+   runs.
+2. Ask for `L4:4` in the morning, when queues may be shorter: set `FLEET_REPLICAS = 4`,
+   run `--items proxycheck,chat`. Give it at most 60 minutes in the queue per try
+   (unbilled). If it starts, run the whole 4-GPU list (`proxycheck,chat`, `ramp`, `rag`,
+   `no-sharing`, `autoscale`). The 4-GPU runs become the headline; the 2-GPU runs stay
+   as a second data set (`fleetx2-...`).
+3. While `L4:4` cannot be had, set `FLEET_REPLICAS = 2` and keep going with the 2-GPU
+   list (`rag`, `no-sharing`, `autoscale`), then try `L4:4` again at another hour.
+   One container at a time, so the two never queue together.
+4. Do not poll the queue in a loop (it burns Claude usage). Launch in the background,
+   update this file, end the turn. The finished task wakes the session.
+
+## State of the fleet work (2026-11-15)
 
 - **The fleet runs on 2 L4s (`L4:2`), the plan's fallback.** Three requests for `L4:4`
   waited 50 to 80 minutes each and never got a container (all in the ledger at $0).
@@ -52,8 +106,8 @@ Config sweep on chat (capacity = highest ramp level within the SLO; one level is
 - **Done on 2 GPUs:** the router check and chat (3 policies x 3 repeats). Median p95 time
   to first token: round-robin 0.51 s, least-loaded 0.59 s, prefix-aware 0.30 s. p95
   inter-token latency 69, 67, 43 ms. Cache hit rate 74%, 74%, 84%. No errors.
-- **Queued now:** the capacity ramp (`--items ramp`), launched 19:53 EST, log
-  `.scratch/fleet-6.log`. `L4:2` queues have been long today (up to hours, unbilled).
+- **Capacity ramp:** see the pause notes above. `L4:2` queues were long on 2026-11-15
+  (25 minutes to 2 hours, unbilled).
   A session that ends shows `App completed` in its log and its runs appear in
   `results/runs/fleetx2-*`. **Commit results and ledger first, then reconcile.**
 - If a log ends with an error and no new runs exist, nothing ran: settle the ledger row
