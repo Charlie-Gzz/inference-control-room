@@ -71,9 +71,9 @@ Config sweep on chat (capacity = highest ramp level within the SLO; one level is
   session instead (M3b, its own $7 budget, one GPU): first
   `sweep --jobs "awq=calib:chat@8;12;16;24;32;48" --gpu h100`, then `icr calibrate`,
   then `--jobs "awq=ramp:chat|fp8=ramp:chat|awq-ngram=ramp:chat|bf16=ramp:chat" --gpu
-  h100` (repeat until `skipped: []`), each with a 45-minute watchdog. Check how
-  `icr calibrate` treats an H100 calibration before running the ramps (it must not
-  overwrite the L4 calibration the fleet loads come from). Then finish the project on
+  h100` (repeat until `skipped: []`), each with a 45-minute watchdog. Checked on
+  2026-11-16: `icr calibrate` reproduces the frozen L4 values byte for byte and only
+  adds `baseline_r_sat_h100`, so it is safe to rerun. Then finish the project on
   the data that exists (refresh the docs, final secret scan with the pinned image,
   Docker cleanup).
 - `docs/HANDOFF.md` is drafted (state of 15:45 EST). Refresh its numbers, the "Not
