@@ -33,7 +33,7 @@ Medians of 3 repeats (2 for the capacity rows) on 2 NVIDIA L4s with Qwen2.5-7B-I
 also the ramp's resolution. Both repeats agree. Full tables with ranges are in
 [results/RESULTS.md](results/RESULTS.md).
 
-The plan was a 4-GPU fleet. Modal never scheduled a 4-GPU L4 container during the build,
+The plan was a 4-GPU fleet. Modal never scheduled a 4-GPU L4 container in five tries,
 so these runs use the plan's fallback of 2 GPUs. See [Things that went wrong](#things-that-went-wrong).
 
 ## Quickstart
@@ -185,9 +185,10 @@ pointers to the code.
 
 ## Things that went wrong
 
-- **The 4-GPU container never started.** Requests for 4 L4s in one container waited 50
-  to 80 minutes each, on two days and at different hours, and were cancelled. Nothing
-  was billed. The fleet ran on 2 GPUs, the plan's fallback. Even 2 GPUs in one container
+- **The 4-GPU container never started.** Five requests for 4 L4s in one container, on
+  three days and at five different hours, waited 50 to 80 minutes each and were
+  cancelled. Nothing was billed. One L4 was available within 20 minutes on the same
+  afternoon. The fleet ran on 2 GPUs, the plan's fallback. Even 2 GPUs in one container
   took up to two hours of queue, and one request never started at all. With 2 replicas, round-robin lands a follow-up on the
   right GPU half the time (a quarter of the time with 4), so the routing effect measured
   here is probably smaller than on 4 GPUs.

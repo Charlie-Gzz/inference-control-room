@@ -67,9 +67,17 @@ Config sweep on chat (capacity = highest ramp level within the SLO; one level is
 - **15:35 EST: 2-GPU request queued** (`--items ramp --replicas 2`, log
   `.scratch/fleet-11.log`, watchdog 120 minutes). If it runs: commit results and ledger,
   reconcile, `icr results`, then `--items rag --replicas 2`, `no-sharing`, `autoscale`,
-  each with the watchdog. If it is cancelled: settle the row to $0, stop GPU work for
-  the day, and finish the project on the data that exists (refresh the four docs, write
-  `docs/HANDOFF.md`, final secret scan with the pinned image, Docker cleanup).
+  each with the watchdog. If it is cancelled: settle the row to $0 and run the H100
+  session instead (M3b, its own $7 budget, one GPU): first
+  `sweep --jobs "awq=calib:chat@8;12;16;24;32;48" --gpu h100`, then `icr calibrate`,
+  then `--jobs "awq=ramp:chat|fp8=ramp:chat|awq-ngram=ramp:chat|bf16=ramp:chat" --gpu
+  h100` (repeat until `skipped: []`), each with a 45-minute watchdog. Check how
+  `icr calibrate` treats an H100 calibration before running the ramps (it must not
+  overwrite the L4 calibration the fleet loads come from). Then finish the project on
+  the data that exists (refresh the docs, final secret scan with the pinned image,
+  Docker cleanup).
+- `docs/HANDOFF.md` is drafted (state of 15:45 EST). Refresh its numbers, the "Not
+  finished" list and the date at the end.
 - Earlier, 14:36 EST: fifth `L4:4` request queued (`--items proxycheck,chat --replicas 4`,
   log `.scratch/fleet-10.log`, watchdog 60 minutes). If it is cancelled: settle the
   ledger row to $0, then `--items ramp --replicas 2` with a 120-minute watchdog, then

@@ -187,7 +187,25 @@ Runs: `sweep-l4-awq-nocache-ramp-chat`, `sweep-l4-awq-ramp-no-sharing-fine`.
   spares or scale on a forecast, because a two-minute burst is over before a cold
   replica is ready.
 
-### 14. What is not measured here?
+### 14. Why 2 GPUs and not 4, and what does that do to the result?
+
+The plan was 4 L4s in one container. Five requests for that shape, on three days and at
+five different hours, waited 50 to 80 minutes each and never got a container (nothing
+was billed). The plan's fallback is 2 L4s, and every fleet number here is from 2.
+
+It probably makes the routing effect smaller, not larger. A router that ignores the
+cache sends a follow-up request to the GPU that has its conversation with probability
+1/N. With 2 replicas, round-robin is right half the time by accident. With 4 it would be
+right a quarter of the time, so there is more for prefix-aware routing to recover. The
+measured cache hit rates fit this: 74% for round-robin and 84% for prefix-aware on 2
+GPUs, against 83% for a single replica that sees everything.
+
+- The fleet size is one setting: `FLEET_REPLICAS` in `src/icr/config.py`. Load levels
+  scale with it (0.7 x N x R_sat), so the same commands rerun the plan on 4 GPUs.
+- `icr results` reports a second fleet size as a separate data set, never mixed in.
+- Queue history: `docs/GPU_LEDGER.md` (the rows marked NEVER RAN) and `docs/DECISIONS.md`.
+
+### 15. What is not measured here?
 
 One model family, one GPU type for the fleet, synthetic prompt text with real arrival
 times and real response lengths, runs of minutes not hours, and no network between the
