@@ -19,6 +19,7 @@ from icr.fleet.plan import CALIBRATION_FILE
 
 SUMMARY_FILE = config.RESULTS_DIR / "summaries" / "summary.json"
 RESULTS_MD = config.RESULTS_DIR / "RESULTS.md"
+FLEET_SIZES = (4, 2)  # the plan's fleet and its fallback
 MODEL_NAMES = {"awq": "Qwen2.5-7B-Instruct-AWQ (4-bit)", "bf16": "Qwen2.5-7B-Instruct (bf16)"}
 
 
@@ -88,6 +89,30 @@ def _prefix_pressure(calib: dict) -> dict:
     return out
 
 
+def _second_fleet() -> dict:
+    """The same experiments on the other fleet size, when such runs exist.
+
+    The fleet ran on 2 GPUs first (the plan's fallback) and may also run on 4. The two
+    sizes are separate data sets: this block is shown next to the headline fleet's
+    numbers and never mixed into them.
+    """
+    n = next(size for size in FLEET_SIZES if size != config.FLEET_REPLICAS)
+    fleet = {}
+    for workload in fleet_results.WORKLOADS:
+        table = fleet_results.policy_table(workload, replicas=n)
+        if table["policies"]:
+            fleet[workload] = table
+    if not fleet:
+        return {}
+    out: dict = {"replicas": n, "fleet": fleet}
+    capacity = fleet_results.capacity_table(replicas=n)
+    if capacity["policies"]:
+        out["capacity"] = capacity
+    if "chat" in fleet:
+        out["headline"] = fleet_results.headline(fleet["chat"], capacity)
+    return out
+
+
 def build() -> dict:
     calib = json.loads(CALIBRATION_FILE.read_text("utf-8")) if CALIBRATION_FILE.exists() else {}
     summary: dict = {
@@ -111,6 +136,9 @@ def build() -> dict:
         summary["capacity"] = capacity
     if "chat" in summary["fleet"]:
         summary["headline"] = fleet_results.headline(summary["fleet"]["chat"], capacity)
+    second = _second_fleet()
+    if second:
+        summary["second_fleet"] = second
     autoscale = fleet_results.autoscale_table()
     if autoscale:
         summary["autoscale"] = autoscale
@@ -165,9 +193,32 @@ def render_markdown(s: dict) -> str:
     ]
     if s.get("headline"):
         lines += ["## Headline", "", s["headline"]["text"], ""]
-    for workload, table in s.get("fleet", {}).items():
+    lines += _fleet_markdown(s.get("fleet", {}), s.get("capacity"))
+    if s.get("second_fleet"):
+        second = s["second_fleet"]
         lines += [
-            f"## Fleet, fixed traffic: `{workload}` at {table['rate_rps']} req/s",
+            f"## Second data set: the same experiments on {second['replicas']} GPUs",
+            "",
+            "Same frozen rules, same workloads, load levels scaled to the fleet size. These runs "
+            "are a separate data set and are not part of any number above.",
+            "",
+        ]
+        if second.get("headline"):
+            lines += [second["headline"]["text"], ""]
+        tag = f" ({second['replicas']} GPUs)"
+        lines += _fleet_markdown(second["fleet"], second.get("capacity"), tag, level="###")
+    lines += _rest_markdown(s)
+    return "\n".join(lines)
+
+
+def _fleet_markdown(
+    fleet: dict, capacity: dict | None, tag: str = "", level: str = "##"
+) -> list[str]:
+    """The fixed-traffic tables and the capacity table of one fleet size."""
+    lines: list[str] = []
+    for workload, table in fleet.items():
+        lines += [
+            f"{level} Fleet{tag}, fixed traffic: `{workload}` at {table['rate_rps']} req/s",
             "",
             "Median over the repeats (min to max). ⚠ marks a spread above 10% of the median.",
             "",
@@ -186,10 +237,10 @@ def render_markdown(s: dict) -> str:
              "Cache hit rate", "Imbalance (max / mean)"],
             rows,
         )  # fmt: skip
-    if s.get("capacity"):
-        cap = s["capacity"]
+    if capacity:
+        cap = capacity
         lines += [
-            "## Fleet capacity at the SLO (`chat` ramp)",
+            f"{level} Fleet{tag} capacity at the SLO (`chat` ramp)",
             "",
             f"Levels: {', '.join(str(r) for r in cap['rates_rps'])} req/s, 60 s each. Capacity is "
             "the highest level that meets the SLO with every lower level meeting it too.",
@@ -210,6 +261,12 @@ def render_markdown(s: dict) -> str:
              "$ per M total tokens at SLO"],
             rows,
         )  # fmt: skip
+    return lines
+
+
+def _rest_markdown(s: dict) -> list[str]:
+    """Single-replica sweeps, autoscaling, router overhead, cache pressure and spend."""
+    lines: list[str] = []
     for label, per_workload in s.get("sweep", {}).items():
         for workload, data in per_workload.items():
             lines += [f"## Single-replica configs on {label.upper()}: `{workload}`", ""]
@@ -258,7 +315,7 @@ def render_markdown(s: dict) -> str:
         if a.get("modeled_gpu_seconds_saved") is not None:
             lines += [
                 f"Modeled GPU-seconds saved by autoscaling: {a['modeled_gpu_seconds_saved'] * 100:.0f}%. "
-                "Modeled: in the real container all four GPUs are billed for the whole run.",
+                "Modeled: in the real container every GPU is billed for the whole run.",
                 "",
             ]
     if s.get("router_overhead"):
@@ -301,7 +358,7 @@ def render_markdown(s: dict) -> str:
         "See `docs/GPU_LEDGER.md`.",
         "",
     ]
-    return "\n".join(lines)
+    return lines
 
 
 def write() -> dict:

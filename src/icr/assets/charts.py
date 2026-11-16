@@ -238,8 +238,8 @@ def autoscaling(s: dict, seed: int = 0):
         pts = _steps(events, total, on, off)
         mid.step([p[0] for p in pts], [p[1] for p in pts], where="post", color=ROSE, lw=width,
                  ls=style, label=label)  # fmt: skip
-    mid.set_ylim(0, 4.9)
-    mid.set_yticks([0, 1, 2, 3, 4])
+    mid.set_ylim(0, n + 0.9)
+    mid.set_yticks(range(n + 1))
     mid.set_ylabel("replicas")
     mid.legend(loc="lower right", bbox_to_anchor=(1.0, 1.0), ncols=3)
 

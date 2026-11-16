@@ -44,7 +44,7 @@ uv run icr site      # the control room, on http://127.0.0.1:8765
 uv run icr results   # recompute every number from the saved runs
 ```
 
-`uv run icr test` runs the 126 tests against a local mock fleet. Building the Go router
+`uv run icr test` runs the tests (Python and Go) against a local mock fleet. Building the Go router
 needs Go 1.27 on the path or in `.tools/go`.
 
 ## What is in here

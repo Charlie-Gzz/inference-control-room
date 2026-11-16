@@ -74,6 +74,12 @@ Config sweep on chat (capacity = highest ramp level within the SLO; one level is
 - `icr assets` (no video) was rerun on the current data: capacity chart is new, charts
   and the interactive page are now byte-stable between runs, storyboards carry all
   three headline numbers. Every screenshot was looked at.
+- **Two fleet sizes in the results:** `icr results` now writes a `second_fleet` block
+  (the size that is not `FLEET_REPLICAS`) into the summary and a "Second data set"
+  section into `results/RESULTS.md`, when such runs exist. Still to do once 4-GPU runs
+  exist: show the second data set on the site's Method page and in the README, and
+  decide on a chart of the routing effect by fleet size. The site's replay views and
+  `icr replay-data` cover the headline fleet only.
 - Docker Desktop is **not running**. It is needed for `icr assets --video` (ffmpeg) and
   the secret scan (gitleaks). Start it before those steps.
 

@@ -180,3 +180,29 @@ def test_results_summary_and_markdown_build_from_saved_runs(saved_runs, monkeypa
     assert "## Fleet capacity at the SLO" in text and "## Router overhead" in text
     assert summary["headline"]["text"] in text
     json.dumps(summary)  # the site and the charts read it as JSON
+
+
+def test_the_other_fleet_size_is_a_separate_data_set(saved_runs, monkeypatch, tmp_path):
+    from icr.analysis import results
+    from icr.fleet import plan
+
+    monkeypatch.setattr(plan, "CALIBRATION_FILE", tmp_path / "missing.json")
+    monkeypatch.setattr(results, "CALIBRATION_FILE", tmp_path / "missing.json")
+    assert "second_fleet" not in results.build()  # only 4-GPU runs so far
+    for policy, ttft in {"round-robin": 0.8, "prefix-aware": 0.6}.items():
+        meta = {
+            "workload": "chat", "policy": policy, "seed": 0, "replicas": 2,
+            "run": {"kind": "fixed", "rate_rps": 5.6}, "cost_per_hour_usd": 2.0,
+        }  # fmt: skip
+        rows = [_request(i, policy, ttft, replica=i % 2) for i in range(40)]
+        _save(saved_runs, f"fleetx2-fixed-chat-{policy}-s0", meta, rows)
+    summary = results.build()
+    second = summary["second_fleet"]
+    assert second["replicas"] == 2 and second["fleet"]["chat"]["rate_rps"] == 5.6
+    assert second["headline"]["ttft_p95_change"] == pytest.approx(-0.25)
+    # The headline fleet's numbers are untouched by the 2-GPU runs.
+    assert summary["fleet"]["chat"]["policies"]["prefix-aware"]["repeats"] == 3
+    assert summary["fleet"]["chat"]["rate_rps"] == 11.2
+    text = results.render_markdown(summary)
+    assert "## Second data set: the same experiments on 2 GPUs" in text
+    assert "### Fleet (2 GPUs), fixed traffic: `chat` at 5.6 req/s" in text

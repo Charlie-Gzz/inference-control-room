@@ -71,4 +71,4 @@ Direct vs through the router, same 60 requests on one replica: TTFT p50 115.2 ms
 
 ## Spend
 
-Total: $5.88 over 17 Modal runs (dev $2.68, fleet $3.20, h100 $0.00). See `docs/GPU_LEDGER.md`.
+Total: $5.88 over 18 Modal runs (dev $2.68, fleet $3.20, h100 $0.00). See `docs/GPU_LEDGER.md`.

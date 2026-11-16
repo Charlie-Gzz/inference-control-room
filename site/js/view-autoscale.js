@@ -76,7 +76,7 @@ export async function render(root, state) {
   root.innerHTML = `
     <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       ${card("GPU-seconds saved", saved == null ? "-" : percent(saved), `${Math.round(med("autoscaled", "gpu_seconds") || 0).toLocaleString()} vs ${Math.round(med("static", "gpu_seconds") || 0).toLocaleString()} GPU-seconds, median of ${summary.static ? summary.static.repeats.length : 0} repeats`, '<span class="tag modeled">modeled</span>')}
-      ${card("p95 time to first token", `${secondsText(med("autoscaled", "ttft_p95_s"))}`, `autoscaled, against ${secondsText(med("static", "ttft_p95_s"))} with 4 replicas always on`, '<span class="tag real">measured</span>')}
+      ${card("p95 time to first token", `${secondsText(med("autoscaled", "ttft_p95_s"))}`, `autoscaled, against ${secondsText(med("static", "ttft_p95_s"))} with ${fixed.replicas} replicas always on`, '<span class="tag real">measured</span>')}
       ${card("Requests within the target", percent(med("autoscaled", "goodput"), 1), `autoscaled, against ${percent(med("static", "goodput"), 1)} static`, '<span class="tag real">measured</span>')}
       ${card("Replica startup", startups.length ? startupRange(startups) : "-", "from the scale-up decision to the first request served: what autoscaling has to absorb", '<span class="tag real">measured</span>')}
     </div>
@@ -89,7 +89,7 @@ export async function render(root, state) {
         <span class="text-muted"><span class="legend-dot" style="background:${POLICY_COLORS.autoscaled}"></span>autoscaled, 1 to ${fixed.replicas} replicas</span>
       </div>
       <div id="as-plot"></div>
-      <div class="px-1 pt-2 text-xs text-muted">Top: requests per second (the same arrivals for both fleets). Middle: replicas switched on, with the dashed line showing replicas actually serving (a new replica needs time to load the model). Bottom: p95 time to first token per ${BUCKET} seconds, on a log scale. The saving is modeled: it counts each replica from the moment it is started until it is stopped, as if replicas were billed one by one. In the real test all four GPUs sat in one container and were billed for the whole run.</div>
+      <div class="px-1 pt-2 text-xs text-muted">Top: requests per second (the same arrivals for both fleets). Middle: replicas switched on, with the dashed line showing replicas actually serving (a new replica needs time to load the model). Bottom: p95 time to first token per ${BUCKET} seconds, on a log scale. The saving is modeled: it counts each replica from the moment it is started until it is stopped, as if replicas were billed one by one. In the real test all ${fixed.replicas} GPUs sat in one container and were billed for the whole run.</div>
     </div>`;
   root.querySelector("#as-seed").addEventListener("change", (e) => {
     seed = Number(e.target.value);
@@ -127,8 +127,9 @@ export async function render(root, state) {
   top += heights[0] + gap;
 
   // 2. Replicas.
-  const y2 = linear(0, 5.2, top + heights[1], top);
-  panel(heights[1], y2, [0, 1, 2, 3, 4], "replicas switched on", (v) => String(v));
+  const y2 = linear(0, fixed.replicas + 1.2, top + heights[1], top);
+  const replicaTicks = Array.from({ length: fixed.replicas + 1 }, (_, k) => k);
+  panel(heights[1], y2, replicaTicks, "replicas switched on", (v) => String(v));
   for (const [replay, color] of [[fixed, POLICY_COLORS.static], [scaled, POLICY_COLORS.autoscaled]]) {
     const steps = replicaSteps(replay);
     svg("path", { d: stepPath(steps.billed, x, y2), fill: "none", stroke: color, "stroke-width": 2 }, root_);

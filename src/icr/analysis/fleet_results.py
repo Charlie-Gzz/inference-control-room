@@ -35,8 +35,9 @@ def spread(values: list[float | None]) -> dict:
     }  # fmt: skip
 
 
-def _fleet_runs(kind: str, workload: str | None = None) -> list[Run]:
-    prefix = f"{config.fleet_prefix()}{kind}-" + (f"{workload}-" if workload else "")
+def _fleet_runs(kind: str, workload: str | None = None, replicas: int | None = None) -> list[Run]:
+    """Runs of one fleet size (default: the headline fleet, `config.FLEET_REPLICAS`)."""
+    prefix = f"{config.fleet_prefix(replicas)}{kind}-" + (f"{workload}-" if workload else "")
     found = [r for r in all_runs(prefix) if not r.run_id.endswith("-direct")]
     # "chat" is a prefix of nothing else, but keep the match exact anyway.
     return [r for r in found if workload is None or r.meta["workload"] == workload]
@@ -46,13 +47,13 @@ def run_summary(run: Run, slo: SLO = DEFAULT_SLO) -> dict:
     return metrics.summarize(run.requests, slo, replicas=run.meta.get("replicas"))
 
 
-def policy_table(workload: str, slo: SLO = DEFAULT_SLO) -> dict:
+def policy_table(workload: str, slo: SLO = DEFAULT_SLO, replicas: int | None = None) -> dict:
     """Fixed-traffic comparison on one workload: policy -> metric -> spread over repeats."""
     by_policy: dict[str, dict[int, dict]] = {}
-    rate = replicas = None
-    for run in _fleet_runs("fixed", workload):
+    rate = None
+    for run in _fleet_runs("fixed", workload, replicas):
         by_policy.setdefault(run.meta["policy"], {})[run.meta["seed"]] = run_summary(run, slo)
-        rate, replicas = run.meta["run"]["rate_rps"], run.meta.get("replicas")
+        rate, replicas = run.meta["run"]["rate_rps"], run.meta.get("replicas", replicas)
     table = {}
     for policy in POLICIES:
         seeds = by_policy.get(policy)
@@ -68,12 +69,12 @@ def policy_table(workload: str, slo: SLO = DEFAULT_SLO) -> dict:
     return {"workload": workload, "rate_rps": rate, "replicas": replicas, "policies": table}
 
 
-def capacity_table(slo: SLO = DEFAULT_SLO) -> dict:
+def capacity_table(slo: SLO = DEFAULT_SLO, replicas: int | None = None) -> dict:
     """Capacity ramp on chat: per policy, the highest traffic level that meets the SLO."""
     by_policy: dict[str, list[dict]] = {}
     rates: list[float] = []
     level_s = None
-    for run in sorted(_fleet_runs("ramp"), key=lambda r: r.meta["seed"]):
+    for run in sorted(_fleet_runs("ramp", replicas=replicas), key=lambda r: r.meta["seed"]):
         spec = run.meta["run"]
         rates, level_s = spec["rates_rps"], spec["level_s"]
         levels = metrics.by_level(run.requests, slo)
@@ -178,7 +179,7 @@ def autoscale_table(slo: SLO = DEFAULT_SLO) -> dict:
 
     GPU-seconds are MODELED: a replica counts from the moment the autoscaler starts it
     (startup included) until it is stopped, as if each replica were billed on its own.
-    In the real container all four GPUs are billed for the whole run. Both fleets are
+    In the real container every GPU is billed for the whole run. Both fleets are
     counted over the same window, the planned traffic window (warmup + measured).
     """
     rows: dict[str, list[dict]] = {}

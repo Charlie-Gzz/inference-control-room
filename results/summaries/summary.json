@@ -1901,7 +1901,7 @@
    "fleet": 3.2,
    "h100": 0
   },
-  "runs": 17
+  "runs": 18
  },
  "capacity": {
   "workload": "chat",
