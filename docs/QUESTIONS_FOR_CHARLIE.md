@@ -28,3 +28,6 @@ available if not, I can put $17 more for sure."
   billing or account settings.
 - If `L4:4` still cannot be had after several tries at different hours, the 2-GPU
   results are the headline and the extra budget is not spent.
+
+**Confirmed again (Charlie, 2026-11-16, about 10:58 EST):** "go 4 GPUs". The fourth
+request for `L4:4` went into the queue at 11:00 EST.

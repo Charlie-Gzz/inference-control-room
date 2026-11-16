@@ -48,17 +48,20 @@ Config sweep on chat (capacity = highest ramp level within the SLO; one level is
 
 - Budget constants are raised in `src/icr/config.py` (total 52, soft stop 45, fleet 35)
   and the ledger tests follow the constants. Committed.
-- **The 4-GPU launch is waiting for Charlie.** Claude Code's permission check refused
-  `modal run ... fleet --items proxycheck,chat --replicas 4` at 10:55 EST (spend above
-  the plan's written cap). Charlie was asked in chat to confirm or to run it himself.
-  Do not retry it without his answer in the session. The command, once allowed:
-  `uv run modal run -m icr.modal_app.app::fleet --items proxycheck,chat --replicas 4`
-  with output to `.scratch/fleet-N.log`, plus the queue watchdog below at 60 minutes.
+- **The 4-GPU request is in the queue since 11:00 EST** (fourth try):
+  `uv run modal run -m icr.modal_app.app::fleet --items proxycheck,chat --replicas 4`,
+  log `.scratch/fleet-8.log`, with the queue watchdog below at 60 minutes. Claude Code's
+  permission check had refused the first launch (spend above the plan's written cap).
+  Charlie confirmed in the session ("go 4 GPUs", 2026-11-16, about 10:58 EST).
   `FLEET_REPLICAS` stays 2 in config until 4-GPU runs exist (the analysis reads it);
-  the launch passes `--replicas 4`.
-- **Meanwhile the 2-GPU list continues** (inside the plan's original budget). Launched
-  at 10:57 EST: `--items ramp --replicas 2` for the one skipped run, log
-  `.scratch/fleet-7.log`. Next on 2 GPUs: `rag`, `no-sharing`, `autoscale`.
+  the launch passes `--replicas 4`. When the first 4-GPU runs land: set
+  `FLEET_REPLICAS = 4`, check how the analysis keeps the `fleetx2-` runs as a second
+  data set, then continue the 4-GPU list (`ramp`, `rag`, `no-sharing`, `autoscale`).
+- If the watchdog cancels it (log ends with an error, no new runs): settle the ledger row
+  to $0, then run the 2-GPU list (`--items ramp --replicas 2` for the one skipped run,
+  then `rag`, `no-sharing`, `autoscale`) and try `L4:4` again at another hour.
+- A 2-GPU request for the skipped ramp run (10:44 EST) was cancelled after 16 minutes in
+  the queue to free the slot for the 4-GPU request. Ledger row settled to $0.
 - `.scratch/queue_watchdog.ps1 -Log <log> -Minutes <n>` stops a request that is still
   in the queue after n minutes (unbilled). Start it in the background next to each launch.
 - **Drafted on the 2-GPU numbers as of 2026-11-16 (free work while the queue waits):**
