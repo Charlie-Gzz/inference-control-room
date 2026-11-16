@@ -1,0 +1,85 @@
+{
+ "run_id": "fleetx2-ramp-chat-prefix-aware-s0",
+ "kind": "fleet",
+ "run": {
+  "kind": "ramp",
+  "workload": "chat",
+  "policy": "prefix-aware",
+  "seed": 0,
+  "rates_rps": [
+   6.24,
+   7.8,
+   9.36,
+   10.92,
+   12.48,
+   14.04
+  ],
+  "warmup_s": 60.0,
+  "level_s": 60.0,
+  "tag": "x2"
+ },
+ "label": "l4x2",
+ "config": {
+  "name": "awq",
+  "weights": "awq",
+  "quantization": null,
+  "speculative": null,
+  "prefix_caching": true,
+  "max_num_seqs": null,
+  "max_model_len": 8192,
+  "gpu_memory_utilization": 0.9,
+  "extra_args": [],
+  "pip": []
+ },
+ "replicas": 2,
+ "workload": "chat",
+ "policy": "prefix-aware",
+ "seed": 0,
+ "session_id": "fleet-20261116-005308",
+ "table_chunks": 4793,
+ "startup_s": {
+  "0": 203.2,
+  "1": 203.2
+ },
+ "gpu": {
+  "gpus": [
+   "NVIDIA L4, 23034 MiB, 610.57.04",
+   "NVIDIA L4, 23034 MiB, 610.57.04"
+  ],
+  "table": "Mon Nov 16 02:56:05 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 610.57.04              KMD Version: 610.57.04     CUDA UMD Version: 13.3     |\n+-----------------------------------------+------------------------+----------------------+\n| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  NVIDIA L4                      On  |   00000000:00:04.0 Off |                    0 |\n| N/A   43C    P8             13W /   72W |       5MiB /  23034MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n|   1  NVIDIA L4                      On  |   00000000:80:01.0 Off |                    0 |\n| N/A   67C    P8             18W /   72W |       5MiB /  23034MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n\n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|  No running processes found                                                             |\n+-----------------------------------------------------------------------------------------+"
+ },
+ "vllm_version": "0.33.0",
+ "started_unix": 1794799001.957,
+ "duration_s": 448.87,
+ "requests_total": 4024,
+ "summary": {
+  "requests": 3650,
+  "errors": 0,
+  "offered_rps": 10.142,
+  "ttft_p50_s": 0.2978,
+  "ttft_p95_s": 2.374,
+  "itl_p95_s": 0.65774,
+  "e2e_p95_s": 58.2941,
+  "goodput": 0.5685,
+  "output_tokens": 350688,
+  "prompt_tokens": 4893899,
+  "output_tokens_per_s": 902.4,
+  "cache_hit_rate": 0.8355,
+  "send_lag_p95_s": 0.0022,
+  "router_overhead_p50_us": 170,
+  "router_overhead_p95_us": 284,
+  "replica_requests": [
+   1809,
+   1841
+  ],
+  "imbalance": 1.009
+ },
+ "container_resources": {
+  "samples": 448,
+  "cpu_cores_mean": 1.2,
+  "cpu_cores_p95": 1.586,
+  "cpu_cores_max": 1.747,
+  "memory_gib_max": 22.983
+ },
+ "cost_per_hour_usd": 2.0925
+}

@@ -1,0 +1,173 @@
+{
+ "session_id": "fleet-20261116-005308",
+ "label": "l4x2",
+ "replicas": 2,
+ "config": {
+  "name": "awq",
+  "weights": "awq",
+  "quantization": null,
+  "speculative": null,
+  "prefix_caching": true,
+  "max_num_seqs": null,
+  "max_model_len": 8192,
+  "gpu_memory_utilization": 0.9,
+  "extra_args": [],
+  "pip": []
+ },
+ "runs": [
+  {
+   "kind": "ramp",
+   "workload": "chat",
+   "policy": "round-robin",
+   "seed": 0,
+   "rates_rps": [
+    6.24,
+    7.8,
+    9.36,
+    10.92,
+    12.48,
+    14.04
+   ],
+   "warmup_s": 60.0,
+   "level_s": 60.0,
+   "tag": "x2"
+  },
+  {
+   "kind": "ramp",
+   "workload": "chat",
+   "policy": "least-loaded",
+   "seed": 0,
+   "rates_rps": [
+    6.24,
+    7.8,
+    9.36,
+    10.92,
+    12.48,
+    14.04
+   ],
+   "warmup_s": 60.0,
+   "level_s": 60.0,
+   "tag": "x2"
+  },
+  {
+   "kind": "ramp",
+   "workload": "chat",
+   "policy": "prefix-aware",
+   "seed": 0,
+   "rates_rps": [
+    6.24,
+    7.8,
+    9.36,
+    10.92,
+    12.48,
+    14.04
+   ],
+   "warmup_s": 60.0,
+   "level_s": 60.0,
+   "tag": "x2"
+  },
+  {
+   "kind": "ramp",
+   "workload": "chat",
+   "policy": "prefix-aware",
+   "seed": 1,
+   "rates_rps": [
+    6.24,
+    7.8,
+    9.36,
+    10.92,
+    12.48,
+    14.04
+   ],
+   "warmup_s": 60.0,
+   "level_s": 60.0,
+   "tag": "x2"
+  },
+  {
+   "kind": "ramp",
+   "workload": "chat",
+   "policy": "round-robin",
+   "seed": 1,
+   "rates_rps": [
+    6.24,
+    7.8,
+    9.36,
+    10.92,
+    12.48,
+    14.04
+   ],
+   "warmup_s": 60.0,
+   "level_s": 60.0,
+   "tag": "x2"
+  },
+  {
+   "kind": "ramp",
+   "workload": "chat",
+   "policy": "least-loaded",
+   "seed": 1,
+   "rates_rps": [
+    6.24,
+    7.8,
+    9.36,
+    10.92,
+    12.48,
+    14.04
+   ],
+   "warmup_s": 60.0,
+   "level_s": 60.0,
+   "tag": "x2"
+  }
+ ],
+ "table_chunks": 4793,
+ "autoscaler": {
+  "min_replicas": 1,
+  "max_replicas": 2,
+  "interval_s": 1.0,
+  "up_load": 12.0,
+  "up_waiting": 1.0,
+  "up_kv": 0.9,
+  "up_sustain_s": 3.0,
+  "down_load": 6.0,
+  "down_sustain_s": 20.0,
+  "drain_timeout_s": 60.0
+ },
+ "budget_s": 3000,
+ "skipped": [
+  "fleetx2-ramp-chat-least-loaded-s1"
+ ],
+ "gpu": {
+  "gpus": [
+   "NVIDIA L4, 23034 MiB, 610.57.04",
+   "NVIDIA L4, 23034 MiB, 610.57.04"
+  ],
+  "table": "Mon Nov 16 02:56:05 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 610.57.04              KMD Version: 610.57.04     CUDA UMD Version: 13.3     |\n+-----------------------------------------+------------------------+----------------------+\n| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  NVIDIA L4                      On  |   00000000:00:04.0 Off |                    0 |\n| N/A   43C    P8             13W /   72W |       5MiB /  23034MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n|   1  NVIDIA L4                      On  |   00000000:80:01.0 Off |                    0 |\n| N/A   67C    P8             18W /   72W |       5MiB /  23034MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n\n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|  No running processes found                                                             |\n+-----------------------------------------------------------------------------------------+"
+ },
+ "vllm_version": "0.33.0",
+ "startup_s": {
+  "0": 203.2,
+  "1": 203.2
+ },
+ "resources": {
+  "samples": 2634,
+  "cpu_cores_mean": 1.129,
+  "cpu_cores_p95": 1.606,
+  "cpu_cores_max": 7.686,
+  "memory_gib_max": 41.71
+ },
+ "container_seconds": 2640.923138005,
+ "ledger": {
+  "date": "2026-11-16 03:40",
+  "purpose": "M4 session (L4:2): capacity ramp on chat, 3 policies x 2 repeats",
+  "category": "fleet",
+  "gpu": "L4",
+  "gpu_count": 2,
+  "cpu": 5.0,
+  "memory_gib": 32.0,
+  "billed_seconds": 2665.9,
+  "cost_usd": 1.5496,
+  "actual_cost_usd": null,
+  "app_id": "ap-TqLsegvuuS7Fkl305hIZGs",
+  "run_id": "fleet-20261116-005308",
+  "note": ""
+ }
+}
