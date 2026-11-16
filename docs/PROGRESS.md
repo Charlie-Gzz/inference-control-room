@@ -74,7 +74,15 @@ Config sweep on chat (capacity = highest ramp level within the SLO; one level is
      repeated until `skipped: []`
   4. `icr results`, look at the Pareto chart (L4 and H100) and the what-if GPU switch.
   The H100 budget guard refuses a session whose worst case passes $7.
-  **State at 17:05 EST:** the fine ramp ran ($0.41) and met the SLO at every level, 64
+  **State at 17:25 EST:** sweep session 1 ran ($1.53): `awq`, `bf16` and `fp8` all
+  reach 54.4 req/s at the SLO on the H100 ($0.242 per million output tokens) and all
+  miss at 64 req/s on time to first token (queueing), not on the token gap. Session 2
+  (only `awq-ngram` is left) is queued, log `.scratch/h100-5.log`. H100 spend $3.37 of
+  $7, total $9.42. After it: commit, reconcile, `uv run icr assets` (no video), look at
+  the Pareto chart, the cost chart and the what-if view with the GPU switch on H100,
+  then add the H100 results to README, DESIGN_FAQ (question 11) and HANDOFF. Then the
+  2-GPU fleet request with the whole remaining list.
+  Earlier, at 17:05 EST: the fine ramp ran ($0.41) and met the SLO at every level, 64
   req/s included, so R_sat(chat, H100) = 64 (a lower bound, see DECISIONS). Sweep levels:
   32, 44.8, 54.4, 64, 73.6, 83.2 req/s. **Sweep session 1 is queued** (log
   `.scratch/h100-4.log`): `--jobs "awq=ramp:chat|bf16=ramp:chat|fp8=ramp:chat|awq-ngram=ramp:chat"

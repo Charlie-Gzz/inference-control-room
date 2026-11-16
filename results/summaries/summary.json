@@ -108,6 +108,22 @@
      "source": "sweep-l4-awq-ramp-no-sharing-fine",
      "stage": "fine"
     }
+   },
+   "baseline_h100": {
+    "chat": {
+     "r_sat": 64.0,
+     "first_miss": null,
+     "rates": [
+      48.0,
+      51.2,
+      54.4,
+      57.6,
+      60.8,
+      64.0
+     ],
+     "source": "sweep-h100-awq-ramp-chat-fine",
+     "stage": "fine"
+    }
    }
   },
   "kv_cache_tokens": 250224,
@@ -122,6 +138,9 @@
    "down_load": 6.0,
    "down_sustain_s": 20.0,
    "drain_timeout_s": 60.0
+  },
+  "baseline_r_sat_h100": {
+   "chat": 64.0
   }
  },
  "facts": {
@@ -1673,6 +1692,396 @@
     ],
     "cheapest_at_default_slo": "awq"
    }
+  },
+  "h100": {
+   "chat": {
+    "configs": [
+     {
+      "config": "awq",
+      "quantization": "AWQ 4-bit",
+      "speculative": "off",
+      "prefix_caching": true,
+      "max_num_seqs": 128,
+      "gpu": "h100",
+      "workload": "chat",
+      "startup_s": 98.1,
+      "cost_per_hour_usd": 4.5844,
+      "max_rps_at_slo": 54.4,
+      "capacity_is_lower_bound": false,
+      "points": [
+       {
+        "config": "awq",
+        "level": 0,
+        "rate_rps": 32.0,
+        "requests": 1280,
+        "errors": 0,
+        "ttft_p50_s": 0.0509,
+        "ttft_p95_s": 0.0778,
+        "itl_p95_s": 0.00905,
+        "goodput": 1.0,
+        "cache_hit_rate": 0.8074,
+        "output_tokens_per_hour": 10012050,
+        "total_tokens_per_hour": 139088250,
+        "cost_per_m_output": 0.4579,
+        "cost_per_m_total": 0.033
+       },
+       {
+        "config": "awq",
+        "level": 1,
+        "rate_rps": 44.8,
+        "requests": 1792,
+        "errors": 0,
+        "ttft_p50_s": 0.0874,
+        "ttft_p95_s": 0.179,
+        "itl_p95_s": 0.01369,
+        "goodput": 1.0,
+        "cache_hit_rate": 0.8292,
+        "output_tokens_per_hour": 15844950,
+        "total_tokens_per_hour": 217751400,
+        "cost_per_m_output": 0.2893,
+        "cost_per_m_total": 0.0211
+       },
+       {
+        "config": "awq",
+        "level": 2,
+        "rate_rps": 54.4,
+        "requests": 2176,
+        "errors": 0,
+        "ttft_p50_s": 0.1094,
+        "ttft_p95_s": 0.1956,
+        "itl_p95_s": 0.0165,
+        "goodput": 1.0,
+        "cache_hit_rate": 0.8384,
+        "output_tokens_per_hour": 18946620,
+        "total_tokens_per_hour": 276281190,
+        "cost_per_m_output": 0.242,
+        "cost_per_m_total": 0.0166
+       },
+       {
+        "config": "awq",
+        "level": 3,
+        "rate_rps": 64.0,
+        "requests": 2560,
+        "errors": 0,
+        "ttft_p50_s": 0.1129,
+        "ttft_p95_s": 10.4133,
+        "itl_p95_s": 0.03756,
+        "goodput": 0.8348,
+        "cache_hit_rate": 0.8385,
+        "output_tokens_per_hour": 23008770,
+        "total_tokens_per_hour": 305517060,
+        "cost_per_m_output": 0.1992,
+        "cost_per_m_total": 0.015
+       },
+       {
+        "config": "awq",
+        "level": 4,
+        "rate_rps": 73.6,
+        "requests": 2944,
+        "errors": 0,
+        "ttft_p50_s": 17.731,
+        "ttft_p95_s": 27.8182,
+        "itl_p95_s": 0.05472,
+        "goodput": 0.0,
+        "cache_hit_rate": 0.8142,
+        "output_tokens_per_hour": 24501420,
+        "total_tokens_per_hour": 350286750,
+        "cost_per_m_output": 0.1871,
+        "cost_per_m_total": 0.0131
+       },
+       {
+        "config": "awq",
+        "level": 5,
+        "rate_rps": 83.2,
+        "requests": 3328,
+        "errors": 0,
+        "ttft_p50_s": 32.6772,
+        "ttft_p95_s": 52.1281,
+        "itl_p95_s": 0.04676,
+        "goodput": 0.0,
+        "cache_hit_rate": 0.759,
+        "output_tokens_per_hour": 29490750,
+        "total_tokens_per_hour": 411103260,
+        "cost_per_m_output": 0.1555,
+        "cost_per_m_total": 0.0112
+       }
+      ],
+      "cost_per_m_output": 0.242,
+      "cost_per_m_total": 0.0166,
+      "output_tokens_per_hour": 18946620,
+      "ttft_p50_s": 0.1094,
+      "ttft_p95_s": 0.1956,
+      "itl_p95_s": 0.0165,
+      "cache_hit_rate": 0.8384,
+      "spec_decode": null
+     },
+     {
+      "config": "bf16",
+      "quantization": "bf16",
+      "speculative": "off",
+      "prefix_caching": true,
+      "max_num_seqs": 128,
+      "gpu": "h100",
+      "workload": "chat",
+      "startup_s": 105.1,
+      "cost_per_hour_usd": 4.5844,
+      "max_rps_at_slo": 54.4,
+      "capacity_is_lower_bound": false,
+      "points": [
+       {
+        "config": "bf16",
+        "level": 0,
+        "rate_rps": 32.0,
+        "requests": 1280,
+        "errors": 0,
+        "ttft_p50_s": 0.0393,
+        "ttft_p95_s": 0.0573,
+        "itl_p95_s": 0.0083,
+        "goodput": 1.0,
+        "cache_hit_rate": 0.8074,
+        "output_tokens_per_hour": 10012050,
+        "total_tokens_per_hour": 139088250,
+        "cost_per_m_output": 0.4579,
+        "cost_per_m_total": 0.033
+       },
+       {
+        "config": "bf16",
+        "level": 1,
+        "rate_rps": 44.8,
+        "requests": 1792,
+        "errors": 0,
+        "ttft_p50_s": 0.0507,
+        "ttft_p95_s": 0.1146,
+        "itl_p95_s": 0.00993,
+        "goodput": 1.0,
+        "cache_hit_rate": 0.8292,
+        "output_tokens_per_hour": 15844950,
+        "total_tokens_per_hour": 217751400,
+        "cost_per_m_output": 0.2893,
+        "cost_per_m_total": 0.0211
+       },
+       {
+        "config": "bf16",
+        "level": 2,
+        "rate_rps": 54.4,
+        "requests": 2176,
+        "errors": 0,
+        "ttft_p50_s": 0.0908,
+        "ttft_p95_s": 0.1712,
+        "itl_p95_s": 0.01232,
+        "goodput": 1.0,
+        "cache_hit_rate": 0.8384,
+        "output_tokens_per_hour": 18946620,
+        "total_tokens_per_hour": 276281190,
+        "cost_per_m_output": 0.242,
+        "cost_per_m_total": 0.0166
+       },
+       {
+        "config": "bf16",
+        "level": 3,
+        "rate_rps": 64.0,
+        "requests": 2560,
+        "errors": 0,
+        "ttft_p50_s": 0.0791,
+        "ttft_p95_s": 6.9838,
+        "itl_p95_s": 0.03015,
+        "goodput": 0.8711,
+        "cache_hit_rate": 0.8385,
+        "output_tokens_per_hour": 23008770,
+        "total_tokens_per_hour": 305517060,
+        "cost_per_m_output": 0.1992,
+        "cost_per_m_total": 0.015
+       },
+       {
+        "config": "bf16",
+        "level": 4,
+        "rate_rps": 73.6,
+        "requests": 2944,
+        "errors": 13,
+        "ttft_p50_s": 6.2265,
+        "ttft_p95_s": 10.1749,
+        "itl_p95_s": 0.0727,
+        "goodput": 0.053,
+        "cache_hit_rate": 0.7507,
+        "output_tokens_per_hour": 24418440,
+        "total_tokens_per_hour": 348612930,
+        "cost_per_m_output": 0.1877,
+        "cost_per_m_total": 0.0132
+       },
+       {
+        "config": "bf16",
+        "level": 5,
+        "rate_rps": 83.2,
+        "requests": 3328,
+        "errors": 0,
+        "ttft_p50_s": 16.8385,
+        "ttft_p95_s": 29.8268,
+        "itl_p95_s": 0.12187,
+        "goodput": 0.0,
+        "cache_hit_rate": 0.6773,
+        "output_tokens_per_hour": 29490750,
+        "total_tokens_per_hour": 411103260,
+        "cost_per_m_output": 0.1555,
+        "cost_per_m_total": 0.0112
+       }
+      ],
+      "cost_per_m_output": 0.242,
+      "cost_per_m_total": 0.0166,
+      "output_tokens_per_hour": 18946620,
+      "ttft_p50_s": 0.0908,
+      "ttft_p95_s": 0.1712,
+      "itl_p95_s": 0.01232,
+      "cache_hit_rate": 0.8384,
+      "spec_decode": null
+     },
+     {
+      "config": "fp8",
+      "quantization": "FP8",
+      "speculative": "off",
+      "prefix_caching": true,
+      "max_num_seqs": 128,
+      "gpu": "h100",
+      "workload": "chat",
+      "startup_s": 98.1,
+      "cost_per_hour_usd": 4.5844,
+      "max_rps_at_slo": 54.4,
+      "capacity_is_lower_bound": false,
+      "points": [
+       {
+        "config": "fp8",
+        "level": 0,
+        "rate_rps": 32.0,
+        "requests": 1280,
+        "errors": 0,
+        "ttft_p50_s": 0.0382,
+        "ttft_p95_s": 0.0617,
+        "itl_p95_s": 0.00752,
+        "goodput": 1.0,
+        "cache_hit_rate": 0.8074,
+        "output_tokens_per_hour": 10012050,
+        "total_tokens_per_hour": 139088250,
+        "cost_per_m_output": 0.4579,
+        "cost_per_m_total": 0.033
+       },
+       {
+        "config": "fp8",
+        "level": 1,
+        "rate_rps": 44.8,
+        "requests": 1792,
+        "errors": 0,
+        "ttft_p50_s": 0.052,
+        "ttft_p95_s": 0.1114,
+        "itl_p95_s": 0.00958,
+        "goodput": 1.0,
+        "cache_hit_rate": 0.8292,
+        "output_tokens_per_hour": 15844950,
+        "total_tokens_per_hour": 217751400,
+        "cost_per_m_output": 0.2893,
+        "cost_per_m_total": 0.0211
+       },
+       {
+        "config": "fp8",
+        "level": 2,
+        "rate_rps": 54.4,
+        "requests": 2176,
+        "errors": 0,
+        "ttft_p50_s": 0.0769,
+        "ttft_p95_s": 0.1418,
+        "itl_p95_s": 0.01079,
+        "goodput": 1.0,
+        "cache_hit_rate": 0.8384,
+        "output_tokens_per_hour": 18946620,
+        "total_tokens_per_hour": 276281190,
+        "cost_per_m_output": 0.242,
+        "cost_per_m_total": 0.0166
+       },
+       {
+        "config": "fp8",
+        "level": 3,
+        "rate_rps": 64.0,
+        "requests": 2560,
+        "errors": 0,
+        "ttft_p50_s": 0.0746,
+        "ttft_p95_s": 5.4272,
+        "itl_p95_s": 0.02986,
+        "goodput": 0.9078,
+        "cache_hit_rate": 0.8385,
+        "output_tokens_per_hour": 23008770,
+        "total_tokens_per_hour": 305517060,
+        "cost_per_m_output": 0.1992,
+        "cost_per_m_total": 0.015
+       },
+       {
+        "config": "fp8",
+        "level": 4,
+        "rate_rps": 73.6,
+        "requests": 2944,
+        "errors": 29,
+        "ttft_p50_s": 4.482,
+        "ttft_p95_s": 10.3661,
+        "itl_p95_s": 0.0396,
+        "goodput": 0.3604,
+        "cache_hit_rate": 0.8184,
+        "output_tokens_per_hour": 24324750,
+        "total_tokens_per_hour": 346924530,
+        "cost_per_m_output": 0.1885,
+        "cost_per_m_total": 0.0132
+       },
+       {
+        "config": "fp8",
+        "level": 5,
+        "rate_rps": 83.2,
+        "requests": 3328,
+        "errors": 0,
+        "ttft_p50_s": 6.7064,
+        "ttft_p95_s": 13.2151,
+        "itl_p95_s": 0.06079,
+        "goodput": 0.2392,
+        "cache_hit_rate": 0.6945,
+        "output_tokens_per_hour": 29490750,
+        "total_tokens_per_hour": 411103260,
+        "cost_per_m_output": 0.1555,
+        "cost_per_m_total": 0.0112
+       }
+      ],
+      "cost_per_m_output": 0.242,
+      "cost_per_m_total": 0.0166,
+      "output_tokens_per_hour": 18946620,
+      "ttft_p50_s": 0.0769,
+      "ttft_p95_s": 0.1418,
+      "itl_p95_s": 0.01079,
+      "cache_hit_rate": 0.8384,
+      "spec_decode": null
+     }
+    ],
+    "frontier": [
+     {
+      "config": "fp8",
+      "level": 5
+     },
+     {
+      "config": "bf16",
+      "level": 4
+     },
+     {
+      "config": "fp8",
+      "level": 3
+     },
+     {
+      "config": "fp8",
+      "level": 2
+     },
+     {
+      "config": "fp8",
+      "level": 1
+     },
+     {
+      "config": "bf16",
+      "level": 0
+     }
+    ],
+    "cheapest_at_default_slo": "awq"
+   }
   }
  },
  "fleet": {
@@ -2021,13 +2430,13 @@
   }
  },
  "spend": {
-  "total_usd": 6.04,
+  "total_usd": 9.42,
   "by_category": {
-   "dev": 2.83,
+   "dev": 2.84,
    "fleet": 3.21,
-   "h100": 0
+   "h100": 3.37
   },
-  "runs": 21
+  "runs": 27
  },
  "capacity": {
   "workload": "chat",
