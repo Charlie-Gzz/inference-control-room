@@ -35,7 +35,8 @@ FONT_DIR = Path(__file__).parent / "fonts"
 WIDTH_PX = 1600
 DPI = 200
 SANS, MONO = "Inter", "JetBrains Mono"
-TITLE_CHARS, SUBTITLE_CHARS = 84, 120  # line lengths that fit 1600 px at the sizes below
+TITLE_CHARS, SUBTITLE_CHARS, FOOTER_CHARS = 84, 120, 140  # line lengths that fit 1600 px
+FOOTER_SEP = "  ·  "
 
 
 def apply() -> None:
@@ -53,6 +54,7 @@ def apply() -> None:
             "axes.titleweight": "regular", "axes.titlecolor": MUTED, "axes.titlelocation": "left",
             # SVG text is stored as outlines, so it looks the same without the fonts installed.
             "legend.frameon": False, "legend.fontsize": 9, "svg.fonttype": "path",
+            "svg.hashsalt": "switchyard",  # stable element ids: same data, same SVG bytes
             "xtick.labelsize": 9, "ytick.labelsize": 9, "axes.labelsize": 9.5,
         }
     )  # fmt: skip
@@ -87,6 +89,15 @@ def titles(fig, title: str, subtitle: str = "") -> float:
 
 
 def footer(fig, text: str) -> None:
+    """The muted line at the bottom. Wrapped, so a long footer is never cut off at the edge."""
+    lines = [""]
+    for part in text.split(FOOTER_SEP):  # break between facts, never inside one
+        joined = f"{lines[-1]}{FOOTER_SEP}{part}" if lines[-1] else part
+        if len(joined) <= FOOTER_CHARS:
+            lines[-1] = joined
+        else:
+            lines.append(part)
+    text = "\n".join(lines)
     fig.text(0.035, 14 / (fig.get_figheight() * DPI), text, fontsize=7.4, color=MUTED, va="bottom")
 
 
@@ -99,8 +110,8 @@ def save(fig, name: str) -> list[Path]:
     """Write `assets/charts/<name>.png` (1600 px wide) and `.svg`."""
     CHART_DIR.mkdir(parents=True, exist_ok=True)
     paths = [CHART_DIR / f"{name}.png", CHART_DIR / f"{name}.svg"]
-    for path in paths:
-        fig.savefig(path, dpi=DPI)
+    fig.savefig(paths[0], dpi=DPI)
+    fig.savefig(paths[1], dpi=DPI, metadata={"Date": None})  # no timestamp in the file
     plt.close(fig)
     svg = paths[1]  # same line endings on every OS, so the file does not change between machines
     svg.write_text(svg.read_text("utf-8"), encoding="utf-8", newline="\n")

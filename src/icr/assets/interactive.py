@@ -105,7 +105,9 @@ def write():
         policies(s, "goodput", "Requests within the SLO", 100.0, "%"),
     ]
     blocks = [
-        pio.to_html(fig, include_plotlyjs="cdn" if k == 0 else False, full_html=False)
+        pio.to_html(
+            fig, include_plotlyjs="cdn" if k == 0 else False, full_html=False, div_id=f"fig-{k}"
+        )  # fixed id: same data, same file
         for k, fig in enumerate(f for f in figures if f is not None)
     ]
     facts = s.get("facts", {})

@@ -43,7 +43,7 @@ def _footer(s: dict, gpu: str | None = None, extra: str = "", model: str | None 
     f = s.get("facts", {})
     parts = [gpu or f.get("gpu", ""), model or f.get("model", ""), f.get("engine", ""), extra,
              "arrivals: BurstGPT trace (CC BY 4.0)"]  # fmt: skip
-    return "  ·  ".join(p for p in parts if p)
+    return theme.FOOTER_SEP.join(p for p in parts if p)
 
 
 def _finish(fig, name: str, title: str, subtitle: str, foot: str, bottom_px: int = 150, **adjust):
@@ -97,9 +97,10 @@ def capacity_by_policy(s: dict):
     rates = ", ".join(f"{r:g}" for r in s["capacity"]["rates_rps"])
     level_s = s["capacity"].get("level_s") or 60
     sub = (f"Capacity ramp on the chat workload: levels of {rates} req/s, {level_s:g} s each, 2 repeats. "
-           "Bar = median, line = min to max, dots = repeats.")  # fmt: skip
-    foot = _footer(s, extra="SLO: p95 TTFT <= 2 s, p95 inter-token latency <= 100 ms, no errors")
-    return _finish(fig, "capacity_by_policy", title, sub, foot, left=0.07, right=0.97, wspace=0.22)
+           "Bar = median, line = min to max, dots = repeats. "
+           "SLO: p95 time to first token <= 2 s, p95 inter-token latency <= 100 ms, no errors.")  # fmt: skip
+    return _finish(fig, "capacity_by_policy", title, sub, _footer(s), left=0.07, right=0.97,
+                   wspace=0.22)  # fmt: skip
 
 
 def latency_by_policy(s: dict):
@@ -189,7 +190,7 @@ def router_overhead(s: dict):
             ax.annotate(f"{q}\n{v}", (x, v), xytext=(0, 4), textcoords="offset points", ha="center",
                         fontsize=8, fontfamily=theme.MONO)  # fmt: skip
     ax.set_xticks(range(len(names)), names)
-    ax.set_ylabel("time the router adds per request (microseconds)")
+    ax.set_ylabel("microseconds per request")
     ax.grid(axis="x", visible=False)
     ax.margins(y=0.25)
     worst = max(o["decision_us"][n]["p99"] for n in names)
