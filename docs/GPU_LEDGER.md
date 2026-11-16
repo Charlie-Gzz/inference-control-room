@@ -26,6 +26,7 @@ Totals use the actual cost when it is known. Rendered by `icr.ledger`.
 | 2026-11-16 00:14 | M4 session (L4:2): chat, remaining 2 repeats x 3 policies | fleet | L4 x2 | 5 | 32 | 1761 | 1.024 | 1.017 | 4.350 |
 | 2026-11-16 03:40 | M4 session (L4:2): capacity ramp on chat, 3 policies x 2 repeats | fleet | L4 x2 | 5 | 32 | 2666 | 1.550 | 1.534 | 5.883 |
 | 2026-11-16 15:59 | M4 session (L4:2): capacity ramp, the one skipped run | fleet | L4 x2 | 5 | 32 | 3625 | 2.107 | 0.000 | 5.883 |
+| 2026-11-16 17:00 | M4 4-GPU rerun: proxy check + chat, 3 policies x 3 repeats | fleet | L4 x4 | 8 | 64 | 3625 | 4.119 | 0.000 | 5.883 |
 
 ## Notes
 
@@ -34,6 +35,7 @@ Totals use the actual cost when it is known. Rendered by `icr.ledger`.
 - 2026-11-15 16:38, M4 session 1 (second try): proxy check + chat: NEVER RAN: queued for a 4-GPU L4 machine for 80 minutes (10:17 to 11:37 EST), no container was started, request cancelled by hand. Nothing billed.
 - 2026-11-15 21:06, M4 session 1 (third try): proxy check + chat: NEVER RAN: queued for a 4-GPU L4 machine for 52 minutes (15:16 to 16:08 EST), no container was started, request cancelled by hand. Nothing billed.
 - 2026-11-16 15:59, M4 session (L4:2): capacity ramp, the one skipped run: NEVER RAN: queued for a 2-GPU L4 machine from 10:44 EST, no container was started, request cancelled by hand to free the slot for the 4-GPU rerun. Nothing billed.
+- 2026-11-16 17:00, M4 4-GPU rerun: proxy check + chat, 3 policies x 3 repeats: NEVER RAN: fourth request for a 4-GPU L4 machine, queued for 60 minutes (11:00 to 12:00 EST), no container was started, cancelled by the queue watchdog. Nothing billed.
 
 ## Totals
 

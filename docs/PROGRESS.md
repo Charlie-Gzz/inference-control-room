@@ -48,7 +48,16 @@ Config sweep on chat (capacity = highest ramp level within the SLO; one level is
 
 - Budget constants are raised in `src/icr/config.py` (total 52, soft stop 45, fleet 35)
   and the ledger tests follow the constants. Committed.
-- **The 4-GPU request is in the queue since 11:00 EST** (fourth try):
+- **Fourth `L4:4` try: no container after 60 minutes (11:00 to 12:00 EST), cancelled by
+  the watchdog, nothing billed, ledger row settled to $0.** Next `L4:4` try: later on
+  2026-11-16, between two 2-GPU sessions (afternoon or evening, a different hour from
+  the four tries so far: 20:51, 10:17, 15:16 and 11:00 EST). Same command as below with
+  a new log number.
+- **Now running the 2-GPU list.** Launched 12:02 EST: `--items ramp --replicas 2` (the
+  one skipped run), log `.scratch/fleet-9.log`, watchdog at 120 minutes. After it:
+  commit results and ledger, `ledger.reconcile()`, `icr results`, then `--items rag
+  --replicas 2`, `no-sharing`, `autoscale`, one session at a time.
+- Earlier today, the 4-GPU request went into the queue at 11:00 EST (fourth try):
   `uv run modal run -m icr.modal_app.app::fleet --items proxycheck,chat --replicas 4`,
   log `.scratch/fleet-8.log`, with the queue watchdog below at 60 minutes. Claude Code's
   permission check had refused the first launch (spend above the plan's written cap).
