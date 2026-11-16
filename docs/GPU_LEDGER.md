@@ -35,6 +35,7 @@ Totals use the actual cost when it is known. Rendered by `icr.ledger`.
 | 2026-11-16 21:32 | M3b H100: coarse calibration, extended upwards (64 to 384 req/s) | h100 | H100 x1 | 8 | 32 | 667 | 0.849 | 0.827 | 7.412 |
 | 2026-11-16 21:39 | M3b H100: fine calibration ramp (48 to 64 req/s) | h100 | H100 x1 | 8 | 32 | 388 | 0.493 | 0.470 | 7.883 |
 | 2026-11-16 22:01 | M3b H100 sweep, session 1 | h100 | H100 x1 | 8 | 32 | 1239 | 1.578 | 1.534 | 9.416 |
+| 2026-11-16 22:10 | M3b H100 sweep, session 2 (awq-ngram) | h100 | H100 x1 | 8 | 32 | 540 | 0.687 | pending | 10.103 |
 
 ## Notes
 
@@ -52,5 +53,5 @@ Totals use the actual cost when it is known. Rendered by `icr.ledger`.
 
 - dev: $2.84 of $10.00
 - fleet: $3.21 of $18.00
-- h100: $3.37 of $7.00
-- **all: $9.42 of $35.00**
+- h100: $4.06 of $7.00
+- **all: $10.10 of $35.00**
