@@ -1556,172 +1556,214 @@
    "replicas": 2,
    "policies": {
     "round-robin": {
-     "repeats": 1,
+     "repeats": 3,
      "seeds": [
-      0
+      0,
+      1,
+      2
      ],
      "requests": [
-      1272
+      1272,
+      1273,
+      1271
      ],
      "ttft_p50_s": {
-      "median": 0.1958,
+      "median": 0.207,
       "min": 0.1958,
-      "max": 0.1958,
+      "max": 0.2079,
       "values": [
-       0.1958
+       0.1958,
+       0.2079,
+       0.207
       ],
       "wide": false
      },
      "ttft_p95_s": {
-      "median": 0.4695,
+      "median": 0.5056,
       "min": 0.4695,
-      "max": 0.4695,
+      "max": 0.5278,
       "values": [
-       0.4695
+       0.4695,
+       0.5278,
+       0.5056
       ],
-      "wide": false
+      "wide": true
      },
      "itl_p95_s": {
-      "median": 0.06555,
+      "median": 0.06894,
       "min": 0.06555,
-      "max": 0.06555,
+      "max": 0.07514,
       "values": [
-       0.06555
+       0.06555,
+       0.06894,
+       0.07514
       ],
-      "wide": false
+      "wide": true
      },
      "e2e_p95_s": {
-      "median": 16.0214,
+      "median": 16.1441,
       "min": 16.0214,
-      "max": 16.0214,
+      "max": 17.2554,
       "values": [
-       16.0214
+       16.0214,
+       17.2554,
+       16.1441
       ],
       "wide": false
      },
      "goodput": {
-      "median": 0.9961,
-      "min": 0.9961,
+      "median": 0.9906,
+      "min": 0.9866,
       "max": 0.9961,
       "values": [
-       0.9961
+       0.9961,
+       0.9906,
+       0.9866
       ],
       "wide": false
      },
      "cache_hit_rate": {
-      "median": 0.7457,
-      "min": 0.7457,
+      "median": 0.7413,
+      "min": 0.7379,
       "max": 0.7457,
       "values": [
-       0.7457
+       0.7457,
+       0.7413,
+       0.7379
       ],
       "wide": false
      },
      "imbalance": {
-      "median": 1.0,
+      "median": 1.001,
       "min": 1.0,
-      "max": 1.0,
+      "max": 1.001,
       "values": [
-       1.0
+       1.0,
+       1.001,
+       1.001
       ],
       "wide": false
      },
      "output_tokens_per_s": {
-      "median": 644.3,
+      "median": 655.3,
       "min": 644.3,
-      "max": 644.3,
+      "max": 710.8,
       "values": [
-       644.3
+       644.3,
+       710.8,
+       655.3
       ],
-      "wide": false
+      "wide": true
      },
      "errors": {
       "median": 0,
       "min": 0,
       "max": 0,
       "values": [
+       0,
+       0,
        0
       ],
       "wide": false
      }
     },
     "least-loaded": {
-     "repeats": 1,
+     "repeats": 3,
      "seeds": [
-      0
+      0,
+      1,
+      2
      ],
      "requests": [
-      1272
+      1272,
+      1273,
+      1271
      ],
      "ttft_p50_s": {
-      "median": 0.2207,
+      "median": 0.2299,
       "min": 0.2207,
-      "max": 0.2207,
+      "max": 0.2375,
       "values": [
-       0.2207
+       0.2207,
+       0.2299,
+       0.2375
       ],
       "wide": false
      },
      "ttft_p95_s": {
-      "median": 0.5937,
-      "min": 0.5937,
+      "median": 0.5925,
+      "min": 0.5832,
       "max": 0.5937,
       "values": [
-       0.5937
+       0.5937,
+       0.5925,
+       0.5832
       ],
       "wide": false
      },
      "itl_p95_s": {
-      "median": 0.06779,
-      "min": 0.06779,
+      "median": 0.06734,
+      "min": 0.06685,
       "max": 0.06779,
       "values": [
-       0.06779
+       0.06779,
+       0.06734,
+       0.06685
       ],
       "wide": false
      },
      "e2e_p95_s": {
-      "median": 15.1123,
+      "median": 16.1985,
       "min": 15.1123,
-      "max": 15.1123,
+      "max": 16.2741,
       "values": [
-       15.1123
+       15.1123,
+       16.2741,
+       16.1985
       ],
       "wide": false
      },
      "goodput": {
-      "median": 0.9906,
+      "median": 0.9921,
       "min": 0.9906,
-      "max": 0.9906,
+      "max": 0.9969,
       "values": [
-       0.9906
+       0.9906,
+       0.9921,
+       0.9969
       ],
       "wide": false
      },
      "cache_hit_rate": {
-      "median": 0.7446,
-      "min": 0.7446,
+      "median": 0.742,
+      "min": 0.7397,
       "max": 0.7446,
       "values": [
-       0.7446
+       0.7446,
+       0.742,
+       0.7397
       ],
       "wide": false
      },
      "imbalance": {
       "median": 1.006,
-      "min": 1.006,
-      "max": 1.006,
+      "min": 1.001,
+      "max": 1.013,
       "values": [
-       1.006
+       1.006,
+       1.013,
+       1.001
       ],
       "wide": false
      },
      "output_tokens_per_s": {
-      "median": 644.5,
+      "median": 656.2,
       "min": 644.5,
-      "max": 644.5,
+      "max": 710.0,
       "values": [
-       644.5
+       644.5,
+       710.0,
+       656.2
       ],
       "wide": false
      },
@@ -1730,52 +1772,66 @@
       "min": 0,
       "max": 0,
       "values": [
+       0,
+       0,
        0
       ],
       "wide": false
      }
     },
     "prefix-aware": {
-     "repeats": 1,
+     "repeats": 3,
      "seeds": [
-      0
+      0,
+      1,
+      2
      ],
      "requests": [
-      1272
+      1272,
+      1273,
+      1271
      ],
      "ttft_p50_s": {
-      "median": 0.1615,
+      "median": 0.1635,
       "min": 0.1615,
-      "max": 0.1615,
+      "max": 0.1654,
       "values": [
-       0.1615
+       0.1615,
+       0.1654,
+       0.1635
       ],
       "wide": false
      },
      "ttft_p95_s": {
-      "median": 0.2895,
+      "median": 0.299,
       "min": 0.2895,
-      "max": 0.2895,
+      "max": 0.3077,
       "values": [
-       0.2895
+       0.2895,
+       0.3077,
+       0.299
       ],
       "wide": false
      },
      "itl_p95_s": {
       "median": 0.04294,
-      "min": 0.04294,
-      "max": 0.04294,
+      "min": 0.04209,
+      "max": 0.04354,
       "values": [
-       0.04294
+       0.04294,
+       0.04354,
+       0.04209
       ],
       "wide": false
      },
      "e2e_p95_s": {
-      "median": 11.5502,
+      "median": 11.9583,
       "min": 11.5502,
-      "max": 11.5502,
+      "max": 12.134,
       "values": [
-       11.5502
+       11.5502,
+       12.134,
+       11.9583
       ],
       "wide": false
      },
@@ -1784,34 +1840,42 @@
       "min": 1.0,
       "max": 1.0,
       "values": [
+       1.0,
+       1.0,
        1.0
       ],
       "wide": false
      },
      "cache_hit_rate": {
       "median": 0.8402,
-      "min": 0.8402,
-      "max": 0.8402,
+      "min": 0.8393,
+      "max": 0.8404,
       "values": [
-       0.8402
+       0.8402,
+       0.8393,
+       0.8404
       ],
       "wide": false
      },
      "imbalance": {
       "median": 1.024,
-      "min": 1.024,
-      "max": 1.024,
+      "min": 1.004,
+      "max": 1.028,
       "values": [
-       1.024
+       1.024,
+       1.004,
+       1.028
       ],
       "wide": false
      },
      "output_tokens_per_s": {
-      "median": 650.2,
+      "median": 659.3,
       "min": 650.2,
-      "max": 650.2,
+      "max": 711.5,
       "values": [
-       650.2
+       650.2,
+       711.5,
+       659.3
       ],
       "wide": false
      },
@@ -1820,6 +1884,8 @@
       "min": 0,
       "max": 0,
       "values": [
+       0,
+       0,
        0
       ],
       "wide": false
@@ -1829,45 +1895,45 @@
   }
  },
  "spend": {
-  "total_usd": 3.33,
+  "total_usd": 4.35,
   "by_category": {
    "dev": 2.68,
-   "fleet": 0.65,
+   "fleet": 1.67,
    "h100": 0
   },
-  "runs": 15
+  "runs": 16
  },
  "headline": {
-  "ttft_p95_change": -0.38338658146964855,
+  "ttft_p95_change": -0.4086234177215191,
   "capacity_change": null,
   "cost_change": null,
   "ttft_p95_s": {
-   "round-robin": 0.4695,
-   "prefix-aware": 0.2895
+   "round-robin": 0.5056,
+   "prefix-aware": 0.299
   },
-  "html": "On the same 2 GPUs and the same traffic, prefix-aware routing cut p95 time to first token by <b>38%</b> versus round-robin.",
-  "text": "On the same 2 GPUs and the same traffic, prefix-aware routing cut p95 time to first token by 38% versus round-robin.",
-  "tour": "Both sides got exactly the same requests at the same times. On the same 2 GPUs and the same traffic, prefix-aware routing cut p95 time to first token by 38% versus round-robin."
+  "html": "On the same 2 GPUs and the same traffic, prefix-aware routing cut p95 time to first token by <b>41%</b> versus round-robin.",
+  "text": "On the same 2 GPUs and the same traffic, prefix-aware routing cut p95 time to first token by 41% versus round-robin.",
+  "tour": "Both sides got exactly the same requests at the same times. On the same 2 GPUs and the same traffic, prefix-aware routing cut p95 time to first token by 41% versus round-robin."
  },
  "router_overhead": {
   "decision_us": {
    "least-loaded": {
-    "requests": 1747,
-    "p50": 45,
-    "p95": 76,
-    "p99": 219
+    "requests": 5241,
+    "p50": 47,
+    "p95": 85,
+    "p99": 260
    },
    "prefix-aware": {
-    "requests": 1747,
-    "p50": 133,
-    "p95": 257,
-    "p99": 613
+    "requests": 5241,
+    "p50": 138,
+    "p95": 263,
+    "p99": 589
    },
    "round-robin": {
-    "requests": 1747,
-    "p50": 45,
-    "p95": 74,
-    "p99": 140
+    "requests": 5241,
+    "p50": 48,
+    "p95": 86,
+    "p99": 192
    }
   },
   "proxycheck": {

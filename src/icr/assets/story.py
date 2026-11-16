@@ -206,7 +206,7 @@ def build(summary: dict, a: Run, b: Run, vertical: bool = False, loop: bool = Fa
             )  # fmt: skip
         scenes.append(
             {"kind": "end", "seconds": 6.5, "url": REPO_URL, "fade_out": 1.0,
-             "line": "A 4-GPU LLM serving fleet, measured on real traffic and replayed request by request."}
+             "line": "A small LLM serving fleet, measured on real traffic patterns and replayed request by request."}
         )  # fmt: skip
     size = (1080, 1920) if vertical else (1920, 1080)
     return {"fps": 60, "width": size[0], "height": size[1], "vertical": vertical, "scenes": scenes,

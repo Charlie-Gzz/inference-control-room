@@ -37,7 +37,7 @@
    "seconds": 6.0,
    "items": [
     {
-     "value": 38,
+     "value": 41,
      "prefix": "-",
      "suffix": "%",
      "label": "p95 time to first token"

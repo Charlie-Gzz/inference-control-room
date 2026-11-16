@@ -23,7 +23,7 @@ Totals use the actual cost when it is known. Rendered by `icr.ledger`.
 | 2026-11-15 16:38 | M4 session 1 (second try): proxy check + chat | fleet | L4 x4 | 8 | 64 | 25 | 0.028 | 0.000 | 2.684 |
 | 2026-11-15 20:06 | M4 pilot on L4:2: proxy check + chat, 3 policies x 1 repeat | fleet | L4 x2 | 5 | 32 | 1134 | 0.659 | 0.649 | 3.332 |
 | 2026-11-15 21:06 | M4 session 1 (third try): proxy check + chat | fleet | L4 x4 | 8 | 64 | 25 | 0.028 | 0.000 | 3.332 |
-| 2026-11-16 00:14 | M4 session (L4:2): chat, remaining 2 repeats x 3 policies | fleet | L4 x2 | 5 | 32 | 1761 | 1.024 | pending | 4.356 |
+| 2026-11-16 00:14 | M4 session (L4:2): chat, remaining 2 repeats x 3 policies | fleet | L4 x2 | 5 | 32 | 1761 | 1.024 | 1.017 | 4.350 |
 
 ## Notes
 
@@ -37,4 +37,4 @@ Totals use the actual cost when it is known. Rendered by `icr.ledger`.
 - dev: $2.68 of $10.00
 - fleet: $1.67 of $18.00
 - h100: $0.00 of $7.00
-- **all: $4.36 of $35.00**
+- **all: $4.35 of $35.00**
