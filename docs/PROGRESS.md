@@ -70,7 +70,7 @@ runs of about 8 minutes each; the last one may be skipped by the time guard.
      app's billed time on the Modal dashboard. Then commit results and ledger.
 3. `uv run python -c "from icr import ledger; ledger.reconcile()"`.
 
-**Decision from Charlie (2026-11-15, 22:05 EST): retry the fleet on 4 GPUs.** His words:
+**Decision from Charlie (2026-11-15, 22:05 EST): retry the fleet on 4 GPUs.** In Charlie's words:
 "I say we go for it, I still have credits available if not, I can put $17 more for sure."
 See `docs/QUESTIONS_FOR_CHARLIE.md` Q1 and `docs/DECISIONS.md`. My reading of it:
 
