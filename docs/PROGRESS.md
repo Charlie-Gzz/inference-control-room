@@ -59,7 +59,18 @@ Config sweep on chat (capacity = highest ramp level within the SLO; one level is
 - **14:31 EST: the single-L4 run got a container (about 20 minutes in the queue) and
   finished.** `fp8` on rag meets the SLO at every level, like `awq`. M3a is complete.
   Reconciled: $0.145. Total spend $6.04 (dev $2.83, fleet $3.21).
-- **14:36 EST: fifth `L4:4` request queued** (`--items proxycheck,chat --replicas 4`,
+- **15:32 EST: the fifth `L4:4` request was cancelled after 60 minutes, unbilled. The
+  4-GPU rerun is closed for this build:** the 2-GPU results are the headline, the budget
+  constants are back at the plan's values (35 / 28 / 18), `docs/DECISIONS.md` and
+  `docs/QUESTIONS_FOR_CHARLIE.md` (Q1 outcome, Q2 open) record it. Do not request
+  `L4:4` again unless Charlie asks.
+- **15:35 EST: 2-GPU request queued** (`--items ramp --replicas 2`, log
+  `.scratch/fleet-11.log`, watchdog 120 minutes). If it runs: commit results and ledger,
+  reconcile, `icr results`, then `--items rag --replicas 2`, `no-sharing`, `autoscale`,
+  each with the watchdog. If it is cancelled: settle the row to $0, stop GPU work for
+  the day, and finish the project on the data that exists (refresh the four docs, write
+  `docs/HANDOFF.md`, final secret scan with the pinned image, Docker cleanup).
+- Earlier, 14:36 EST: fifth `L4:4` request queued (`--items proxycheck,chat --replicas 4`,
   log `.scratch/fleet-10.log`, watchdog 60 minutes). If it is cancelled: settle the
   ledger row to $0, then `--items ramp --replicas 2` with a 120-minute watchdog, then
   `rag`, `no-sharing`, `autoscale` on 2 GPUs. If the 2-GPU request also times out again,
