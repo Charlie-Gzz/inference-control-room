@@ -63,7 +63,20 @@ Config sweep on chat (capacity = highest ramp level within the SLO; one level is
   description (done, with the 15 topics; repo still private); run the H100 session
   ("Go for it"). Open: whether to wait for the missing fleet runs before the public
   announcement (Q5 in `docs/QUESTIONS_FOR_CHARLIE.md`).
-- **17:45 EST: M3b (H100) is DONE.** Three calibration ramps and four configs, $3.97 of
+- **17:50 EST, closing the project (Charlie deferred Q5 to Claude; Claude usage at 75%,
+  so spend few tokens).** Decided: the queued 2-GPU request is the last one. Done in
+  the final pass so far: secret scan with the pinned image (92 commits, no leaks),
+  fresh-clone quickstart (`uv sync`, `icr results` reproduces the committed files, site
+  serves), HANDOFF has a section for adding the missing runs later without Claude.
+  **Left:** (1) the final video build is running (`.scratch/video5.log`): when it ends
+  look at one what-if frame of `story-main` (frame 4500, footer must say "one L4 or one
+  H100 per config"), commit the four files. (2) When the fleet request ends: with runs,
+  commit results and ledger, reconcile, `icr assets`, look at the three fleet charts,
+  update README (missing-runs bullet, cost line), HANDOFF and this file; cancelled,
+  settle to $0. No retry either way. (3) Docker cleanup:
+  `docker ps -a --filter label=project=inference-control-room` should be empty; leave
+  the images. (4) Final commit and push, short summary to Charlie.
+- Earlier, 17:45 EST: M3b (H100) is DONE. Three calibration ramps and four configs, $3.97 of
   $7, total spend $10.02. Result: `awq`, `bf16`, `fp8`, `awq-ngram` all reach 54.4 req/s
   at the SLO ($0.242 per million output tokens). Charts (`cost_by_config`, `pareto`),
   the what-if view (GPU switch, its own footer), README, DESIGN_FAQ 11, HANDOFF,

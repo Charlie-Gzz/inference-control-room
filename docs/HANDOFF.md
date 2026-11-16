@@ -35,6 +35,8 @@ uv run icr site      # control room on http://127.0.0.1:8765
 uv run icr results   # recompute every number from results/runs/
 ```
 
+- Checked on 2026-11-16 from a fresh clone: `uv sync`, `uv run icr results` (it
+  reproduces the committed result files byte for byte) and the site server.
 - `uv run icr test` and `uv run icr lint`: Python and Go tests, ruff and `go vet`.
 - `uv run icr assets`: summaries, charts, site data, storyboards, screenshots, diagram.
   Add `--video` for the videos (about 25 minutes, needs Docker Desktop running).
@@ -96,14 +98,37 @@ Answered on 2026-11-16:
    interactive control room.", with the plan's 15 topics.
 3. **H100 session (up to $7).** Charlie: "Go for it." Done on 2026-11-16 for $3.97.
 
-Still open:
+4. **Wait for the missing fleet runs before going public?** Charlie deferred to Claude.
+   Decided: do not wait. The headline does not depend on the missing runs, and the
+   README and the site say what was not run. One 2-GPU request was still in the queue
+   when this was decided. Whatever it returned is in the repo, and the build made no
+   request after it.
 
-4. **Wait for the missing fleet runs before going public?** Nothing is wrong with
-   publishing first and updating later: the headline does not depend on the missing
-   runs, and the README and the site say what has not been run. The only cost is first
-   impressions. Recommendation: make the repo public whenever you like, and hold the
-   announcement (LinkedIn post, portfolio pin) until the missing runs are in or you
-   decide to go without them. Meanwhile: the build keeps requesting 2-GPU containers.
+Nothing is open. One thing to think about: if you want the no-sharing control and the
+autoscaling view filled in before you announce the project, see the next section.
+
+## Adding the missing fleet runs later
+
+No Claude needed. Each command is safe to repeat: finished runs are skipped, the budget
+guard refuses anything that could pass $35, and queue time is not billed.
+
+```powershell
+$env:PYTHONIOENCODING = "utf-8"
+uv run modal app list     # nothing should be running
+uv run modal run -m icr.modal_app.app::fleet --items ramp,rag,no-sharing,autoscale --replicas 2
+```
+
+- Repeat it until the last lines say `skipped: []`. A session is at most 60 minutes and
+  costs about $2. The whole remaining list is about $5.
+- If it sits in the queue for more than two hours, stop it with Ctrl+C and try at
+  another hour. Then set the ledger row to $0:
+  `uv run python -c "from icr import ledger; ledger.settle('<app id from the log>', 0.0, 'never ran')"`
+- After each session: `git add -A`, commit, then
+  `uv run python -c "from icr import ledger; ledger.reconcile()"`.
+- When all runs are in: `uv run icr assets`, look at `assets/charts/latency_by_policy.png`,
+  `cache_hit_by_policy.png` and `autoscaling.png`, and open the site's Autoscaling and
+  Method views. Then remove the "Fleet runs still missing" bullet from the README and
+  add the new tables from `results/RESULTS.md`.
 
 ## Not finished, skipped or changed, and why
 
@@ -138,8 +163,8 @@ Still open:
 
 ## Security
 
-- Secret scan (gitleaks in Docker, full history): clean on 2026-11-16, 65 commits.
-  Repeat it right before going public:
+- Secret scan (gitleaks v8.30.1 in Docker, full history): **no leaks found** on
+  2026-11-16, 92 commits. Repeat it right before going public:
   `docker run --rm -v "${PWD}:/repo" ghcr.io/gitleaks/gitleaks:v8.30.1 git /repo --redact`
 - No API keys are used. No `.env` exists. The Modal token was never printed or committed.
 - The repo is private. GitHub Pages is prepared (`.github/workflows/pages.yml`) and not

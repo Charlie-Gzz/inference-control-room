@@ -80,7 +80,16 @@ the fleet runs and only if the budget allows. Spend was $6.04 of $35.
 
 **Done.** Started on 2026-11-16 at 16:06 EST, while no 2-GPU container could be had.
 
-## Q5. Wait for the missing fleet runs before going public? (open)
+## Q5. Wait for the missing fleet runs before going public? (decided 2026-11-16)
+
+**Decision.** Charlie deferred to Claude ("i'l defer to you"), and noted that the Claude
+usage allowance was at 75%. Decided: do not wait. One 2-GPU request was already in the
+queue (until 19:20 EST on 2026-11-16). Whatever it returns goes in, and the build makes
+no further request after it. The project is closed on the data that exists, and the
+README and the site say what was not run. The missing runs can be added later with the
+commands in `docs/HANDOFF.md` ("Adding the missing fleet runs later"), without Claude.
+
+The earlier discussion, for the record:
 
 **Context.** Not run on the fleet yet: rag, the no-sharing control, autoscaling, and one
 of six capacity ramp runs. A 2-GPU container was hard to get on 2026-11-16.
