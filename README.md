@@ -185,9 +185,10 @@ pointers to the code.
 
 ## Things that went wrong
 
-- **The 4-GPU container never started.** Three requests for 4 L4s in one container
-  waited 50 to 80 minutes each and were cancelled. Nothing was billed. The fleet ran on
-  2 GPUs, the plan's fallback. With 2 replicas, round-robin lands a follow-up on the
+- **The 4-GPU container never started.** Requests for 4 L4s in one container waited 50
+  to 80 minutes each, on two days and at different hours, and were cancelled. Nothing
+  was billed. The fleet ran on 2 GPUs, the plan's fallback. Even 2 GPUs in one container
+  took up to two hours of queue, and one request never started at all. With 2 replicas, round-robin lands a follow-up on the
   right GPU half the time (a quarter of the time with 4), so the routing effect measured
   here is probably smaller than on 4 GPUs.
 - **Draft-model speculative decoding could not run.** vLLM requires the draft and the
@@ -208,6 +209,11 @@ pointers to the code.
 ## Limitations
 
 - **2 GPUs, not 4.** See above.
+- **Fleet runs still missing.** Only the chat comparison and the capacity ramp have run
+  on the fleet. The rag workload, the no-sharing control and the autoscaling comparison
+  have not run yet, so there is no measured answer here to "where does prefix-aware
+  routing gain nothing". One of the six capacity ramp runs (the second least-loaded
+  repeat) is also missing.
 - **One model family and one GPU type.** Qwen2.5-7B on NVIDIA L4. Other models and GPUs
   will have different limits.
 - **Synthetic prompt text.** Arrival times and response lengths are real (BurstGPT).
@@ -228,8 +234,9 @@ pointers to the code.
 
 ## Cost to reproduce
 
-$5.88 so far across 17 Modal runs: $2.68 for the single-GPU sweeps and $3.20 for the
-fleet. Every run is in [docs/GPU_LEDGER.md](docs/GPU_LEDGER.md) with its billed cost.
+$6.04 so far: $2.83 for the single-GPU sweeps and $3.21 for the fleet. Every run is in
+[docs/GPU_LEDGER.md](docs/GPU_LEDGER.md) with its billed cost, including the requests
+that waited in the queue and never started ($0).
 
 Replaying and recomputing the saved results costs nothing.
 

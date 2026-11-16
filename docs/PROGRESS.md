@@ -13,15 +13,15 @@ Read "Resumed 2026-11-16" below before anything else.
 | M0 Setup and smoke test | **done** |
 | M1 Workloads, load generator, recorder, mock fleet | **done** |
 | M2 Go router and autoscaler | **done** |
-| M3a L4 single-replica sweeps and quality | **done** except one leftover ramp (`fp8` on rag, see next steps) |
+| M3a L4 single-replica sweeps and quality | **done** (the leftover `fp8` on rag ramp ran on 2026-11-16) |
 | M4 Fleet experiments | **in progress on 2 GPUs** (fallback): chat done, capacity ramp 5 of 6 runs. A 4-GPU rerun is approved (see below) |
 | M3b H100 session (after M4, if budget allows) | not started; code ready (`--gpu h100`) |
 | M5 Optimizer and results pipeline | works on real sweep data (`icr results`, `icr calibrate`, `icr charts`, `icr replay-data`) |
-| M6 Control room site | every view written; seen with mock, rehearsal and real sweep data; needs real fleet runs |
-| M7 Assets and portfolio kit | `icr assets [--video]` written and rehearsed on mock data; real assets not generated yet |
-| M8 README and handoff | not started |
+| M6 Control room site | every view works on the real 2-GPU runs, screenshots looked at. The autoscaling view is empty until those runs exist |
+| M7 Assets and portfolio kit | charts, screenshots, diagram, three videos and the GIF built from the real 2-GPU data and looked at; demo script, slides outline and portfolio card drafted. All to be refreshed when the fleet data is final |
+| M8 README and handoff | README drafted; DESIGN_FAQ written; secret scan rehearsed (clean); HANDOFF not written yet |
 
-GPU spend so far: **$5.88** (dev $2.68 of $10; fleet $3.20; H100 $0 of $7). Caps: $35 total and $18 fleet in the plan, raised by Charlie on 2026-11-15 to $52 and $35 (see below).
+GPU spend so far: **$6.04** (dev $2.83 of $10; fleet $3.21; H100 $0 of $7). Caps: $35 total and $18 fleet in the plan, raised by Charlie on 2026-11-15 to $52 and $35 (see below).
 
 ## Measured so far (real, one L4)
 
@@ -56,7 +56,15 @@ Config sweep on chat (capacity = highest ramp level within the SLO; one level is
 - **The 2-GPU request below never started either:** 120 minutes in the queue (12:01 to
   14:01 EST), cancelled by the watchdog, nothing billed, ledger row settled to $0. So on
   2026-11-16 neither `L4:4` (60 min) nor `L4:2` (120 min) could be had by 14:00 EST.
-- **Now (14:03 EST): a capacity probe that is also useful work.** The leftover dev run
+- **14:31 EST: the single-L4 run got a container (about 20 minutes in the queue) and
+  finished.** `fp8` on rag meets the SLO at every level, like `awq`. M3a is complete.
+  Reconciled: $0.145. Total spend $6.04 (dev $2.83, fleet $3.21).
+- **14:36 EST: fifth `L4:4` request queued** (`--items proxycheck,chat --replicas 4`,
+  log `.scratch/fleet-10.log`, watchdog 60 minutes). If it is cancelled: settle the
+  ledger row to $0, then `--items ramp --replicas 2` with a 120-minute watchdog, then
+  `rag`, `no-sharing`, `autoscale` on 2 GPUs. If the 2-GPU request also times out again,
+  stop GPU work for the day, finish the handoff on what exists, and tell Charlie.
+- Earlier (14:03 EST): a capacity probe that is also useful work. The leftover dev run
   on one L4: `uv run modal run -m icr.modal_app.app::sweep --jobs "fp8=ramp:rag"`, log
   `.scratch/sweep-9.log`, watchdog at 45 minutes. If it runs: commit results and ledger,
   `ledger.reconcile()`, `icr results`. Then try `L4:4` once more (60 min), then the
