@@ -59,7 +59,26 @@ Config sweep on chat (capacity = highest ramp level within the SLO; one level is
 - **14:31 EST: the single-L4 run got a container (about 20 minutes in the queue) and
   finished.** `fp8` on rag meets the SLO at every level, like `awq`. M3a is complete.
   Reconciled: $0.145. Total spend $6.04 (dev $2.83, fleet $3.21).
-- **15:32 EST: the fifth `L4:4` request was cancelled after 60 minutes, unbilled. The
+- **16:05 EST, Charlie's answers:** publish with the 2-GPU results; change the GitHub
+  description (done, with the 15 topics; repo still private); run the H100 session
+  ("Go for it"). Open: whether to wait for the missing fleet runs before the public
+  announcement (Q5 in `docs/QUESTIONS_FOR_CHARLIE.md`).
+- **16:06 EST: H100 session started (M3b).** The queued 2-GPU request was cancelled by
+  hand first (30 minutes in the queue, settled at $0). Steps, each a `modal run` with a
+  45-minute watchdog, logs `.scratch/h100-N.log`:
+  1. `sweep --jobs "awq=calib:chat@8;12;16;24;32;48" --gpu h100` (queued 16:06)
+  2. commit results and ledger, `ledger.reconcile()`, `uv run icr calibrate`: it prints
+     the fine ramp to run (`ramp:chat@<levels>=fine`); run that with `--gpu h100`
+  3. `uv run icr calibrate` again, then
+     `--jobs "awq=ramp:chat|fp8=ramp:chat|awq-ngram=ramp:chat|bf16=ramp:chat" --gpu h100`,
+     repeated until `skipped: []`
+  4. `icr results`, look at the Pareto chart (L4 and H100) and the what-if GPU switch.
+  The H100 budget guard refuses a session whose worst case passes $7.
+- **After the H100 session:** request the 2-GPU fleet with the whole remaining list in
+  one session: `fleet --items ramp,rag,no-sharing,autoscale --replicas 2`, watchdog 120
+  minutes, repeated until `skipped: []`.
+- The site's Method page and Autoscaling view now say what has not been run.
+- Earlier, 15:32 EST: the fifth `L4:4` request was cancelled after 60 minutes, unbilled. The
   4-GPU rerun is closed for this build:** the 2-GPU results are the headline, the budget
   constants are back at the plan's values (35 / 28 / 18), `docs/DECISIONS.md` and
   `docs/QUESTIONS_FOR_CHARLIE.md` (Q1 outcome, Q2 open) record it. Do not request

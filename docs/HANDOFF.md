@@ -82,23 +82,24 @@ token by 41% versus round-robin, and served 20% more traffic within the SLO, whi
 
 Details are in `docs/QUESTIONS_FOR_CHARLIE.md`. One line each is enough.
 
-1. **Try 4 GPUs again on another day?** Five requests never got a container.
-   Recommendation: publish with the 2-GPU results and treat a 4-GPU run as a later
-   update. Meanwhile: the build stays on 2 GPUs, inside the original $35.
-2. **GitHub description.** The plan's text says "A 4-GPU LLM serving fleet". That is no
-   longer true. Recommendation: "A small LLM serving fleet on vLLM with
-   prefix-cache-aware routing, autoscaling, quantization and speculative decoding,
-   measured on real traffic patterns and replayed in an interactive control room."
-   Meanwhile: not set yet.
-3. **Finish the missing fleet runs before going public?** Recommendation: yes, if a
-   2-GPU container can be had within a day or two. The no-sharing control is the run
-   that shows where prefix-aware routing gains nothing. If it cannot be had, publish
-   and say so, as the README does now.
-4. **H100 session (up to $7, in the plan after the fleet runs).** Recommendation: run
-   it. It adds a second GPU type to the cost and latency frontier, the budget for it is
-   untouched, and one H100 is easier to get than two L4s in one container. It does not
-   change the headline. Meanwhile: not run yet. It is next when no 2-GPU container can
-   be had.
+Answered on 2026-11-16:
+
+1. **Try 4 GPUs again on another day?** Charlie: "Yeah, lets publish with 2-GPU." The
+   2-GPU results are the published headline.
+2. **GitHub description.** Charlie: "Yes change it pls." Set to "A small LLM serving
+   fleet on vLLM with prefix-cache-aware routing, autoscaling, quantization and
+   speculative decoding, measured on real traffic patterns and replayed in an
+   interactive control room.", with the plan's 15 topics.
+3. **H100 session (up to $7).** Charlie: "Go for it." Started on 2026-11-16.
+
+Still open:
+
+4. **Wait for the missing fleet runs before going public?** Nothing is wrong with
+   publishing first and updating later: the headline does not depend on the missing
+   runs, and the README and the site say what has not been run. The only cost is first
+   impressions. Recommendation: make the repo public whenever you like, and hold the
+   announcement (LinkedIn post, portfolio pin) until the missing runs are in or you
+   decide to go without them. Meanwhile: the build keeps requesting 2-GPU containers.
 
 ## Not finished, skipped or changed, and why
 
@@ -112,7 +113,9 @@ Details are in `docs/QUESTIONS_FOR_CHARLIE.md`. One line each is enough.
 - **Budget raise taken back.** You raised the budget by $17 for a 4-GPU rerun on
   2026-11-15. None of it was spent. The caps in `src/icr/config.py` are at the plan's
   values again.
-- **H100 session (M3b).** Not run yet. See question 4.
+- **H100 session (M3b).** In progress on 2026-11-16 (calibration first).
+- **GitHub description.** Changed from the plan's "A 4-GPU LLM serving fleet ..." to
+  "A small LLM serving fleet ...". `PLAN.md` keeps the original text.
 - **Draft-model speculative decoding.** Impossible with official Qwen2.5 models
   (vocabulary size mismatch). N-gram and suffix decoding were measured.
 - **Stretch items** (a router that reads real cache state, Bulwark in front). Not started.

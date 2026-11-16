@@ -58,7 +58,7 @@ function ttftBuckets(replay) {
 export async function render(root, state) {
   const runs = state.index.runs.filter((r) => r.kind === "autoscale");
   if (!runs.length) {
-    root.innerHTML = '<div class="card p-6 text-muted">The autoscaling runs are not in this data set.</div>';
+    root.innerHTML = '<div class="card p-6 text-muted leading-relaxed"><span class="text-ink font-semibold">Not run yet.</span> The autoscaler starts and stops vLLM replicas from queue depth and KV cache pressure. It is built and tested against a local mock fleet, but the comparison on real GPUs (a static fleet against an autoscaled one, on a bursty stretch of the trace) has not been run. This view shows those recorded runs once they exist. Nothing here is filled in with simulated numbers.</div>';
     return;
   }
   const seeds = [...new Set(runs.map((r) => r.seed))].sort();

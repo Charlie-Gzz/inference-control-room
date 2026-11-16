@@ -53,12 +53,31 @@ export function render(root, state) {
   const s = state.index.summary || {};
   const slo = s.slo || { ttft_s: 2, itl_s: 0.1 };
   const facts = s.facts || {};
+  // Say what was run, not what was planned: the control and the other fleet runs may be missing.
+  const fleet = s.fleet || {};
+  const rSat = (s.calibration && s.calibration.r_sat) || {};
+  const single = rSat.chat && rSat["no-sharing"]
+    ? ` On a single GPU it shows what the cache is worth: one replica saturates at ${rSat["no-sharing"]} req/s without shared prefixes, against ${rSat.chat} with them.`
+    : "";
+  const control = fleet["no-sharing"]
+    ? "The no-sharing workload has no shared prefixes at all. Prefix-aware routing has nothing to exploit there, and the table shows what it does anyway."
+    : `The no-sharing workload has no shared prefixes at all, so prefix-aware routing has nothing to exploit there. Its fleet run has not been made yet.${single}`;
+  const missing = [
+    ...["rag", "no-sharing"].filter((w) => !fleet[w]).map((w) => `the ${w} workload`),
+    ...(s.autoscale ? [] : ["the autoscaling comparison"]),
+  ];
+  const planned = (facts.replicas || 4) < 4
+    ? `<li>The plan was a 4-GPU fleet. A 4-GPU container could not be had, so every fleet number here is from ${facts.replicas} GPUs. With fewer replicas a cache-blind router is right more often by accident, so the routing effect is probably smaller than on 4.</li>`
+    : "";
+  const notRun = missing.length
+    ? `<li>Not run on the fleet yet: ${missing.join(", ")}. Only the workloads in the tables above were measured.</li>`
+    : "";
   const method = [
     ["Open-loop load", "Every request is sent at its scheduled arrival time, whether or not earlier ones have finished. Latency counts from the scheduled time, so a slow system cannot hide its queue."],
     ["Identical traffic", "Within a repeat, every routing policy gets the same requests at the same times (same seed, same arrivals). Caches and the router's table are emptied before each run."],
     ["Real arrival pattern", 'Arrival times come from the <a class="underline" href="https://github.com/HPMLL/BurstGPT">BurstGPT</a> trace of real ChatGPT traffic (CC BY 4.0), rescaled to this fleet\'s capacity.'],
     ["Repeats", "Every comparison runs three times with different seeds (two for the capacity ramp). Tables show the median with the min and max, and flag spreads above 10%."],
-    ["A control", "The no-sharing workload has no shared prefixes at all. Prefix-aware routing has nothing to exploit there, and the table shows what it does anyway."],
+    ["A control", control],
     ["Cost at the SLO", "On the same traffic every policy burns the same GPU-seconds, so raw cost per token is identical. Cost differences come from capacity: fleet cost per hour divided by tokens per hour at the highest traffic level that still meets the SLO."],
     ["Measured or modeled", "Latency, cache hits and replica counts are measured. The GPU-seconds saved by autoscaling are modeled and labeled so."],
   ];
@@ -79,6 +98,7 @@ export function render(root, state) {
       <div class="card p-4 max-w-5xl">
         <div class="font-semibold">Limits</div>
         <ul class="text-sm text-muted mt-2 space-y-1.5 list-disc pl-5 leading-relaxed">
+          ${planned}${notRun}
           <li>One model family (Qwen2.5-7B) and one GPU type for the fleet (NVIDIA L4). Other models and GPUs will shift every number.</li>
           <li>Prompts are synthetic text with controlled lengths and shared prefixes. Arrival times and response lengths come from a real trace; prompt contents do not.</li>
           <li>All the GPUs sit in one container on one machine. There is no network between router and replicas, so router overhead here is a lower bound.</li>
