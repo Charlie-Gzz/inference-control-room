@@ -74,7 +74,13 @@ Config sweep on chat (capacity = highest ramp level within the SLO; one level is
      repeated until `skipped: []`
   4. `icr results`, look at the Pareto chart (L4 and H100) and the what-if GPU switch.
   The H100 budget guard refuses a session whose worst case passes $7.
-  **State at 16:50 EST:** the extension ran ($0.76): 64 req/s missed the SLO (2 errors,
+  **State at 17:05 EST:** the fine ramp ran ($0.41) and met the SLO at every level, 64
+  req/s included, so R_sat(chat, H100) = 64 (a lower bound, see DECISIONS). Sweep levels:
+  32, 44.8, 54.4, 64, 73.6, 83.2 req/s. **Sweep session 1 is queued** (log
+  `.scratch/h100-4.log`): `--jobs "awq=ramp:chat|bf16=ramp:chat|fp8=ramp:chat|awq-ngram=ramp:chat"
+  --gpu h100`. Rerun the same command once for the configs it skipped (the budget guard
+  allows one more session). H100 spend $1.77 of $7, total $7.82.
+  Earlier, at 16:50 EST: the extension ran ($0.76): 64 req/s missed the SLO (2 errors,
   p95 TTFT 1.6 s, throughput below demand), everything above collapsed into timeouts.
   The limit is bracketed by 48 and 64. The fine ramp is queued:
   `sweep --jobs "awq=ramp:chat@48.0;51.2;54.4;57.6;60.8;64.0=fine" --gpu h100` (log
