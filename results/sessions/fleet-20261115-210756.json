@@ -1,0 +1,169 @@
+{
+ "session_id": "fleet-20261115-210756",
+ "label": "l4x2",
+ "replicas": 2,
+ "config": {
+  "name": "awq",
+  "weights": "awq",
+  "quantization": null,
+  "speculative": null,
+  "prefix_caching": true,
+  "max_num_seqs": null,
+  "max_model_len": 8192,
+  "gpu_memory_utilization": 0.9,
+  "extra_args": [],
+  "pip": []
+ },
+ "runs": [
+  {
+   "kind": "proxycheck",
+   "workload": "chat",
+   "policy": "router",
+   "seed": 0,
+   "rate_rps": 1.0,
+   "warmup_s": 0.0,
+   "measured_s": 60.0,
+   "tag": "x2"
+  },
+  {
+   "kind": "fixed",
+   "workload": "chat",
+   "policy": "round-robin",
+   "seed": 0,
+   "rate_rps": 7.28,
+   "warmup_s": 60.0,
+   "measured_s": 180.0,
+   "tag": "x2"
+  },
+  {
+   "kind": "fixed",
+   "workload": "chat",
+   "policy": "least-loaded",
+   "seed": 0,
+   "rate_rps": 7.28,
+   "warmup_s": 60.0,
+   "measured_s": 180.0,
+   "tag": "x2"
+  },
+  {
+   "kind": "fixed",
+   "workload": "chat",
+   "policy": "prefix-aware",
+   "seed": 0,
+   "rate_rps": 7.28,
+   "warmup_s": 60.0,
+   "measured_s": 180.0,
+   "tag": "x2"
+  },
+  {
+   "kind": "fixed",
+   "workload": "chat",
+   "policy": "prefix-aware",
+   "seed": 1,
+   "rate_rps": 7.28,
+   "warmup_s": 60.0,
+   "measured_s": 180.0,
+   "tag": "x2"
+  },
+  {
+   "kind": "fixed",
+   "workload": "chat",
+   "policy": "round-robin",
+   "seed": 1,
+   "rate_rps": 7.28,
+   "warmup_s": 60.0,
+   "measured_s": 180.0,
+   "tag": "x2"
+  },
+  {
+   "kind": "fixed",
+   "workload": "chat",
+   "policy": "least-loaded",
+   "seed": 1,
+   "rate_rps": 7.28,
+   "warmup_s": 60.0,
+   "measured_s": 180.0,
+   "tag": "x2"
+  },
+  {
+   "kind": "fixed",
+   "workload": "chat",
+   "policy": "least-loaded",
+   "seed": 2,
+   "rate_rps": 7.28,
+   "warmup_s": 60.0,
+   "measured_s": 180.0,
+   "tag": "x2"
+  },
+  {
+   "kind": "fixed",
+   "workload": "chat",
+   "policy": "prefix-aware",
+   "seed": 2,
+   "rate_rps": 7.28,
+   "warmup_s": 60.0,
+   "measured_s": 180.0,
+   "tag": "x2"
+  },
+  {
+   "kind": "fixed",
+   "workload": "chat",
+   "policy": "round-robin",
+   "seed": 2,
+   "rate_rps": 7.28,
+   "warmup_s": 60.0,
+   "measured_s": 180.0,
+   "tag": "x2"
+  }
+ ],
+ "table_chunks": 4793,
+ "autoscaler": {
+  "min_replicas": 1,
+  "max_replicas": 2,
+  "interval_s": 1.0,
+  "up_load": 12.0,
+  "up_waiting": 1.0,
+  "up_kv": 0.9,
+  "up_sustain_s": 3.0,
+  "down_load": 6.0,
+  "down_sustain_s": 20.0,
+  "drain_timeout_s": 60.0
+ },
+ "budget_s": 3000,
+ "skipped": [],
+ "gpu": {
+  "gpus": [
+   "NVIDIA L4, 23034 MiB, 610.57.04",
+   "NVIDIA L4, 23034 MiB, 610.57.04"
+  ],
+  "table": "Sun Nov 15 23:45:04 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 610.57.04              KMD Version: 610.57.04     CUDA UMD Version: 13.3     |\n+-----------------------------------------+------------------------+----------------------+\n| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  NVIDIA L4                      On  |   00000000:00:06.0 Off |                    0 |\n| N/A   54C    P8             18W /   72W |       3MiB /  23034MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n|   1  NVIDIA L4                      On  |   00000000:00:07.0 Off |                    0 |\n| N/A   57C    P8             18W /   72W |       4MiB /  23034MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n\n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|  No running processes found                                                             |\n+-----------------------------------------------------------------------------------------+"
+ },
+ "vllm_version": "0.33.0",
+ "startup_s": {
+  "0": 212.3,
+  "1": 212.3
+ },
+ "resources": {
+  "samples": 1732,
+  "cpu_cores_mean": 1.226,
+  "cpu_cores_p95": 1.935,
+  "cpu_cores_max": 7.672,
+  "memory_gib_max": 41.697
+ },
+ "container_seconds": 1735.894244724,
+ "ledger": {
+  "date": "2026-11-16 00:14",
+  "purpose": "M4 session (L4:2): chat, remaining 2 repeats x 3 policies",
+  "category": "fleet",
+  "gpu": "L4",
+  "gpu_count": 2,
+  "cpu": 5.0,
+  "memory_gib": 32.0,
+  "billed_seconds": 1760.9,
+  "cost_usd": 1.0235,
+  "actual_cost_usd": null,
+  "app_id": "ap-hK69WNEFf24c2TWDBTAcAS",
+  "run_id": "fleet-20261115-210756",
+  "note": ""
+ }
+}
