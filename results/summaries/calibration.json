@@ -106,24 +106,18 @@
   },
   "baseline_h100": {
    "chat": {
-    "r_sat": 48.0,
-    "first_miss": 64.0,
+    "r_sat": 64.0,
+    "first_miss": null,
     "rates": [
-     8.0,
-     12.0,
-     16.0,
-     24.0,
-     32.0,
      48.0,
-     64.0,
-     96.0,
-     128.0,
-     192.0,
-     256.0,
-     384.0
+     51.2,
+     54.4,
+     57.6,
+     60.8,
+     64.0
     ],
-    "source": "sweep-h100-awq-ramp-chat-cal2",
-    "stage": "cal2"
+    "source": "sweep-h100-awq-ramp-chat-fine",
+    "stage": "fine"
    }
   }
  },
@@ -141,6 +135,6 @@
   "drain_timeout_s": 60.0
  },
  "baseline_r_sat_h100": {
-  "chat": 48.0
+  "chat": 64.0
  }
 }
