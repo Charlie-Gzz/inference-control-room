@@ -6,7 +6,7 @@ SLO: p95 time to first token <= 2.0 s and p95 inter-token latency <= 100 ms, wit
 
 ## Headline
 
-On the same 2 GPUs and the same traffic, prefix-aware routing cut p95 time to first token by 41% versus round-robin.
+On the same 2 GPUs and the same traffic, prefix-aware routing cut p95 time to first token by 41% versus round-robin, and served 20% more traffic within the SLO, which is 14% lower cost per million tokens.
 
 ## Fleet, fixed traffic: `chat` at 7.28 req/s
 
@@ -17,6 +17,16 @@ Median over the repeats (min to max). ⚠ marks a spread above 10% of the median
 | `round-robin` | 3 | 0.207 (0.196 to 0.208) | 0.506 (0.469 to 0.528) ⚠ | 68.9 ms (65.5 to 75.1) ⚠ | 99.1% (98.7 to 99.6) | 74.1% (73.8 to 74.6) | 1.00 (1.00 to 1.00) |
 | `least-loaded` | 3 | 0.230 (0.221 to 0.237) | 0.593 (0.583 to 0.594) | 67.3 ms (66.9 to 67.8) | 99.2% (99.1 to 99.7) | 74.2% (74.0 to 74.5) | 1.01 (1.00 to 1.01) |
 | `prefix-aware` | 3 | 0.164 (0.162 to 0.165) | 0.299 (0.289 to 0.308) | 42.9 ms (42.1 to 43.5) | 100.0% (100.0 to 100.0) | 84.0% (83.9 to 84.0) | 1.02 (1.00 to 1.03) |
+
+## Fleet capacity at the SLO (`chat` ramp)
+
+Levels: 6.24, 7.8, 9.36, 10.92, 12.48, 14.04 req/s, 60 s each. Capacity is the highest level that meets the SLO with every lower level meeting it too.
+
+| Policy | Max req/s at SLO, per repeat | Median | $ per M output tokens at SLO | $ per M total tokens at SLO |
+|---|---|---|---|---|
+| `round-robin` | 7.80, 7.80 | 7.80 | 0.770 | 0.0521 |
+| `least-loaded` | 7.80 | 7.80 | 0.784 | 0.0497 |
+| `prefix-aware` | 9.36, 9.36 | 9.36 | 0.659 | 0.0471 |
 
 ## Single-replica configs on L4: `chat`
 
@@ -47,9 +57,9 @@ Cheapest config that meets the SLO: `awq`.
 
 | Policy | Requests | p50 (µs) | p95 (µs) | p99 (µs) |
 |---|---|---|---|---|
-| `least-loaded` | 5241 | 47 | 85 | 260 |
-| `prefix-aware` | 5241 | 138 | 263 | 589 |
-| `round-robin` | 5241 | 48 | 86 | 192 |
+| `least-loaded` | 9265 | 54 | 110 | 172 |
+| `prefix-aware` | 13289 | 153 | 274 | 624 |
+| `round-robin` | 13289 | 54 | 106 | 165 |
 
 Direct vs through the router, same 60 requests on one replica: TTFT p50 115.2 ms direct, 121.6 ms through the router (+6.40 ms).
 
@@ -61,4 +71,4 @@ Direct vs through the router, same 60 requests on one replica: TTFT p50 115.2 ms
 
 ## Spend
 
-Total: $4.35 over 16 Modal runs (dev $2.68, fleet $1.67, h100 $0.00). See `docs/GPU_LEDGER.md`.
+Total: $5.88 over 17 Modal runs (dev $2.68, fleet $3.20, h100 $0.00). See `docs/GPU_LEDGER.md`.

@@ -1895,45 +1895,515 @@
   }
  },
  "spend": {
-  "total_usd": 4.35,
+  "total_usd": 5.88,
   "by_category": {
    "dev": 2.68,
-   "fleet": 1.67,
+   "fleet": 3.2,
    "h100": 0
   },
-  "runs": 16
+  "runs": 17
+ },
+ "capacity": {
+  "workload": "chat",
+  "rates_rps": [
+   6.24,
+   7.8,
+   9.36,
+   10.92,
+   12.48,
+   14.04
+  ],
+  "level_s": 60.0,
+  "policies": {
+   "round-robin": {
+    "repeats": [
+     {
+      "seed": 0,
+      "levels": [
+       {
+        "rate_rps": 6.24,
+        "meets_slo": true,
+        "ttft_p95_s": 0.4909,
+        "itl_p95_s": 0.0599,
+        "goodput": 0.9973,
+        "errors": 0,
+        "cache_hit_rate": 0.7168
+       },
+       {
+        "rate_rps": 7.8,
+        "meets_slo": true,
+        "ttft_p95_s": 0.4529,
+        "itl_p95_s": 0.08488,
+        "goodput": 0.9808,
+        "errors": 0,
+        "cache_hit_rate": 0.7679
+       },
+       {
+        "rate_rps": 9.36,
+        "meets_slo": false,
+        "ttft_p95_s": 0.6041,
+        "itl_p95_s": 0.14341,
+        "goodput": 0.8132,
+        "errors": 6,
+        "cache_hit_rate": 0.7346
+       },
+       {
+        "rate_rps": 10.92,
+        "meets_slo": false,
+        "ttft_p95_s": 4.2733,
+        "itl_p95_s": 1.02389,
+        "goodput": 0.116,
+        "errors": 122,
+        "cache_hit_rate": 0.7467
+       },
+       {
+        "rate_rps": 12.48,
+        "meets_slo": false,
+        "ttft_p95_s": 32.1785,
+        "itl_p95_s": 1.00085,
+        "goodput": 0.0,
+        "errors": 216,
+        "cache_hit_rate": 0.7433
+       },
+       {
+        "rate_rps": 14.04,
+        "meets_slo": false,
+        "ttft_p95_s": 60.9223,
+        "itl_p95_s": 1.03709,
+        "goodput": 0.0,
+        "errors": 50,
+        "cache_hit_rate": 0.7272
+       }
+      ],
+      "max_rps_at_slo": 7.8,
+      "at_top_level": false,
+      "output_tokens_per_hour": 2668440,
+      "cost_per_hour_usd": 2.0925,
+      "cost_per_m_output": 0.7842,
+      "cost_per_m_total": 0.0497
+     },
+     {
+      "seed": 1,
+      "levels": [
+       {
+        "rate_rps": 6.24,
+        "meets_slo": true,
+        "ttft_p95_s": 0.4891,
+        "itl_p95_s": 0.06632,
+        "goodput": 0.9893,
+        "errors": 0,
+        "cache_hit_rate": 0.7252
+       },
+       {
+        "rate_rps": 7.8,
+        "meets_slo": true,
+        "ttft_p95_s": 0.4731,
+        "itl_p95_s": 0.06146,
+        "goodput": 0.9936,
+        "errors": 0,
+        "cache_hit_rate": 0.7574
+       },
+       {
+        "rate_rps": 9.36,
+        "meets_slo": false,
+        "ttft_p95_s": 0.528,
+        "itl_p95_s": 0.10241,
+        "goodput": 0.9431,
+        "errors": 1,
+        "cache_hit_rate": 0.7441
+       },
+       {
+        "rate_rps": 10.92,
+        "meets_slo": false,
+        "ttft_p95_s": 1.9884,
+        "itl_p95_s": 0.89812,
+        "goodput": 0.1985,
+        "errors": 84,
+        "cache_hit_rate": 0.7457
+       },
+       {
+        "rate_rps": 12.48,
+        "meets_slo": false,
+        "ttft_p95_s": 19.4439,
+        "itl_p95_s": 1.00399,
+        "goodput": 0.0,
+        "errors": 179,
+        "cache_hit_rate": 0.7333
+       },
+       {
+        "rate_rps": 14.04,
+        "meets_slo": false,
+        "ttft_p95_s": 57.0242,
+        "itl_p95_s": 1.04936,
+        "goodput": 0.0,
+        "errors": 21,
+        "cache_hit_rate": 0.72
+       }
+      ],
+      "max_rps_at_slo": 7.8,
+      "at_top_level": false,
+      "output_tokens_per_hour": 2766360,
+      "cost_per_hour_usd": 2.0925,
+      "cost_per_m_output": 0.7564,
+      "cost_per_m_total": 0.0545
+     }
+    ],
+    "max_rps_at_slo": {
+     "median": 7.8,
+     "min": 7.8,
+     "max": 7.8,
+     "values": [
+      7.8,
+      7.8
+     ],
+     "wide": false
+    },
+    "cost_per_m_output": {
+     "median": 0.7703,
+     "min": 0.7564,
+     "max": 0.7842,
+     "values": [
+      0.7842,
+      0.7564
+     ],
+     "wide": false
+    },
+    "cost_per_m_total": {
+     "median": 0.0521,
+     "min": 0.0497,
+     "max": 0.0545,
+     "values": [
+      0.0497,
+      0.0545
+     ],
+     "wide": false
+    },
+    "output_tokens_per_hour": {
+     "median": 2717400.0,
+     "min": 2668440,
+     "max": 2766360,
+     "values": [
+      2668440,
+      2766360
+     ],
+     "wide": false
+    },
+    "lower_bound": false
+   },
+   "least-loaded": {
+    "repeats": [
+     {
+      "seed": 0,
+      "levels": [
+       {
+        "rate_rps": 6.24,
+        "meets_slo": true,
+        "ttft_p95_s": 0.5784,
+        "itl_p95_s": 0.06672,
+        "goodput": 0.9973,
+        "errors": 0,
+        "cache_hit_rate": 0.7216
+       },
+       {
+        "rate_rps": 7.8,
+        "meets_slo": true,
+        "ttft_p95_s": 0.6806,
+        "itl_p95_s": 0.07585,
+        "goodput": 0.9893,
+        "errors": 0,
+        "cache_hit_rate": 0.7537
+       },
+       {
+        "rate_rps": 9.36,
+        "meets_slo": false,
+        "ttft_p95_s": 0.6399,
+        "itl_p95_s": 0.1055,
+        "goodput": 0.9253,
+        "errors": 0,
+        "cache_hit_rate": 0.7458
+       },
+       {
+        "rate_rps": 10.92,
+        "meets_slo": false,
+        "ttft_p95_s": 2.3724,
+        "itl_p95_s": 0.84554,
+        "goodput": 0.0351,
+        "errors": 114,
+        "cache_hit_rate": 0.7382
+       },
+       {
+        "rate_rps": 12.48,
+        "meets_slo": false,
+        "ttft_p95_s": 17.7679,
+        "itl_p95_s": 1.01254,
+        "goodput": 0.0,
+        "errors": 194,
+        "cache_hit_rate": 0.7551
+       },
+       {
+        "rate_rps": 14.04,
+        "meets_slo": false,
+        "ttft_p95_s": 57.0462,
+        "itl_p95_s": 1.01105,
+        "goodput": 0.0,
+        "errors": 39,
+        "cache_hit_rate": 0.7165
+       }
+      ],
+      "max_rps_at_slo": 7.8,
+      "at_top_level": false,
+      "output_tokens_per_hour": 2668440,
+      "cost_per_hour_usd": 2.0925,
+      "cost_per_m_output": 0.7842,
+      "cost_per_m_total": 0.0497
+     }
+    ],
+    "max_rps_at_slo": {
+     "median": 7.8,
+     "min": 7.8,
+     "max": 7.8,
+     "values": [
+      7.8
+     ],
+     "wide": false
+    },
+    "cost_per_m_output": {
+     "median": 0.7842,
+     "min": 0.7842,
+     "max": 0.7842,
+     "values": [
+      0.7842
+     ],
+     "wide": false
+    },
+    "cost_per_m_total": {
+     "median": 0.0497,
+     "min": 0.0497,
+     "max": 0.0497,
+     "values": [
+      0.0497
+     ],
+     "wide": false
+    },
+    "output_tokens_per_hour": {
+     "median": 2668440,
+     "min": 2668440,
+     "max": 2668440,
+     "values": [
+      2668440
+     ],
+     "wide": false
+    },
+    "lower_bound": false
+   },
+   "prefix-aware": {
+    "repeats": [
+     {
+      "seed": 0,
+      "levels": [
+       {
+        "rate_rps": 6.24,
+        "meets_slo": true,
+        "ttft_p95_s": 0.3206,
+        "itl_p95_s": 0.04233,
+        "goodput": 1.0,
+        "errors": 0,
+        "cache_hit_rate": 0.832
+       },
+       {
+        "rate_rps": 7.8,
+        "meets_slo": true,
+        "ttft_p95_s": 0.3056,
+        "itl_p95_s": 0.0441,
+        "goodput": 1.0,
+        "errors": 0,
+        "cache_hit_rate": 0.8447
+       },
+       {
+        "rate_rps": 9.36,
+        "meets_slo": true,
+        "ttft_p95_s": 0.3389,
+        "itl_p95_s": 0.05859,
+        "goodput": 0.9982,
+        "errors": 0,
+        "cache_hit_rate": 0.828
+       },
+       {
+        "rate_rps": 10.92,
+        "meets_slo": false,
+        "ttft_p95_s": 0.5453,
+        "itl_p95_s": 0.13103,
+        "goodput": 0.7863,
+        "errors": 0,
+        "cache_hit_rate": 0.8372
+       },
+       {
+        "rate_rps": 12.48,
+        "meets_slo": false,
+        "ttft_p95_s": 0.9344,
+        "itl_p95_s": 0.3575,
+        "goodput": 0.2043,
+        "errors": 0,
+        "cache_hit_rate": 0.8359
+       },
+       {
+        "rate_rps": 14.04,
+        "meets_slo": false,
+        "ttft_p95_s": 3.7991,
+        "itl_p95_s": 0.75564,
+        "goodput": 0.0048,
+        "errors": 0,
+        "cache_hit_rate": 0.8346
+       }
+      ],
+      "max_rps_at_slo": 9.36,
+      "at_top_level": false,
+      "output_tokens_per_hour": 3057720,
+      "cost_per_hour_usd": 2.0925,
+      "cost_per_m_output": 0.6843,
+      "cost_per_m_total": 0.0466
+     },
+     {
+      "seed": 1,
+      "levels": [
+       {
+        "rate_rps": 6.24,
+        "meets_slo": true,
+        "ttft_p95_s": 0.2974,
+        "itl_p95_s": 0.03998,
+        "goodput": 1.0,
+        "errors": 0,
+        "cache_hit_rate": 0.8346
+       },
+       {
+        "rate_rps": 7.8,
+        "meets_slo": true,
+        "ttft_p95_s": 0.2929,
+        "itl_p95_s": 0.03962,
+        "goodput": 1.0,
+        "errors": 0,
+        "cache_hit_rate": 0.8371
+       },
+       {
+        "rate_rps": 9.36,
+        "meets_slo": true,
+        "ttft_p95_s": 0.3669,
+        "itl_p95_s": 0.05995,
+        "goodput": 1.0,
+        "errors": 0,
+        "cache_hit_rate": 0.8279
+       },
+       {
+        "rate_rps": 10.92,
+        "meets_slo": false,
+        "ttft_p95_s": 0.4976,
+        "itl_p95_s": 0.10664,
+        "goodput": 0.9344,
+        "errors": 0,
+        "cache_hit_rate": 0.83
+       },
+       {
+        "rate_rps": 12.48,
+        "meets_slo": false,
+        "ttft_p95_s": 0.9202,
+        "itl_p95_s": 0.33273,
+        "goodput": 0.2724,
+        "errors": 0,
+        "cache_hit_rate": 0.8252
+       },
+       {
+        "rate_rps": 14.04,
+        "meets_slo": false,
+        "ttft_p95_s": 3.5905,
+        "itl_p95_s": 0.80745,
+        "goodput": 0.0143,
+        "errors": 0,
+        "cache_hit_rate": 0.8349
+       }
+      ],
+      "max_rps_at_slo": 9.36,
+      "at_top_level": false,
+      "output_tokens_per_hour": 3299040,
+      "cost_per_hour_usd": 2.0925,
+      "cost_per_m_output": 0.6343,
+      "cost_per_m_total": 0.0477
+     }
+    ],
+    "max_rps_at_slo": {
+     "median": 9.36,
+     "min": 9.36,
+     "max": 9.36,
+     "values": [
+      9.36,
+      9.36
+     ],
+     "wide": false
+    },
+    "cost_per_m_output": {
+     "median": 0.6593,
+     "min": 0.6343,
+     "max": 0.6843,
+     "values": [
+      0.6843,
+      0.6343
+     ],
+     "wide": false
+    },
+    "cost_per_m_total": {
+     "median": 0.04715,
+     "min": 0.0466,
+     "max": 0.0477,
+     "values": [
+      0.0466,
+      0.0477
+     ],
+     "wide": false
+    },
+    "output_tokens_per_hour": {
+     "median": 3178380.0,
+     "min": 3057720,
+     "max": 3299040,
+     "values": [
+      3057720,
+      3299040
+     ],
+     "wide": false
+    },
+    "lower_bound": false
+   }
+  }
  },
  "headline": {
   "ttft_p95_change": -0.4086234177215191,
-  "capacity_change": null,
-  "cost_change": null,
+  "capacity_change": 0.19999999999999996,
+  "cost_change": -0.14409970141503314,
   "ttft_p95_s": {
    "round-robin": 0.5056,
    "prefix-aware": 0.299
   },
-  "html": "On the same 2 GPUs and the same traffic, prefix-aware routing cut p95 time to first token by <b>41%</b> versus round-robin.",
-  "text": "On the same 2 GPUs and the same traffic, prefix-aware routing cut p95 time to first token by 41% versus round-robin.",
-  "tour": "Both sides got exactly the same requests at the same times. On the same 2 GPUs and the same traffic, prefix-aware routing cut p95 time to first token by 41% versus round-robin."
+  "html": "On the same 2 GPUs and the same traffic, prefix-aware routing cut p95 time to first token by <b>41%</b> versus round-robin, and served <b>20%</b> more traffic within the SLO, which is <b>14%</b> lower cost per million tokens.",
+  "text": "On the same 2 GPUs and the same traffic, prefix-aware routing cut p95 time to first token by 41% versus round-robin, and served 20% more traffic within the SLO, which is 14% lower cost per million tokens.",
+  "tour": "Both sides got exactly the same requests at the same times. On the same 2 GPUs and the same traffic, prefix-aware routing cut p95 time to first token by 41% versus round-robin, and served 20% more traffic within the SLO, which is 14% lower cost per million tokens."
  },
  "router_overhead": {
   "decision_us": {
    "least-loaded": {
-    "requests": 5241,
-    "p50": 47,
-    "p95": 85,
-    "p99": 260
+    "requests": 9265,
+    "p50": 54,
+    "p95": 110,
+    "p99": 172
    },
    "prefix-aware": {
-    "requests": 5241,
-    "p50": 138,
-    "p95": 263,
-    "p99": 589
+    "requests": 13289,
+    "p50": 153,
+    "p95": 274,
+    "p99": 624
    },
    "round-robin": {
-    "requests": 5241,
-    "p50": 48,
-    "p95": 86,
-    "p99": 192
+    "requests": 13289,
+    "p50": 54,
+    "p95": 106,
+    "p99": 165
    }
   },
   "proxycheck": {
