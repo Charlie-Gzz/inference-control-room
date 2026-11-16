@@ -5,8 +5,8 @@ work, run `uv run modal app list` and stop anything running.
 
 ## Status
 
-**Paused 2026-11-15, 22:15 EST, in the middle of M4 (fleet experiments).** M3a is done.
-Read "Paused for the night" below before anything else.
+**Resumed 2026-11-16, 10:40 EST, in the middle of M4 (fleet experiments).** M3a is done.
+Read "Resumed 2026-11-16" below before anything else.
 
 | Milestone | State |
 |---|---|
@@ -44,7 +44,25 @@ Config sweep on chat (capacity = highest ramp level within the SLO; one level is
 - awq on rag (sweep levels 1.0 to 2.6 req/s): meets the SLO at every level.
 - The binding limit is inter-token latency, not time to first token.
 
-## Paused for the night (2026-11-15, 22:15 EST): read this first
+## Resumed 2026-11-16: read this first
+
+- Budget constants are raised in `src/icr/config.py` (total 52, soft stop 45, fleet 35)
+  and the ledger tests follow the constants. Committed.
+- **The 4-GPU launch is waiting for Charlie.** Claude Code's permission check refused
+  `modal run ... fleet --items proxycheck,chat --replicas 4` at 10:55 EST (spend above
+  the plan's written cap). Charlie was asked in chat to confirm or to run it himself.
+  Do not retry it without his answer in the session. The command, once allowed:
+  `uv run modal run -m icr.modal_app.app::fleet --items proxycheck,chat --replicas 4`
+  with output to `.scratch/fleet-N.log`, plus the queue watchdog below at 60 minutes.
+  `FLEET_REPLICAS` stays 2 in config until 4-GPU runs exist (the analysis reads it);
+  the launch passes `--replicas 4`.
+- **Meanwhile the 2-GPU list continues** (inside the plan's original budget). Launched
+  at 10:57 EST: `--items ramp --replicas 2` for the one skipped run, log
+  `.scratch/fleet-7.log`. Next on 2 GPUs: `rag`, `no-sharing`, `autoscale`.
+- `.scratch/queue_watchdog.ps1 -Log <log> -Minutes <n>` stops a request that is still
+  in the queue after n minutes (unbilled). Start it in the background next to each launch.
+
+## Paused for the night (2026-11-15, 22:15 EST)
 
 Charlie is turning the PC off for the night. Work resumes on 2026-11-16.
 
