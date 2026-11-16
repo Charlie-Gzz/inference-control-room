@@ -107,8 +107,12 @@ Config sweep on chat (capacity = highest ramp level within the SLO; one level is
   The videos must be rebuilt once more when the fleet data is final.
 - The second build stopped after the main story: the capture server never closed its
   socket, so the next story's server on the same port timed out (Windows). Fixed with
-  `siteserver.stop` and `tests/test_siteserver.py`. The main story is rebuilt and its
-  frames are right. Loop, vertical and GIF are being rebuilt (log `.scratch/video3.log`).
+  `siteserver.stop` and `tests/test_siteserver.py`.
+- **Videos committed at 13:10 EST on the 2-GPU data:** `switchyard.mp4` 8.3 MB,
+  `switchyard-loop.mp4` 2.5 MB, `switchyard-vertical.mp4` 7.9 MB, `hero.gif` 5.1 MB.
+  Frames of every scene were looked at in both formats after the fixes (a fourth fix:
+  the vertical what-if scene now stacks the chart above the panels). Rebuild all of
+  them with `uv run icr assets --video` (about 25 minutes) when the fleet data is final.
 - The README hero is now `assets/video/hero.gif`.
 
 ## Paused for the night (2026-11-15, 22:15 EST)
