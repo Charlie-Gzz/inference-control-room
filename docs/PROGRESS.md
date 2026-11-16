@@ -13,14 +13,14 @@ work, run `uv run modal app list` and stop anything running.
 | M1 Workloads, load generator, recorder, mock fleet | **done** |
 | M2 Go router and autoscaler | **done** |
 | M3a L4 single-replica sweeps and quality | **done** except one leftover ramp (`fp8` on rag, see next steps) |
-| M4 Fleet experiments | **blocked on GPU capacity**: no 4-GPU machine yet; a 2-GPU pilot is queued (see below) |
+| M4 Fleet experiments | **in progress on 2 GPUs** (fallback): chat done, capacity ramp queued |
 | M3b H100 session (after M4, if budget allows) | not started; code ready (`--gpu h100`) |
 | M5 Optimizer and results pipeline | works on real sweep data (`icr results`, `icr calibrate`, `icr charts`, `icr replay-data`) |
 | M6 Control room site | every view written; seen with mock, rehearsal and real sweep data; needs real fleet runs |
 | M7 Assets and portfolio kit | `icr assets [--video]` written and rehearsed on mock data; real assets not generated yet |
 | M8 README and handoff | not started |
 
-GPU spend so far: **$3.33 of $35** (dev $2.68 of $10; fleet $0.65 of $18; H100 $0 of $7).
+GPU spend so far: **$4.35 of $35** (dev $2.68 of $10; fleet $1.67 of $18; H100 $0 of $7).
 
 ## Measured so far (real, one L4)
 
@@ -43,24 +43,28 @@ Config sweep on chat (capacity = highest ramp level within the SLO; one level is
 - awq on rag (sweep levels 1.0 to 2.6 req/s): meets the SLO at every level.
 - The binding limit is inter-token latency, not time to first token.
 
-## State (2026-11-15, 15:30 EST): read this first
+## State (2026-11-15, 20:50 EST): read this first
 
-- **The 2-GPU pilot ran** (11:38 to about 12:20 EST, $0.65, no errors, 5 runs in
-  `results/runs/fleetx2-*`). The fleet code works on real GPUs. Chat at 7.28 req/s, one
-  repeat: round-robin p95 TTFT 0.47 s, ITL p95 66 ms, 75% of prompt tokens from cache;
-  least-loaded 0.59 s, 68 ms, 75%; prefix-aware 0.29 s, 43 ms, 84%. CPU use was about 1.1
-  cores of the 5 requested. Pilot runs are ignored by `icr results` on purpose.
-- **`L4:4` is being requested for the third time** (launched 15:16 EST, log
-  `.scratch/fleet-4.log`). The first two requests waited over an hour each and never got a
-  container (both in the ledger at $0). Waiting is free.
-- If the log ends with an error and there are no new `fleet-*` runs, nothing ran: settle
-  the ledger row to $0 with `ledger.settle(app_id, 0.0, note)` and launch again.
-- If 4 GPUs cannot be had after another long wait, the plan's fallback applies to the
-  whole fleet plan: add `--replicas 2` to every fleet command (the pilot's 4 runs are
-  then reused), make the analysis read `fleetx2-` runs (`_fleet_runs` in
-  `src/icr/analysis/fleet_results.py`, and `all_runs("fleet-")` in `site_data.py`,
-  `results.py`, `story.py`), and change the fixed texts that say 4 GPUs
-  (`site/index.html` meta tags, `src/icr/assets/diagram.py`, README).
+- **The fleet runs on 2 L4s (`L4:2`), the plan's fallback.** Three requests for `L4:4`
+  waited 50 to 80 minutes each and never got a container (all in the ledger at $0).
+  `FLEET_REPLICAS = 2` in `src/icr/config.py` is the single switch. Run ids are
+  `fleetx2-...`. The fleet commands need no extra flag.
+- **Done on 2 GPUs:** the router check and chat (3 policies x 3 repeats). Median p95 time
+  to first token: round-robin 0.51 s, least-loaded 0.59 s, prefix-aware 0.30 s. p95
+  inter-token latency 69, 67, 43 ms. Cache hit rate 74%, 74%, 84%. No errors.
+- **Queued now:** the capacity ramp (`--items ramp`), launched 19:53 EST, log
+  `.scratch/fleet-6.log`. `L4:2` queues have been long today (up to hours, unbilled).
+  A session that ends shows `App completed` in its log and its runs appear in
+  `results/runs/fleetx2-*`. **Commit results and ledger first, then reconcile.**
+- If a log ends with an error and no new runs exist, nothing ran: settle the ledger row
+  to $0 with `ledger.settle(app_id, 0.0, note)` and launch again.
+- `icr assets` (no video) already runs end to end on the real data: results, charts,
+  site data, storyboards, screenshots, diagram.
+
+Remaining fleet sessions, in order (each is one command, finished runs are skipped):
+`--items ramp` (repeat until `skipped: []`), `--items rag`, `--items no-sharing`,
+`--items autoscale` (repeat until `skipped: []`), then `agentic` if the reserve allows
+(it needs `sweep --jobs "awq=calib:agentic@1;1.5;2;3;4;6"` and `icr calibrate` first).
 
 ## Exact next step
 
