@@ -10,7 +10,9 @@ patterns, measures which serving techniques lower cost and latency, and replays 
 recorded request in an interactive control room.
 </p>
 
-![The control room replaying the same traffic through round-robin and prefix-aware routing, side by side](assets/screenshots/hero.png)
+![The control room replaying the same traffic through round-robin and prefix-aware routing, side by side](assets/video/hero.gif)
+
+A longer cut: [assets/video/switchyard.mp4](assets/video/switchyard.mp4) (85 seconds, no sound).
 
 ## Headline
 

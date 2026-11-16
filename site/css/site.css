@@ -167,12 +167,18 @@ body.vertical .rec-number-row { flex-direction: column; gap: 54px; }
 /* Record mode, replay scenes: the headline band is kept empty for the captions. */
 body.recording #headline { visibility: hidden; }
 body.recording #headline-box { min-height: 92px; }
-body.recording #view-room .yard-canvas { height: var(--rec-yard-h, 640px); }
+body.recording #view-room .yard-canvas { height: var(--rec-yard-h, 600px); } /* footer stays inside 1080 px */
 body.recording #view-split .yard-canvas { height: var(--rec-yard-h, 600px); }
 #rec-caption.top .rec-caption-box { font-size: 38px; max-width: 48ch; padding: 14px 30px; }
 body.recording.vertical header { display: none; }
 body.recording.vertical #headline-box { min-height: 196px; }
-body.recording.vertical #view-split .yard-canvas, body.recording.vertical #view-room .yard-canvas { height: 400px; }
+body.recording.vertical #view-split .yard-canvas { height: 384px; } /* footer stays inside 1920 px */
+/* Vertical cut, one router: the yard fills the frame, the side panels are left out. */
+body.recording.vertical #view-room { grid-template-columns: minmax(0, 1fr); }
+body.recording.vertical #view-room > div:last-child { display: none; }
+body.recording.vertical #view-room .yard-canvas { height: 1380px; }
+body.recording #rec-badge { top: 8.5%; }
+body.recording.vertical #rec-badge { top: 4%; }
 body.recording.vertical #rec-caption.top { top: 1.4%; }
 body.recording.vertical #rec-caption.top .rec-caption-box { font-size: 44px; max-width: 22ch; }
 body.recording.vertical .score-row { padding: 6px 0; }

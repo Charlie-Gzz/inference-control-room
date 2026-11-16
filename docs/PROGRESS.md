@@ -89,8 +89,23 @@ Config sweep on chat (capacity = highest ramp level within the SLO; one level is
   exist: show the second data set on the site's Method page and in the README, and
   decide on a chart of the routing effect by fleet size. The site's replay views and
   `icr replay-data` cover the headline fleet only.
-- Docker Desktop is **not running**. It is needed for `icr assets --video` (ffmpeg) and
-  the secret scan (gitleaks). Start it before those steps.
+- Docker Desktop was started by Claude at 12:00 EST on 2026-11-16 (it was not running).
+  Leave it running until the final video build and secret scan, then stop the
+  project's containers (label `project=inference-control-room`).
+- Secret scan rehearsal, 2026-11-16 12:01 EST: gitleaks over the full history, 65
+  commits, no leaks. Repeat it with the pinned image
+  (`ghcr.io/gitleaks/gitleaks:v8.30.1`) right before the handoff.
+- **Videos on real data (2026-11-16):** the first full build worked (main 8.3 MB, loop
+  2.5 MB, vertical 7.5 MB, `hero.gif` 5.1 MB). Frames were looked at and three layout
+  defects fixed in `site/css/site.css` (record mode only): the footer was cut off in the
+  single-router scenes, the vertical single-router scenes left half the frame empty, and
+  the rewind badge sat on the panel border. A second build with the fixes started at
+  12:40 EST (`video.make_all()` only, log `.scratch/video2.log`). When it ends: look at
+  frames 1900, 2178 and 3100 of `story-main` and `story-vertical` in
+  `assets/video/frames/`, play nothing else, then commit `assets/video/*.mp4` and
+  `hero.gif`. `.scratch/frames.py <story> <frame...>` captures single frames in seconds.
+  The videos must be rebuilt once more when the fleet data is final.
+- The README hero is now `assets/video/hero.gif`.
 
 ## Paused for the night (2026-11-15, 22:15 EST)
 

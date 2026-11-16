@@ -6,7 +6,7 @@ One idea per slide, one asset per slide. Numbers are from `results/RESULTS.md`.
 
 - **Switchyard: an LLM serving fleet you can watch**
 - Serving LLMs is mostly a cost problem. This project measures what actually lowers it.
-- Asset: `assets/screenshots/hero.png` (or the loop video, `assets/video/story-loop.mp4`)
+- Asset: `assets/screenshots/hero.png` (or the loop video, `assets/video/switchyard-loop.mp4`)
 
 ## 2. The problem
 

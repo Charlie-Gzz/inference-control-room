@@ -33,9 +33,11 @@ Shot 7's cost line: check `docs/GPU_LEDGER.md` for the final total before record
 
 ## Music for the generated video
 
-`uv run icr assets --video` writes three silent videos into `assets/video/`: the main
-story (about 85 seconds), a 20-second loop and a vertical cut. To add a royalty-free
-track to the main story:
+`uv run icr assets --video` writes three silent videos into `assets/video/`:
+`switchyard.mp4` (the main story, about 85 seconds), `switchyard-loop.mp4` (20 seconds)
+and `switchyard-vertical.mp4` (1080x1920, for LinkedIn). It also writes `hero.gif` for
+the README. Full-quality masters go to `assets/video/masters/`, which is not committed.
+To add a royalty-free track to the main story:
 
 - Start the track at 0:00 at low volume under the cold open.
 - Bring it up at the zoom out (0:08).
