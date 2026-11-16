@@ -1,0 +1,133 @@
+{
+ "session_id": "h100-20261116-214041",
+ "label": "h100",
+ "jobs": [
+  {
+   "config": {
+    "name": "awq",
+    "weights": "awq",
+    "quantization": null,
+    "speculative": null,
+    "prefix_caching": true,
+    "max_num_seqs": null,
+    "max_model_len": 8192,
+    "gpu_memory_utilization": 0.9,
+    "extra_args": [],
+    "pip": []
+   },
+   "tasks": [
+    "ramp:chat@32.0;44.8;54.4;64.0;73.6;83.2"
+   ]
+  },
+  {
+   "config": {
+    "name": "bf16",
+    "weights": "bf16",
+    "quantization": null,
+    "speculative": null,
+    "prefix_caching": true,
+    "max_num_seqs": null,
+    "max_model_len": 8192,
+    "gpu_memory_utilization": 0.9,
+    "extra_args": [],
+    "pip": []
+   },
+   "tasks": [
+    "ramp:chat@32.0;44.8;54.4;64.0;73.6;83.2"
+   ]
+  },
+  {
+   "config": {
+    "name": "fp8",
+    "weights": "bf16",
+    "quantization": "fp8_per_tensor",
+    "speculative": null,
+    "prefix_caching": true,
+    "max_num_seqs": null,
+    "max_model_len": 8192,
+    "gpu_memory_utilization": 0.9,
+    "extra_args": [],
+    "pip": []
+   },
+   "tasks": [
+    "ramp:chat@32.0;44.8;54.4;64.0;73.6;83.2"
+   ]
+  },
+  {
+   "config": {
+    "name": "awq-ngram",
+    "weights": "awq",
+    "quantization": null,
+    "speculative": {
+     "method": "ngram",
+     "num_speculative_tokens": 4,
+     "prompt_lookup_min": 2,
+     "prompt_lookup_max": 4
+    },
+    "prefix_caching": true,
+    "max_num_seqs": null,
+    "max_model_len": 8192,
+    "gpu_memory_utilization": 0.9,
+    "extra_args": [],
+    "pip": []
+   },
+   "tasks": [
+    "ramp:chat@32.0;44.8;54.4;64.0;73.6;83.2"
+   ]
+  }
+ ],
+ "seed": 0,
+ "ramp": {
+  "rates_rps": [],
+  "level_s": 40.0,
+  "warmup_s": 30.0
+ },
+ "budget_s": 1620,
+ "startups": {
+  "awq": {
+   "ok": true,
+   "startup_s": 98.1
+  },
+  "bf16": {
+   "ok": true,
+   "startup_s": 105.1
+  },
+  "fp8": {
+   "ok": true,
+   "startup_s": 98.1
+  }
+ },
+ "skipped": [
+  "sweep-h100-awq-ngram-ramp-chat"
+ ],
+ "resources": {
+  "samples": 1211,
+  "cpu_cores_mean": 2.019,
+  "cpu_cores_p95": 2.927,
+  "cpu_cores_max": 4.422,
+  "memory_gib_max": 24.78
+ },
+ "gpu": {
+  "gpus": [
+   "NVIDIA H100 80GB HBM3, 81559 MiB, 610.57.04"
+  ],
+  "table": "Mon Nov 16 21:40:50 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 610.57.04              KMD Version: 610.57.04     CUDA UMD Version: 13.3     |\n+-----------------------------------------+------------------------+----------------------+\n| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  NVIDIA H100 80GB HBM3          On  |   00000000:75:00.0 Off |                    0 |\n| N/A   27C    P0             67W /  700W |       4MiB /  81559MiB |      0%      Default |\n|                                         |                        |             Disabled |\n+-----------------------------------------+------------------------+----------------------+\n\n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|  No running processes found                                                             |\n+-----------------------------------------------------------------------------------------+"
+ },
+ "vllm_version": "0.33.0",
+ "container_seconds": 1214.432935473,
+ "ledger": {
+  "date": "2026-11-16 22:01",
+  "purpose": "M3b H100 sweep, session 1",
+  "category": "h100",
+  "gpu": "H100",
+  "gpu_count": 1,
+  "cpu": 8.0,
+  "memory_gib": 32.0,
+  "billed_seconds": 1239.4,
+  "cost_usd": 1.5783,
+  "actual_cost_usd": null,
+  "app_id": "ap-0yvcInvSgHc22jzhlMUuR2",
+  "run_id": "h100-20261116-214041",
+  "note": ""
+ }
+}
