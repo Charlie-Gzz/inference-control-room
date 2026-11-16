@@ -1,6 +1,6 @@
 # Handoff
 
-State on 2026-11-16, 15:45 EST. The build is finished except for the fleet runs that are
+State on 2026-11-16, 17:45 EST. The build is finished except for the fleet runs that are
 still waiting for a 2-GPU container (see "Not finished"). `docs/PROGRESS.md` has the
 exact next step if the build is resumed.
 
@@ -58,10 +58,14 @@ token by 41% versus round-robin, and served 20% more traffic within the SLO, whi
 - Fleet: 2 NVIDIA L4, Qwen2.5-7B-Instruct AWQ, vLLM 0.33.0, chat workload. Medians of 3
   repeats (2 for capacity, 1 so far for least-loaded capacity).
 - The capacity gap is one ramp level, which is the ramp's resolution. Both repeats agree.
-- Single GPU: the baseline (4-bit AWQ, prefix caching on) was the cheapest config that
+- One L4: the baseline (4-bit AWQ, prefix caching on) was the cheapest config that
   meets the SLO: 5.98 req/s, $0.525 per million output tokens. FP8 tied. Prefix caching
   off missed the SLO at every level. Speculative decoding lowered capacity. bf16 reached
   2.6 req/s.
+- One H100: AWQ, FP8, bf16 and AWQ with n-gram speculation all reached 54.4 req/s,
+  $0.242 per million output tokens. Nine times the traffic of one L4 for 4.1 times the
+  hourly price. Quantization made no difference there. What set the limit (the GPU or
+  vLLM's CPU-side work) is not shown by the runs.
 - Full tables: `results/RESULTS.md`.
 
 ## Where the assets are
@@ -90,7 +94,7 @@ Answered on 2026-11-16:
    fleet on vLLM with prefix-cache-aware routing, autoscaling, quantization and
    speculative decoding, measured on real traffic patterns and replayed in an
    interactive control room.", with the plan's 15 topics.
-3. **H100 session (up to $7).** Charlie: "Go for it." Started on 2026-11-16.
+3. **H100 session (up to $7).** Charlie: "Go for it." Done on 2026-11-16 for $3.97.
 
 Still open:
 
@@ -113,7 +117,10 @@ Still open:
 - **Budget raise taken back.** You raised the budget by $17 for a 4-GPU rerun on
   2026-11-15. None of it was spent. The caps in `src/icr/config.py` are at the plan's
   values again.
-- **H100 session (M3b).** In progress on 2026-11-16 (calibration first).
+- **H100 session (M3b).** Done on 2026-11-16: three calibration ramps and four configs,
+  $3.97 of its $7. It ran before the remaining fleet runs, not after them as the plan
+  orders, because no 2-GPU container could be had (`docs/DECISIONS.md`). GSM8K and the
+  greedy-output check were not rerun on the H100.
 - **GitHub description.** Changed from the plan's "A 4-GPU LLM serving fleet ..." to
   "A small LLM serving fleet ...". `PLAN.md` keeps the original text.
 - **Draft-model speculative decoding.** Impossible with official Qwen2.5 models
@@ -124,8 +131,8 @@ Still open:
 
 ## Spend
 
-- Total: **$6.04** of the plan's $35 (development $2.83 of $10, fleet $3.21 of $18,
-  H100 $0 of $7). No cap was hit.
+- Total: **$10.02** of the plan's $35 (development $2.83 of $10, fleet $3.21 of $18,
+  H100 $3.97 of $7). No cap was hit.
 - Every run, including the requests that never started ($0), is in `docs/GPU_LEDGER.md`.
   Actual costs come from `modal billing report`.
 

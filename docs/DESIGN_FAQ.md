@@ -153,7 +153,15 @@ its cache hit rate fell from 83% to about 60% as traffic rose, while AWQ's staye
 bf16 met the SLO only up to 2.6 req/s, against 5.98 for AWQ and FP8, with GSM8K accuracy
 within 3 points for all three.
 
-Chart: `assets/charts/quantization.png`.
+On an H100 the picture changes. With 80 GB, bf16, FP8 and AWQ all reached the same
+capacity (54.4 req/s, $0.242 per million output tokens), and bf16 had a smaller token gap
+than AWQ (12 ms against 17 ms). So quantization here is a way to fit a model and its
+cache into a small GPU, not a speedup in itself. One H100 carried nine times the traffic
+of one L4 for 4.1 times the hourly price. What set the H100's limit (the GPU, or vLLM's
+CPU-side work) is not shown by these runs.
+
+Charts: `assets/charts/quantization.png`, `assets/charts/cost_by_config.png`,
+`assets/charts/pareto.png`. Runs: `results/runs/sweep-h100-*`.
 
 ### 12. How much is prefix caching worth on a single GPU?
 

@@ -44,6 +44,7 @@ One idea per slide, one asset per slide. Numbers are from `results/RESULTS.md`.
 - Speculative decoding lowered capacity (n-gram: 5.98 to 3.64 req/s). Short answers,
   long prompts, full batches.
 - Full-precision weights were less than half as fast on a 24 GB GPU: no room for the cache.
+  On an 80 GB H100 they tied with the 4-bit model.
 - The 4-GPU machine never started. The fleet ran on 2.
 - Asset: `assets/charts/cost_by_config.png`
 
@@ -56,7 +57,7 @@ One idea per slide, one asset per slide. Numbers are from `results/RESULTS.md`.
 
 ## Backup slides
 
-- Pareto frontier: `assets/charts/pareto.png`
+- L4 against H100 (9 times the traffic, 54% lower cost per token): `assets/charts/pareto.png`
 - Quantization against accuracy: `assets/charts/quantization.png`
 - Router overhead: `assets/charts/router_overhead.png`
 - What-if explorer: `assets/screenshots/what-if.png`

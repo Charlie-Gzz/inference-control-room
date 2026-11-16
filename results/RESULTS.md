@@ -59,6 +59,7 @@ Cheapest config that meets the SLO: `awq`.
 | Config | Weights | Spec. decoding | Prefix cache | Max seqs | Max req/s at SLO | $ per M output at SLO | TTFT p95 (s) | ITL p95 (ms) | GSM8K | Draft acceptance | Greedy match |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | `awq` | AWQ 4-bit | off | yes | 128 | 54.40 | 0.242 | 0.196 | 16.5 | - | - | - |
+| `awq-ngram` | AWQ 4-bit | ngram | yes | 128 | 54.40 | 0.242 | 0.152 | 33.6 | - | 12.8% | - |
 | `bf16` | bf16 | off | yes | 128 | 54.40 | 0.242 | 0.171 | 12.3 | - | - | - |
 | `fp8` | FP8 | off | yes | 128 | 54.40 | 0.242 | 0.142 | 10.8 | - | - | - |
 
@@ -82,4 +83,4 @@ Direct vs through the router, same 60 requests on one replica: TTFT p50 115.2 ms
 
 ## Spend
 
-Total: $9.42 over 27 Modal runs (dev $2.84, fleet $3.21, h100 $3.37). See `docs/GPU_LEDGER.md`.
+Total: $10.02 over 28 Modal runs (dev $2.84, fleet $3.21, h100 $3.97). See `docs/GPU_LEDGER.md`.

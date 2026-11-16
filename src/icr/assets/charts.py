@@ -283,51 +283,70 @@ def _configs(s: dict, label: str = "l4", workload: str = "chat") -> list[dict]:
     return s.get("sweep", {}).get(label, {}).get(workload, {}).get("configs", [])
 
 
-def cost_by_config(s: dict):
-    rows = _configs(s)
+def _names(items: list[str]) -> str:
+    """`a`, `a and b`, `a, b and c`."""
+    return items[0] if len(items) == 1 else f"{', '.join(items[:-1])} and {items[-1]}"
+
+
+def _by_cost(rows: list[dict]) -> tuple[list[dict], list[dict]]:
+    """Configs that meet the SLO, cheapest first, and the ones that never do."""
     ok = sorted((c for c in rows if c["cost_per_m_output"]), key=lambda c: c["cost_per_m_output"])
-    failed = [c for c in rows if not c["cost_per_m_output"]]
-    fig = theme.figure(380 + 64 * len(rows))
+    return ok, [c for c in rows if not c["cost_per_m_output"]]
+
+
+def _cheapest(ok: list[dict]) -> str:
+    """`awq, fp8 and fp8-seqs256 tie at $0.53` or `awq is cheapest at $0.53`."""
+    tied = [c["config"] for c in ok if c["cost_per_m_output"] == ok[0]["cost_per_m_output"]]
+    cost = f"${ok[0]['cost_per_m_output']:.2f}"
+    if len(tied) == len(ok) > 2:
+        return f"all {len(ok)} configs tie at {cost}"
+    return f"{_names(tied)} {'tie at' if len(tied) > 1 else 'is cheapest at'} {cost}"
+
+
+def cost_by_config(s: dict):
+    """Cost at the SLO per server config: the L4 sweep, and the H100 sweep below it."""
+    sweep = s.get("sweep", {})
+    groups = [
+        (gpu, *_by_cost(_configs(s, label)), sweep[label]["chat"]["cheapest_at_default_slo"])
+        for label, gpu in (("l4", "L4"), ("h100", "H100"))
+        if _configs(s, label)
+    ]
+    fig = theme.figure(380 + 64 * sum(len(ok) + len(failed) for _, ok, failed, _ in groups))
     ax = fig.subplots()
     labels = []
-    for k, c in enumerate([*ok, *failed]):
-        cost = c["cost_per_m_output"]
-        labels.append(c["config"])
-        if cost is None:
-            ax.text(0.012, k, "misses the SLO at every traffic level tested", va="center",
-                    fontsize=9, color=WARN, transform=ax.get_yaxis_transform())  # fmt: skip
-            continue
-        ax.barh(k, cost, height=0.6, color=ROSE if k == 0 else "#475569", zorder=2)
-        more = " or more" if c["capacity_is_lower_bound"] else ""
-        ax.annotate(f"${cost:.2f}   {c['max_rps_at_slo']:g} req/s{more}", (cost, k), xytext=(6, 0),
-                    textcoords="offset points", va="center", fontsize=9, fontfamily=theme.MONO)  # fmt: skip
+    for gpu, ok, failed, picked in groups:
+        if labels:  # a rule between the two GPU types
+            ax.axhline(len(labels) - 0.5, color=theme.LINE, lw=1)
+        suffix = f" · {gpu}" if len(groups) > 1 else ""
+        for c in [*ok, *failed]:
+            k, cost = len(labels), c["cost_per_m_output"]
+            labels.append(c["config"] + suffix)
+            if cost is None:
+                ax.text(0.012, k, "misses the SLO at every traffic level tested", va="center",
+                        fontsize=9, color=WARN, transform=ax.get_yaxis_transform())  # fmt: skip
+                continue
+            ax.barh(
+                k, cost, height=0.6, color=ROSE if c["config"] == picked else "#475569", zorder=2
+            )
+            more = " or more" if c["capacity_is_lower_bound"] else ""
+            ax.annotate(f"${cost:.2f}   {c['max_rps_at_slo']:g} req/s{more}", (cost, k),
+                        xytext=(6, 0), textcoords="offset points", va="center", fontsize=9,
+                        fontfamily=theme.MONO)  # fmt: skip
     ax.set_yticks(range(len(labels)), labels, fontfamily=theme.MONO, fontsize=9)
     ax.set_ylim(len(labels) - 0.5, -0.5)
     ax.set_xlabel("USD per million output tokens at the SLO (lower is better)")
     ax.grid(axis="y", visible=False)
     ax.margins(x=0.3)
+    found = [f"on one {gpu}, {_cheapest(ok)}" for gpu, ok, _, _ in groups if ok]
     title = "Cost per million tokens at the SLO, by server config"
-    if ok:
-        base = next((c for c in ok if c["config"] == "awq"), None)
-        title = (f"{ok[0]['config']} is the cheapest config that meets the SLO: "
-                 f"${ok[0]['cost_per_m_output']:.2f} per million output tokens")  # fmt: skip
-        tied = [c["config"] for c in ok if c["cost_per_m_output"] == ok[0]["cost_per_m_output"]]
-        if len(tied) > 1:
-            title = (f"{' and '.join(tied)} tie as the cheapest configs that meet the SLO: "
-                     f"${ok[0]['cost_per_m_output']:.2f} per million output tokens")  # fmt: skip
-        if base and base is not ok[0]:
-            title += f", {_pct(ok[0]['cost_per_m_output'] / base['cost_per_m_output'] - 1)} below the baseline"
-    sub = ("One L4, chat workload. Every config ran the same 6-level ramp. Cost = hourly cost / tokens per "
-           "hour at its highest level within the SLO. 'or more' = it met the SLO at the top level tested.")  # fmt: skip
-    return _finish(
-        fig,
-        "cost_by_config",
-        title,
-        sub,
-        _footer(s, "1 x NVIDIA L4", model=SWEEP_MODEL),
-        left=0.17,
-        right=0.96,
-    )
+    if found:
+        title = f"Cost per million output tokens at the SLO: {'; '.join(found)}"
+    gpus = _names([f"one {gpu}" for gpu, _, _, _ in groups])
+    sub = (f"Chat workload, {gpus}. Every config on a GPU ran the same 6-level ramp. Cost = hourly cost / "
+           "tokens per hour at its highest level within the SLO. 'or more' = it met the SLO at the top "
+           "level tested. The rose bar is the config the tie-break picks.")  # fmt: skip
+    return _finish(fig, "cost_by_config", title, sub, _footer(s, "1 GPU per config", model=SWEEP_MODEL),
+                   left=0.2, right=0.96)  # fmt: skip
 
 
 def _other_ok(point: dict, y_key: str) -> bool:
@@ -341,9 +360,11 @@ def pareto(s: dict, y_key: str = "itl_p95_s"):
     fig = theme.figure(980)
     ax = fig.subplots()
     scale = 1000 if y_key == "itl_p95_s" else 1
-    k = 0
     every = []
-    for label, edge in (("l4", "none"), ("h100", INK)):
+    looks: dict[str, tuple[str, str]] = {}  # config -> (color, marker), the same on every GPU
+    best: dict[str, float] = {}  # GPU -> cheapest cost at the SLO
+    for label, edge, size in (("l4", "none", 36), ("h100", INK, 62)):
+        start = len(every)
         for c in _configs(s, label):
             pts = [
                 p for p in c["points"] if p["cost_per_m_output"] and p[y_key] and not p["errors"]
@@ -351,16 +372,25 @@ def pareto(s: dict, y_key: str = "itl_p95_s"):
             if not pts:
                 continue
             every += pts
-            color, marker = theme.SERIES[k % 12], theme.MARKERS[k % 12]
-            k += 1
+            if c["cost_per_m_output"]:
+                best[label] = min(best.get(label, math.inf), c["cost_per_m_output"])
+            k = len(looks)
+            color, marker = looks.setdefault(
+                c["config"], (theme.SERIES[k % 12], theme.MARKERS[k % 12])
+            )
             xs, ys = [p["cost_per_m_output"] for p in pts], [p[y_key] * scale for p in pts]
             ax.plot(xs, ys, color=color, lw=1, alpha=0.45, zorder=2)
-            ax.scatter(xs, ys, s=36, color=color, marker=marker, edgecolor=edge, lw=0.9, zorder=3,
+            # H100 points are larger and ringed in white: a config keeps its color and shape.
+            ax.scatter(xs, ys, s=size, color=color, marker=marker, edgecolor=edge, lw=1.1, zorder=3,
                        label=f"{c['config']} ({label.upper()})")  # fmt: skip
             # A point that misses the target on the other latency is drawn hollow.
             miss = [p for p in pts if not _other_ok(p, y_key)]
             ax.scatter([p["cost_per_m_output"] for p in miss], [p[y_key] * scale for p in miss],
-                       s=36, color=theme.BG, marker=marker, edgecolor=color, lw=1.2, zorder=4)  # fmt: skip
+                       s=size, color=theme.BG, marker=marker, edgecolor=color, lw=1.2, zorder=4)  # fmt: skip
+        mine = [p["cost_per_m_output"] for p in every[start:]]  # the points drawn for this GPU
+        if mine and len(s.get("sweep", {})) > 1:  # name the two clusters
+            ax.annotate(f"one {label.upper()}", (math.sqrt(min(mine) * max(mine)), 0.965),
+                        xycoords=("data", "axes fraction"), ha="center", color=MUTED, fontsize=9)  # fmt: skip
     front = optimizer.pareto([p for p in every if _other_ok(p, y_key)], y=y_key)
     ax.plot([p["cost_per_m_output"] for p in front], [p[y_key] * scale for p in front], color=INK,
             lw=1.5, alpha=0.8, zorder=1, label="Pareto frontier")  # fmt: skip
@@ -378,7 +408,7 @@ def pareto(s: dict, y_key: str = "itl_p95_s"):
     ax.set_xticks([t for t in x_ticks if min(costs) * 0.8 <= t <= max(costs) * 1.2])
     lats = [p[y_key] * scale for p in every]
     y_ticks = (
-        (20, 30, 50, 70, 100, 150, 200, 300, 500, 1000)
+        (5, 7, 10, 15, 20, 30, 50, 70, 100, 150, 200, 300, 500, 1000)
         if scale == 1000
         else (0.1, 0.2, 0.3, 0.5, 1, 2, 5)
     )
@@ -394,6 +424,10 @@ def pareto(s: dict, y_key: str = "itl_p95_s"):
     sub = ("Each marker is one server config at one traffic level of its ramp (lines join a config's levels). "
            "Down and left is better. Hollow markers miss the 2 s time-to-first-token target and are not on "
            "the frontier. Levels where requests failed are not drawn.")  # fmt: skip
+    if len(best) == 2:
+        title = (f"At the SLO one H100 serves a million output tokens for ${best['h100']:.2f}, one L4 "
+                 f"for ${best['l4']:.2f}, if there is traffic to fill it")  # fmt: skip
+        sub += " A config has the same color and shape on both GPUs. H100 markers are larger, with a white ring."
     return _finish(
         fig,
         "pareto",

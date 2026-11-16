@@ -352,8 +352,15 @@ function renderHonest() {
     const replay = state.view === "split" || state.view === "room";
     parts.push(`<span class="tag real">real</span> ${replay ? "Replay of a real recorded run" : "Measured on real GPU runs"}. Nothing is simulated.`);
   }
-  if (facts.gpu) parts.push(`GPU: <b>${facts.gpu}</b>`);
-  if (facts.model) parts.push(`Model: <b>${facts.model}</b>`);
+  if (state.view === "whatif") {
+    // The sweep is one GPU per config, not the fleet: say so instead of the fleet's facts.
+    const gpus = Object.keys((state.index.summary && state.index.summary.sweep) || {}).map((g) => g.toUpperCase());
+    parts.push(`GPU: <b>one ${gpus.join(" or one ") || "GPU"} per config</b>`);
+    parts.push("Model: <b>Qwen2.5-7B-Instruct</b>, weights as each config says");
+  } else {
+    if (facts.gpu) parts.push(`GPU: <b>${facts.gpu}</b>`);
+    if (facts.model) parts.push(`Model: <b>${facts.model}</b>`);
+  }
   if (facts.engine) parts.push(`Engine: <b>${facts.engine}</b>`);
   if (panel && (state.view === "split" || state.view === "room")) {
     parts.push(`Workload: <b>${scenarioLabel(state.scenario)}</b>, repeat ${state.seed + 1}`);

@@ -59,7 +59,7 @@ needs Go 1.27 on the path or in `.tools/go`.
   by real arrival times from the BurstGPT trace.
 - **An autoscaler** that starts and stops replicas inside the container.
 - **A single-GPU config sweep** over quantization, speculative decoding, prefix caching
-  and batch limits, with quality checks.
+  and batch limits, with quality checks, on an L4 and on an H100.
 - **An optimizer** that draws the cost and latency frontier and picks the cheapest
   config for a latency target.
 - **The control room**: a static site that replays the recorded runs request by request.
@@ -130,6 +130,36 @@ What this showed:
 ![Speed against GSM8K accuracy by quantization](assets/charts/quantization.png)
 
 ![Cost against p95 inter-token latency for every measured operating point, with the Pareto frontier](assets/charts/pareto.png)
+
+### A bigger GPU: one H100
+
+The four configs that matter most ran again on one H100, with traffic levels calibrated
+on the H100 itself.
+
+| Config | Max req/s at the SLO | $ per M output tokens | p95 token gap there |
+|---|---|---|---|
+| `awq` | 54.4 | 0.242 | 17 ms |
+| `bf16` | 54.4 | 0.242 | 12 ms |
+| `fp8` | 54.4 | 0.242 | 11 ms |
+| `awq-ngram` | 54.4 | 0.242 | 34 ms |
+
+- **Nine times the traffic for four times the price.** One vLLM replica on an H100
+  carried 54.4 req/s within the SLO, against 5.98 on an L4. The H100 container costs
+  4.1 times as much per hour. That is $0.242 per million output tokens against $0.525,
+  or 54% lower, if there is enough traffic to fill it.
+- **Quantization stopped mattering.** bf16, FP8 and 4-bit AWQ reached the same level.
+  With 80 GB of memory the full-precision weights leave plenty of room for the cache.
+- **The limit changed character.** On the L4 the gap between tokens broke the SLO first.
+  On the H100 the token gap stayed under 20 ms, and at 64 req/s requests queued for
+  seconds before their first token.
+- **Speculative decoding still did not help.** N-gram lookup tied on capacity and
+  doubled the token gap.
+- **What set the limit is not known.** All four configs broke at the same level, which
+  points away from the GPU's arithmetic and toward the work around it. The runs cannot
+  tell the two apart, so this is reported as the limit of one vLLM replica, not of the
+  GPU.
+
+The frontier chart above shows both GPUs.
 
 ### Router overhead
 
@@ -205,7 +235,13 @@ pointers to the code.
   it, and it picks the lower of the two candidate values.
 - **Capacity near the limit is noisy.** Of four AWQ ramps near 6 req/s, one met the
   inter-token target and three missed it by 0.2 to 11 ms. One-level differences between
-  configs are reported as ties.
+  configs are reported as ties. The H100 showed the same thing: a calibration ramp met
+  the SLO at 64 req/s, and every sweep ramp missed it there.
+- **The first H100 ramp was far too low.** The planned levels (8 to 48 req/s) all met
+  the SLO with room to spare, so the ramp had to be extended upwards by a rule written
+  down before running it.
+- **A ramp that starts hot looks worse than it is.** The extended H100 ramp began at
+  64 req/s on an empty cache and missed the SLO there. A ramp that climbed to 64 passed.
 
 ## Limitations
 
@@ -215,8 +251,10 @@ pointers to the code.
   have not run yet, so there is no measured answer here to "where does prefix-aware
   routing gain nothing". One of the six capacity ramp runs (the second least-loaded
   repeat) is also missing.
-- **One model family and one GPU type.** Qwen2.5-7B on NVIDIA L4. Other models and GPUs
-  will have different limits.
+- **One model family, and one GPU type for the fleet.** Qwen2.5-7B on NVIDIA L4, plus a
+  single-GPU sweep on one H100. Other models and GPUs will have different limits.
+- **The H100 limit is not attributed.** The runs do not show whether the GPU or the
+  CPU-side work of vLLM set it, and no quality check was rerun on the H100.
 - **Synthetic prompt text.** Arrival times and response lengths are real (BurstGPT).
   Prompt text is generated, with prefix sharing set by the workload description.
 - **Forced output lengths.** Requests use greedy decoding with `ignore_eos`, so every
@@ -235,9 +273,9 @@ pointers to the code.
 
 ## Cost to reproduce
 
-$6.04 so far: $2.83 for the single-GPU sweeps and $3.21 for the fleet. Every run is in
-[docs/GPU_LEDGER.md](docs/GPU_LEDGER.md) with its billed cost, including the requests
-that waited in the queue and never started ($0).
+$10.02 so far: $2.83 for the L4 sweeps, $3.21 for the fleet and $3.97 for the H100
+session. Every run is in [docs/GPU_LEDGER.md](docs/GPU_LEDGER.md) with its billed cost,
+including the requests that waited in the queue and never started ($0).
 
 Replaying and recomputing the saved results costs nothing.
 

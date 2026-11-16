@@ -1816,6 +1816,130 @@
       "spec_decode": null
      },
      {
+      "config": "awq-ngram",
+      "quantization": "AWQ 4-bit",
+      "speculative": "ngram",
+      "prefix_caching": true,
+      "max_num_seqs": 128,
+      "gpu": "h100",
+      "workload": "chat",
+      "startup_s": 175.2,
+      "cost_per_hour_usd": 4.5844,
+      "max_rps_at_slo": 54.4,
+      "capacity_is_lower_bound": false,
+      "points": [
+       {
+        "config": "awq-ngram",
+        "level": 0,
+        "rate_rps": 32.0,
+        "requests": 1280,
+        "errors": 0,
+        "ttft_p50_s": 0.0479,
+        "ttft_p95_s": 0.0748,
+        "itl_p95_s": 0.01127,
+        "goodput": 1.0,
+        "cache_hit_rate": 0.8074,
+        "output_tokens_per_hour": 10012050,
+        "total_tokens_per_hour": 139088250,
+        "cost_per_m_output": 0.4579,
+        "cost_per_m_total": 0.033
+       },
+       {
+        "config": "awq-ngram",
+        "level": 1,
+        "rate_rps": 44.8,
+        "requests": 1792,
+        "errors": 0,
+        "ttft_p50_s": 0.0693,
+        "ttft_p95_s": 0.1117,
+        "itl_p95_s": 0.02659,
+        "goodput": 1.0,
+        "cache_hit_rate": 0.8292,
+        "output_tokens_per_hour": 15844950,
+        "total_tokens_per_hour": 217751400,
+        "cost_per_m_output": 0.2893,
+        "cost_per_m_total": 0.0211
+       },
+       {
+        "config": "awq-ngram",
+        "level": 2,
+        "rate_rps": 54.4,
+        "requests": 2176,
+        "errors": 0,
+        "ttft_p50_s": 0.1092,
+        "ttft_p95_s": 0.152,
+        "itl_p95_s": 0.03358,
+        "goodput": 1.0,
+        "cache_hit_rate": 0.8384,
+        "output_tokens_per_hour": 18946620,
+        "total_tokens_per_hour": 276281190,
+        "cost_per_m_output": 0.242,
+        "cost_per_m_total": 0.0166
+       },
+       {
+        "config": "awq-ngram",
+        "level": 3,
+        "rate_rps": 64.0,
+        "requests": 2560,
+        "errors": 0,
+        "ttft_p50_s": 0.101,
+        "ttft_p95_s": 0.7902,
+        "itl_p95_s": 0.15975,
+        "goodput": 0.807,
+        "cache_hit_rate": 0.8385,
+        "output_tokens_per_hour": 23008770,
+        "total_tokens_per_hour": 305517060,
+        "cost_per_m_output": 0.1992,
+        "cost_per_m_total": 0.015
+       },
+       {
+        "config": "awq-ngram",
+        "level": 4,
+        "rate_rps": 73.6,
+        "requests": 2944,
+        "errors": 0,
+        "ttft_p50_s": 0.6953,
+        "ttft_p95_s": 1.6728,
+        "itl_p95_s": 0.21792,
+        "goodput": 0.3563,
+        "cache_hit_rate": 0.8162,
+        "output_tokens_per_hour": 24501420,
+        "total_tokens_per_hour": 350286750,
+        "cost_per_m_output": 0.1871,
+        "cost_per_m_total": 0.0131
+       },
+       {
+        "config": "awq-ngram",
+        "level": 5,
+        "rate_rps": 83.2,
+        "requests": 3328,
+        "errors": 0,
+        "ttft_p50_s": 15.948,
+        "ttft_p95_s": 25.7946,
+        "itl_p95_s": 0.21188,
+        "goodput": 0.009,
+        "cache_hit_rate": 0.6764,
+        "output_tokens_per_hour": 29490750,
+        "total_tokens_per_hour": 411103260,
+        "cost_per_m_output": 0.1555,
+        "cost_per_m_total": 0.0112
+       }
+      ],
+      "cost_per_m_output": 0.242,
+      "cost_per_m_total": 0.0166,
+      "output_tokens_per_hour": 18946620,
+      "ttft_p50_s": 0.1092,
+      "ttft_p95_s": 0.152,
+      "itl_p95_s": 0.03358,
+      "cache_hit_rate": 0.8384,
+      "spec_decode": {
+       "draft_tokens": 3811080,
+       "accepted_tokens": 487231,
+       "acceptance_rate": 0.1278,
+       "accepted_per_draft": 0.511
+      }
+     },
+     {
       "config": "bf16",
       "quantization": "bf16",
       "speculative": "off",
@@ -2060,11 +2184,11 @@
       "level": 5
      },
      {
-      "config": "bf16",
+      "config": "awq-ngram",
       "level": 4
      },
      {
-      "config": "fp8",
+      "config": "awq-ngram",
       "level": 3
      },
      {
@@ -2430,13 +2554,13 @@
   }
  },
  "spend": {
-  "total_usd": 9.42,
+  "total_usd": 10.02,
   "by_category": {
    "dev": 2.84,
    "fleet": 3.21,
-   "h100": 3.37
+   "h100": 3.97
   },
-  "runs": 27
+  "runs": 28
  },
  "capacity": {
   "workload": "chat",

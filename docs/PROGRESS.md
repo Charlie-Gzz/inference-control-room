@@ -15,13 +15,13 @@ Read "Resumed 2026-11-16" below before anything else.
 | M2 Go router and autoscaler | **done** |
 | M3a L4 single-replica sweeps and quality | **done** (the leftover `fp8` on rag ramp ran on 2026-11-16) |
 | M4 Fleet experiments | **in progress on 2 GPUs** (fallback): chat done, capacity ramp 5 of 6 runs. A 4-GPU rerun is approved (see below) |
-| M3b H100 session (after M4, if budget allows) | not started; code ready (`--gpu h100`) |
+| M3b H100 session | **done** on 2026-11-16 ($3.97), before the remaining fleet runs (see DECISIONS) |
 | M5 Optimizer and results pipeline | works on real sweep data (`icr results`, `icr calibrate`, `icr charts`, `icr replay-data`) |
 | M6 Control room site | every view works on the real 2-GPU runs, screenshots looked at. The autoscaling view is empty until those runs exist |
 | M7 Assets and portfolio kit | charts, screenshots, diagram, three videos and the GIF built from the real 2-GPU data and looked at; demo script, slides outline and portfolio card drafted. All to be refreshed when the fleet data is final |
 | M8 README and handoff | README drafted; DESIGN_FAQ written; secret scan rehearsed (clean); HANDOFF not written yet |
 
-GPU spend so far: **$6.04** (dev $2.83 of $10; fleet $3.21; H100 $0 of $7). Caps: $35 total and $18 fleet in the plan, raised by Charlie on 2026-11-15 to $52 and $35 (see below).
+GPU spend so far: **$10.02** (dev $2.83 of $10; fleet $3.21 of $18; H100 $3.97 of $7). Caps are the plan's ($35 total). The raise to $52 for a 4-GPU rerun was taken back unspent on 2026-11-16.
 
 ## Measured so far (real, one L4)
 
@@ -63,7 +63,23 @@ Config sweep on chat (capacity = highest ramp level within the SLO; one level is
   description (done, with the 15 topics; repo still private); run the H100 session
   ("Go for it"). Open: whether to wait for the missing fleet runs before the public
   announcement (Q5 in `docs/QUESTIONS_FOR_CHARLIE.md`).
-- **16:06 EST: H100 session started (M3b).** The queued 2-GPU request was cancelled by
+- **17:45 EST: M3b (H100) is DONE.** Three calibration ramps and four configs, $3.97 of
+  $7, total spend $10.02. Result: `awq`, `bf16`, `fp8`, `awq-ngram` all reach 54.4 req/s
+  at the SLO ($0.242 per million output tokens). Charts (`cost_by_config`, `pareto`),
+  the what-if view (GPU switch, its own footer), README, DESIGN_FAQ 11, HANDOFF,
+  portfolio card and slides carry the H100 results.
+- **17:20 EST: 2-GPU fleet request queued with the whole remaining list**:
+  `fleet --items ramp,rag,no-sharing,autoscale --replicas 2`, log
+  `.scratch/fleet-12.log`, watchdog 120 minutes (ends 19:20). When it ends with runs:
+  commit results and ledger first, reconcile, `icr assets`, look at the new charts and
+  views (latency by policy with rag and no-sharing, cache hit rate, autoscaling chart
+  and view), then repeat the same command until `skipped: []`. When it is cancelled:
+  settle to $0 and repeat once in the evening (19:30 or later). Then the final pass:
+  refresh README (remove "fleet runs still missing" for what ran, add results),
+  DESIGN_FAQ ("where prefix-aware loses", from the no-sharing control), HANDOFF,
+  DEMO_SCRIPT numbers, `uv run icr assets --video`, look at frames, secret scan with the
+  pinned image, fresh-clone quickstart check, Docker cleanup.
+- Earlier, 16:06 EST: H100 session started (M3b). The queued 2-GPU request was cancelled by
   hand first (30 minutes in the queue, settled at $0). Steps, each a `modal run` with a
   45-minute watchdog, logs `.scratch/h100-N.log`:
   1. `sweep --jobs "awq=calib:chat@8;12;16;24;32;48" --gpu h100` (queued 16:06)

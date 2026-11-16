@@ -70,6 +70,11 @@ def figure(height_px: int = 900):
     return plt.figure(figsize=(WIDTH_PX / DPI, height_px / DPI), dpi=DPI)
 
 
+def plain(text: str) -> str:
+    """Text with literal dollar signs: two `$` on one line would start matplotlib's math mode."""
+    return text.replace("$", r"\$")
+
+
 def titles(fig, title: str, subtitle: str = "") -> float:
     """Draw the takeaway title and a muted subtitle, both wrapped to the figure width.
 
@@ -79,11 +84,13 @@ def titles(fig, title: str, subtitle: str = "") -> float:
     height = fig.get_figheight() * DPI
     y = height - 34  # pixels from the bottom
     for line in textwrap.wrap(title, TITLE_CHARS):
-        fig.text(0.035, y / height, line, fontsize=12.5, fontweight="bold", color=INK, va="top")
+        fig.text(
+            0.035, y / height, plain(line), fontsize=12.5, fontweight="bold", color=INK, va="top"
+        )
         y -= 46
     y -= 6
     for line in textwrap.wrap(subtitle, SUBTITLE_CHARS):
-        fig.text(0.035, y / height, line, fontsize=8.6, color=MUTED, va="top")
+        fig.text(0.035, y / height, plain(line), fontsize=8.6, color=MUTED, va="top")
         y -= 31
     return (y - 72) / height  # room for the axes' own titles
 
@@ -97,7 +104,7 @@ def footer(fig, text: str) -> None:
             lines[-1] = joined
         else:
             lines.append(part)
-    text = "\n".join(lines)
+    text = plain("\n".join(lines))
     fig.text(0.035, 14 / (fig.get_figheight() * DPI), text, fontsize=7.4, color=MUTED, va="bottom")
 
 

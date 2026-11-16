@@ -20,8 +20,10 @@ same traffic.
 
 - Wrote a prefix-cache-aware router in Go and compared it with round-robin and
   least-loaded routing on identical traffic, with repeats.
-- Swept 10 server configs on one GPU (quantization, speculative decoding, batch limits)
-  and built an optimizer that picks the cheapest one for a latency target.
+- Swept 10 server configs on an L4 and 4 on an H100 (quantization, speculative
+  decoding, batch limits) and built an optimizer that picks the cheapest one for a
+  latency target. One H100 carried 9 times the traffic of one L4 at 54% lower cost per
+  token.
 - Built a control room that replays the recorded runs request by request, so every
   number can be traced to the requests behind it.
 
