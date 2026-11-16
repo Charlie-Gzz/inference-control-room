@@ -1,0 +1,67 @@
+{
+ "session_id": "h100-20261116-212133",
+ "label": "h100",
+ "jobs": [
+  {
+   "config": {
+    "name": "awq",
+    "weights": "awq",
+    "quantization": null,
+    "speculative": null,
+    "prefix_caching": true,
+    "max_num_seqs": null,
+    "max_model_len": 8192,
+    "gpu_memory_utilization": 0.9,
+    "extra_args": [],
+    "pip": []
+   },
+   "tasks": [
+    "ramp:chat@64;96;128;192;256;384=cal2"
+   ]
+  }
+ ],
+ "seed": 0,
+ "ramp": {
+  "rates_rps": [],
+  "level_s": 40.0,
+  "warmup_s": 30.0
+ },
+ "budget_s": 1620,
+ "startups": {
+  "awq": {
+   "ok": true,
+   "startup_s": 209.3
+  }
+ },
+ "skipped": [],
+ "resources": {
+  "samples": 631,
+  "cpu_cores_mean": 1.85,
+  "cpu_cores_p95": 2.964,
+  "cpu_cores_max": 9.824,
+  "memory_gib_max": 17.142
+ },
+ "gpu": {
+  "gpus": [
+   "NVIDIA H100 80GB HBM3, 81559 MiB, 610.57.04"
+  ],
+  "table": "Mon Nov 16 21:21:40 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 610.57.04              KMD Version: 610.57.04     CUDA UMD Version: 13.3     |\n+-----------------------------------------+------------------------+----------------------+\n| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  NVIDIA H100 80GB HBM3          On  |   00000000:86:00.0 Off |                    0 |\n| N/A   31C    P0             68W /  700W |       4MiB /  81559MiB |      0%      Default |\n|                                         |                        |             Disabled |\n+-----------------------------------------+------------------------+----------------------+\n\n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|  No running processes found                                                             |\n+-----------------------------------------------------------------------------------------+"
+ },
+ "vllm_version": "0.33.0",
+ "container_seconds": 641.5956829200001,
+ "ledger": {
+  "date": "2026-11-16 21:32",
+  "purpose": "M3b H100: coarse calibration, extended upwards (64 to 384 req/s)",
+  "category": "h100",
+  "gpu": "H100",
+  "gpu_count": 1,
+  "cpu": 8.0,
+  "memory_gib": 32.0,
+  "billed_seconds": 666.6,
+  "cost_usd": 0.8489,
+  "actual_cost_usd": null,
+  "app_id": "ap-yAt3CrHhrqmkE8FpD9ZiQh",
+  "run_id": "h100-20261116-212133",
+  "note": ""
+ }
+}
