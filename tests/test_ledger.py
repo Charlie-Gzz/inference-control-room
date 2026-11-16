@@ -4,6 +4,8 @@ import pytest
 
 from icr import config, ledger
 
+FLEET_CAP = config.BUDGET_BY_CATEGORY["fleet"]
+
 
 @pytest.fixture
 def empty_ledger(tmp_path, monkeypatch):
@@ -30,7 +32,7 @@ def test_record_accumulates_and_renders(empty_ledger):
     assert ledger.spent() == pytest.approx(3.0, abs=0.01)
     assert ledger.spent("dev") == pytest.approx(1.0, abs=0.01)
     text = ledger.LEDGER_MD.read_text("utf-8")
-    assert "| 3.000 |" in text and "fleet: $2.00 of $18.00" in text
+    assert "| 3.000 |" in text and f"fleet: $2.00 of ${FLEET_CAP:.2f}" in text
 
 
 def test_actual_cost_replaces_the_estimate_once_known(empty_ledger, monkeypatch):
@@ -56,14 +58,14 @@ def test_fleet_reserve_is_separate_from_dev(empty_ledger):
 
 def test_total_cap_is_a_hard_stop(empty_ledger):
     spend("dev", 9.0)
-    spend("fleet", 17.0)
+    spend("fleet", FLEET_CAP - 1.0)
     spend("h100", 6.5)
     with pytest.raises(ledger.BudgetError, match="total cap"):
         ledger.check_budget("fleet", "L4", 4, 10, 48, max_seconds=3600)
 
 
 def test_soft_stop_ends_development_runs(empty_ledger):
-    spend("fleet", 17.5)
+    spend("fleet", FLEET_CAP - 0.5)
     spend("h100", 6.9)
     spend("dev", 4.0)
     with pytest.raises(ledger.BudgetError, match="soft stop"):

@@ -55,7 +55,9 @@ def check_budget(
     worst = estimate(gpu, gpu_count, cpu, memory_gib, max_seconds)
     total = spent()
     if total + worst > config.BUDGET_TOTAL:
-        raise BudgetError(f"total cap: spent ${total:.2f} + worst case ${worst:.2f} > $35")
+        raise BudgetError(
+            f"total cap: spent ${total:.2f} + worst case ${worst:.2f} > ${config.BUDGET_TOTAL:.0f}"
+        )
     cap = config.BUDGET_BY_CATEGORY[category]
     if spent(category) + worst > cap:
         raise BudgetError(

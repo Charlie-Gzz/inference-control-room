@@ -38,9 +38,11 @@ GPU_L4_FLEET_FALLBACK = "L4:2"
 GPU_H100 = "H100!"
 
 # --- Budget (USD), PLAN.md section 1.1 --------------------------------------
-BUDGET_TOTAL = 35.0
-BUDGET_SOFT_STOP = 28.0  # after this: only remaining fleet runs, then H100 if affordable
-BUDGET_BY_CATEGORY = {"dev": 10.0, "fleet": 18.0, "h100": 7.0}
+# The plan's caps were $35 total, $28 soft stop and $18 for the fleet. Charlie raised the
+# fleet reserve by $17 on 2026-11-15 to pay for a 4-GPU rerun (docs/DECISIONS.md).
+BUDGET_TOTAL = 52.0
+BUDGET_SOFT_STOP = 45.0  # after this: only remaining fleet runs, then H100 if affordable
+BUDGET_BY_CATEGORY = {"dev": 10.0, "fleet": 35.0, "h100": 7.0}
 
 # Fleet container: 4 vLLM replicas + router + load generator + recorder.
 # Sized from the measured CPU and RAM of one replica (docs/DECISIONS.md, "Fleet sizing").
