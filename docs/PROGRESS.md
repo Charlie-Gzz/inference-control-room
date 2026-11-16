@@ -53,7 +53,17 @@ Config sweep on chat (capacity = highest ramp level within the SLO; one level is
   2026-11-16, between two 2-GPU sessions (afternoon or evening, a different hour from
   the four tries so far: 20:51, 10:17, 15:16 and 11:00 EST). Same command as below with
   a new log number.
-- **Now running the 2-GPU list.** Launched 12:02 EST: `--items ramp --replicas 2` (the
+- **The 2-GPU request below never started either:** 120 minutes in the queue (12:01 to
+  14:01 EST), cancelled by the watchdog, nothing billed, ledger row settled to $0. So on
+  2026-11-16 neither `L4:4` (60 min) nor `L4:2` (120 min) could be had by 14:00 EST.
+- **Now (14:03 EST): a capacity probe that is also useful work.** The leftover dev run
+  on one L4: `uv run modal run -m icr.modal_app.app::sweep --jobs "fp8=ramp:rag"`, log
+  `.scratch/sweep-9.log`, watchdog at 45 minutes. If it runs: commit results and ledger,
+  `ledger.reconcile()`, `icr results`. Then try `L4:4` once more (60 min), then the
+  2-GPU list (`--items ramp --replicas 2`, then `rag`, `no-sharing`, `autoscale`).
+  If even one L4 cannot be had, GPU work stops for the day: write the handoff on what
+  exists and tell Charlie.
+- Earlier (cancelled): the 2-GPU list. Launched 12:02 EST: `--items ramp --replicas 2` (the
   one skipped run), log `.scratch/fleet-9.log`, watchdog at 120 minutes. After it:
   commit results and ledger, `ledger.reconcile()`, `icr results`, then `--items rag
   --replicas 2`, `no-sharing`, `autoscale`, one session at a time.
