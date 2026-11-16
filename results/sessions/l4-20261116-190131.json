@@ -1,0 +1,67 @@
+{
+ "session_id": "l4-20261116-190131",
+ "label": "l4",
+ "jobs": [
+  {
+   "config": {
+    "name": "fp8",
+    "weights": "bf16",
+    "quantization": "fp8_per_tensor",
+    "speculative": null,
+    "prefix_caching": true,
+    "max_num_seqs": null,
+    "max_model_len": 8192,
+    "gpu_memory_utilization": 0.9,
+    "extra_args": [],
+    "pip": []
+   },
+   "tasks": [
+    "ramp:rag@1.0;1.4;1.7;2.0;2.3;2.6"
+   ]
+  }
+ ],
+ "seed": 0,
+ "ramp": {
+  "rates_rps": [],
+  "level_s": 40.0,
+  "warmup_s": 30.0
+ },
+ "budget_s": 1620,
+ "startups": {
+  "fp8": {
+   "ok": true,
+   "startup_s": 177.2
+  }
+ },
+ "skipped": [],
+ "resources": {
+  "samples": 490,
+  "cpu_cores_mean": 0.789,
+  "cpu_cores_p95": 1.447,
+  "cpu_cores_max": 5.241,
+  "memory_gib_max": 24.491
+ },
+ "gpu": {
+  "gpus": [
+   "NVIDIA L4, 23034 MiB, 620.70.06"
+  ],
+  "table": "Mon Nov 16 19:23:18 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 620.70.06              KMD Version: 620.70.06     CUDA UMD Version: 13.5     |\n+-----------------------------------------+------------------------+----------------------+\n| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  NVIDIA L4                      On  |   00000000:38:00.0 Off |                    0 |\n| N/A   47C    P8             17W /   72W |       4MiB /  23034MiB |      0%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n\n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|  No running processes found                                                             |\n+-----------------------------------------------------------------------------------------+"
+ },
+ "vllm_version": "0.33.0",
+ "container_seconds": 491.79523514,
+ "ledger": {
+  "date": "2026-11-16 19:31",
+  "purpose": "M3a leftover: fp8 on rag (finalist)",
+  "category": "dev",
+  "gpu": "L4",
+  "gpu_count": 1,
+  "cpu": 4.0,
+  "memory_gib": 16.0,
+  "billed_seconds": 516.8,
+  "cost_usd": 0.1604,
+  "actual_cost_usd": null,
+  "app_id": "ap-1miJtUy0o9UzFHQ1IGxyjz",
+  "run_id": "l4-20261116-190131",
+  "note": ""
+ }
+}
