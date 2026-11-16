@@ -41,15 +41,29 @@ def r_sat(config_name: str, workload: str, label: str = "l4") -> dict | None:
     cannot warm 160 documents in the 30 s warmup at 2 req/s.
     """
     found = {}
-    for tag in ("fine", "cal"):
+    for tag in ("fine", "cal2", "cal"):
         rid = f"sweep-{label}-{config_name}-ramp-{workload}-{tag}"
         if (runs.config.RUNS_DIR / rid).exists():
             found[tag] = {**ramp_capacity(runs.load(rid)), "source": rid, "stage": tag}
-    fine, coarse = found.get("fine"), found.get("cal")
+    fine, coarse = found.get("fine"), _coarse(found)
     if fine and coarse and fine["r_sat"] == 0 and coarse["r_sat"] > 0:
         note = "the fine ramp's first level missed the SLO on a cold cache; coarse value kept"
         return {**coarse, "note": note, "fine_source": fine["source"]}
     return fine or coarse
+
+
+def _coarse(found: dict) -> dict | None:
+    """The coarse stage. A `-cal2` ramp continues a coarse ramp that never missed the SLO.
+
+    Seen on the H100: the first coarse ramp (8 to 48 req/s) met the SLO at every level, so
+    a second one carries the same sequence of levels on upwards.
+    """
+    cal, more = found.get("cal"), found.get("cal2")
+    if not (cal and more):
+        return more or cal
+    if more["r_sat"] == 0:  # its first level missed: the limit lies between the two ramps
+        return {**more, "r_sat": cal["r_sat"], "rates": [*cal["rates"], *more["rates"]]}
+    return more
 
 
 def fine_levels(coarse: dict, steps: int = 6) -> list[float]:

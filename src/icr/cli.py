@@ -103,7 +103,9 @@ def calibrate(fleet_config: str = typer.Option("", help="Server config the fleet
         for workload, src in found.items():
             if src.get("note"):
                 typer.echo(f"  {where} {workload}: {src['note']}")
-            elif src["stage"] == "cal" and src["first_miss"] is not None:
+            elif src["stage"] in ("cal", "cal2") and src["first_miss"] is None:
+                typer.echo(f"  {where} {workload}: the coarse ramp never missed the SLO")
+            elif src["stage"] in ("cal", "cal2"):
                 levels = ";".join(str(x) for x in calibration.fine_levels(src))
                 typer.echo(
                     f"  {where} {workload}: coarse only. Fine ramp: ramp:{workload}@{levels}=fine"

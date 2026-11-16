@@ -103,6 +103,22 @@
     "source": "sweep-l4-awq-ramp-no-sharing-fine",
     "stage": "fine"
    }
+  },
+  "baseline_h100": {
+   "chat": {
+    "r_sat": 48.0,
+    "first_miss": null,
+    "rates": [
+     8.0,
+     12.0,
+     16.0,
+     24.0,
+     32.0,
+     48.0
+    ],
+    "source": "sweep-h100-awq-ramp-chat-cal",
+    "stage": "cal"
+   }
   }
  },
  "kv_cache_tokens": 250224,
@@ -117,5 +133,8 @@
   "down_load": 6.0,
   "down_sustain_s": 20.0,
   "drain_timeout_s": 60.0
+ },
+ "baseline_r_sat_h100": {
+  "chat": 48.0
  }
 }
