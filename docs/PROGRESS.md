@@ -5,6 +5,11 @@ work, run `uv run modal app list` and stop anything running.
 
 ## Status
 
+**PUBLIC since 2026-11-16 (late evening).** The repo is public and the control room is
+live at https://charlie-gzz.github.io/inference-control-room/ (GitHub Pages, deployed by
+`.github/workflows/pages.yml` on changes to `site/`). Left for Charlie only: upload
+`site/assets/og.png` as the social preview, pin the repo, add it to the portfolio site.
+
 **CLOSED on 2026-11-16, 21:20 EST.** Every milestone is done except the fleet runs that
 never got a container (rag, no-sharing, autoscaling, agentic, one ramp run). Charlie
 agreed to publish with the 2-GPU results and to close on the data that exists. Nothing

@@ -175,8 +175,15 @@ uv run modal run -m icr.modal_app.app::fleet --items ramp,rag,no-sharing,autosca
   2026-11-16, 92 commits. Repeat it right before going public:
   `docker run --rm -v "${PWD}:/repo" ghcr.io/gitleaks/gitleaks:v8.30.1 git /repo --redact`
 - No API keys are used. No `.env` exists. The Modal token was never printed or committed.
-- The repo is private. GitHub Pages is prepared (`.github/workflows/pages.yml`) and not
-  enabled.
+- **The repo is public since 2026-11-16**, made public by Claude on Charlie's explicit
+  instruction ("enable the site in github pages ... and then make it public"). The
+  secret scan was repeated right before (95 commits, no leaks).
+- **GitHub Pages is on**: https://charlie-gzz.github.io/inference-control-room/ (source:
+  GitHub Actions, `.github/workflows/pages.yml`, redeploys when `site/` changes on
+  main). The live page was opened in a headless browser: it loads, plays, and logs no
+  errors. The repo's homepage link points at it.
+- Public with the repo: the commit author name and email, and the Modal workspace name
+  in `PLAN.md`. Both are the same identity your other public repos already show.
 - Nothing from an employer: public models, data and traces only (`THIRD_PARTY.md`).
 
 ## Pre-public checklist
@@ -187,7 +194,7 @@ uv run modal run -m icr.modal_app.app::fleet --items ramp,rag,no-sharing,autosca
 4. Confirm the secret scan was clean and nothing from your employer appears.
 5. Read `docs/DESIGN_FAQ.md` end to end, so every design choice can be explained in an
    interview.
-6. Make the repo public, then enable GitHub Pages.
+6. Make the repo public, then enable GitHub Pages. **Done on 2026-11-16.**
 7. Upload `site/assets/og.png` as the repo's social preview (repo Settings, General,
    Social preview). This cannot be done from the command line.
 8. Pin the repo on your profile and add it to the portfolio site.
