@@ -1,11 +1,14 @@
 name: pages
 
 # Publishes the static control room (site/) to GitHub Pages.
-# Prepared but NOT enabled: it only runs when started by hand, and it fails harmlessly
-# until Pages is switched on in the repo settings (Settings > Pages > Source: GitHub Actions).
+# Runs when site/ changes on main, or when started by hand.
+# Pages source: GitHub Actions (Settings > Pages).
 # The site uses relative paths, so it works under /inference-control-room/.
 
 on:
+  push:
+    branches: [main]
+    paths: ["site/**", ".github/workflows/pages.yml"]
   workflow_dispatch:
 
 permissions:

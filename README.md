@@ -10,6 +10,10 @@ patterns, measures which serving techniques lower cost and latency, and replays 
 recorded request in an interactive control room.
 </p>
 
+<p align="center">
+<b><a href="https://charlie-gzz.github.io/inference-control-room/">Open the live control room</a></b>
+</p>
+
 ![The control room replaying the same traffic through round-robin and prefix-aware routing, side by side](assets/video/hero.gif)
 
 A longer cut: [assets/video/switchyard.mp4](assets/video/switchyard.mp4) (85 seconds, no sound).
