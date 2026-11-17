@@ -90,7 +90,7 @@ token by 41% versus round-robin, and served 20% more traffic within the SLO, whi
 
 ## Questions for you
 
-Details are in `docs/QUESTIONS_FOR_CHARLIE.md`. One line each is enough.
+Each decision is also recorded in `docs/DECISIONS.md`.
 
 Answered on 2026-11-16:
 

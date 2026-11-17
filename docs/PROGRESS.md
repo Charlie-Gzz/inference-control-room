@@ -67,7 +67,7 @@ Config sweep on chat (capacity = highest ramp level within the SLO; one level is
 - **16:05 EST, Charlie's answers:** publish with the 2-GPU results; change the GitHub
   description (done, with the 15 topics; repo still private); run the H100 session
   ("Go for it"). Open: whether to wait for the missing fleet runs before the public
-  announcement (Q5 in `docs/QUESTIONS_FOR_CHARLIE.md`).
+  announcement (decided later, see `docs/DECISIONS.md`).
 - **17:50 EST, closing the project (Charlie deferred Q5 to Claude; Claude usage at 75%,
   so spend few tokens).** Decided: the queued 2-GPU request is the last one. Done in
   the final pass so far: secret scan with the pinned image (92 commits, no leaks),
@@ -145,7 +145,7 @@ Config sweep on chat (capacity = highest ramp level within the SLO; one level is
 - Earlier, 15:32 EST: the fifth `L4:4` request was cancelled after 60 minutes, unbilled. The
   4-GPU rerun is closed for this build:** the 2-GPU results are the headline, the budget
   constants are back at the plan's values (35 / 28 / 18), `docs/DECISIONS.md` and
-  `docs/QUESTIONS_FOR_CHARLIE.md` (Q1 outcome, Q2 open) record it. Do not request
+  the handoff record it. Do not request
   `L4:4` again unless Charlie asks.
 - **15:35 EST: 2-GPU request queued** (`--items ramp --replicas 2`, log
   `.scratch/fleet-11.log`, watchdog 120 minutes). If it runs: commit results and ledger,
@@ -255,7 +255,7 @@ for a single ramp, so say that the gap is one level and that both repeats agree.
 
 **Decision from Charlie (2026-11-15, 22:05 EST): retry the fleet on 4 GPUs.** In Charlie's words:
 "I say we go for it, I still have credits available if not, I can put $17 more for sure."
-See `docs/QUESTIONS_FOR_CHARLIE.md` Q1 and `docs/DECISIONS.md`. My reading of it:
+See `docs/DECISIONS.md`. My reading of it:
 
 - The full fleet plan is rerun on `L4:4` (about $17), on top of the 2-GPU results.
 - The budget rises by up to $17 for this: **total hard stop $52, fleet reserve $35**
