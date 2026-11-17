@@ -246,11 +246,13 @@ pointers to the code.
 ## Limitations
 
 - **2 GPUs, not 4.** See above.
-- **Fleet runs still missing.** Only the chat comparison and the capacity ramp have run
-  on the fleet. The rag workload, the no-sharing control and the autoscaling comparison
-  have not run yet, so there is no measured answer here to "where does prefix-aware
-  routing gain nothing". One of the six capacity ramp runs (the second least-loaded
-  repeat) is also missing.
+- **Fleet runs that were never made.** Only the chat comparison and the capacity ramp
+  ran on the fleet. The rag workload, the no-sharing control and the autoscaling
+  comparison did not: on the last day, four requests for a 2-GPU container waited up to
+  two hours each without starting. So there is no measured answer here to "where does
+  prefix-aware routing gain nothing", and the autoscaler is tested only against the
+  local mock fleet. One of the six capacity ramp runs (the second least-loaded repeat)
+  is also missing. The commands to add them are in [docs/HANDOFF.md](docs/HANDOFF.md).
 - **One model family, and one GPU type for the fleet.** Qwen2.5-7B on NVIDIA L4, plus a
   single-GPU sweep on one H100. Other models and GPUs will have different limits.
 - **The H100 limit is not attributed.** The runs do not show whether the GPU or the
@@ -273,7 +275,7 @@ pointers to the code.
 
 ## Cost to reproduce
 
-$10.02 so far: $2.83 for the L4 sweeps, $3.21 for the fleet and $3.97 for the H100
+$10.11 in total: $2.84 for the L4 sweeps, $3.21 for the fleet and $4.06 for the H100
 session. Every run is in [docs/GPU_LEDGER.md](docs/GPU_LEDGER.md) with its billed cost,
 including the requests that waited in the queue and never started ($0).
 

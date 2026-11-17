@@ -5,8 +5,13 @@ work, run `uv run modal app list` and stop anything running.
 
 ## Status
 
-**Resumed 2026-11-16, 10:40 EST, in the middle of M4 (fleet experiments).** M3a is done.
-Read "Resumed 2026-11-16" below before anything else.
+**CLOSED on 2026-11-16, 21:20 EST.** Every milestone is done except the fleet runs that
+never got a container (rag, no-sharing, autoscaling, agentic, one ramp run). Charlie
+agreed to publish with the 2-GPU results and to close on the data that exists. Nothing
+is running on Modal, nothing is left in Docker, everything is committed and pushed.
+Final spend $10.11 of $35. `docs/HANDOFF.md` is the document to read. If the missing
+runs are wanted later, its section "Adding the missing fleet runs later" has the
+commands. The notes below are the history of the last day.
 
 | Milestone | State |
 |---|---|
@@ -14,14 +19,14 @@ Read "Resumed 2026-11-16" below before anything else.
 | M1 Workloads, load generator, recorder, mock fleet | **done** |
 | M2 Go router and autoscaler | **done** |
 | M3a L4 single-replica sweeps and quality | **done** (the leftover `fp8` on rag ramp ran on 2026-11-16) |
-| M4 Fleet experiments | **in progress on 2 GPUs** (fallback): chat done, capacity ramp 5 of 6 runs. A 4-GPU rerun is approved (see below) |
+| M4 Fleet experiments | **closed, partial**, on 2 GPUs (fallback): chat done, capacity ramp 5 of 6 runs. rag, no-sharing, autoscaling and agentic never got a container |
 | M3b H100 session | **done** on 2026-11-16 ($3.97), before the remaining fleet runs (see DECISIONS) |
 | M5 Optimizer and results pipeline | works on real sweep data (`icr results`, `icr calibrate`, `icr charts`, `icr replay-data`) |
 | M6 Control room site | every view works on the real 2-GPU runs, screenshots looked at. The autoscaling view is empty until those runs exist |
 | M7 Assets and portfolio kit | charts, screenshots, diagram, three videos and the GIF built from the real 2-GPU data and looked at; demo script, slides outline and portfolio card drafted. All to be refreshed when the fleet data is final |
-| M8 README and handoff | README drafted; DESIGN_FAQ written; secret scan rehearsed (clean); HANDOFF not written yet |
+| M8 README and handoff | **done**: README, DESIGN_FAQ (15 questions), HANDOFF, final secret scan (92 commits, no leaks), fresh-clone quickstart check, GitHub description and topics |
 
-GPU spend so far: **$10.02** (dev $2.83 of $10; fleet $3.21 of $18; H100 $3.97 of $7). Caps are the plan's ($35 total). The raise to $52 for a 4-GPU rerun was taken back unspent on 2026-11-16.
+Final GPU spend: **$10.11** (dev $2.84 of $10; fleet $3.21 of $18; H100 $4.06 of $7). Caps are the plan's ($35 total). The raise to $52 for a 4-GPU rerun was taken back unspent on 2026-11-16.
 
 ## Measured so far (real, one L4)
 

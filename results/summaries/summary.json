@@ -2554,13 +2554,13 @@
   }
  },
  "spend": {
-  "total_usd": 10.02,
+  "total_usd": 10.11,
   "by_category": {
    "dev": 2.84,
    "fleet": 3.21,
-   "h100": 3.97
+   "h100": 4.06
   },
-  "runs": 28
+  "runs": 29
  },
  "capacity": {
   "workload": "chat",

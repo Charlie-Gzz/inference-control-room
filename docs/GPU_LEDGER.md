@@ -35,7 +35,8 @@ Totals use the actual cost when it is known. Rendered by `icr.ledger`.
 | 2026-11-16 21:32 | M3b H100: coarse calibration, extended upwards (64 to 384 req/s) | h100 | H100 x1 | 8 | 32 | 667 | 0.849 | 0.827 | 7.412 |
 | 2026-11-16 21:39 | M3b H100: fine calibration ramp (48 to 64 req/s) | h100 | H100 x1 | 8 | 32 | 388 | 0.493 | 0.470 | 7.883 |
 | 2026-11-16 22:01 | M3b H100 sweep, session 1 | h100 | H100 x1 | 8 | 32 | 1239 | 1.578 | 1.561 | 9.444 |
-| 2026-11-16 22:10 | M3b H100 sweep, session 2 (awq-ngram) | h100 | H100 x1 | 8 | 32 | 540 | 0.687 | 0.576 | 10.019 |
+| 2026-11-16 22:10 | M3b H100 sweep, session 2 (awq-ngram) | h100 | H100 x1 | 8 | 32 | 540 | 0.687 | 0.667 | 10.111 |
+| 2026-11-17 00:11 | M4 session (L4:2): remaining list (ramp leftover, rag, no-sharing, autoscale) | fleet | L4 x2 | 5 | 32 | 3625 | 2.107 | 0.000 | 10.111 |
 
 ## Notes
 
@@ -48,10 +49,11 @@ Totals use the actual cost when it is known. Rendered by `icr.ledger`.
 - 2026-11-16 19:00, M4 session (L4:2): capacity ramp, the one skipped run: NEVER RAN: queued for a 2-GPU L4 machine for 120 minutes (12:01 to 14:01 EST), no container was started, cancelled by the queue watchdog. Nothing billed.
 - 2026-11-16 20:32, M4 4-GPU rerun (fifth try): proxy check + chat, 3 policies x 3 repeats: NEVER RAN: fifth request for a 4-GPU L4 machine, queued for 60 minutes (14:32 to 15:32 EST), no container was started, cancelled by the queue watchdog. Nothing billed.
 - 2026-11-16 21:11, M4 session (L4:2): capacity ramp, the one skipped run: NEVER RAN: queued for a 2-GPU L4 machine for 30 minutes (15:33 to 16:04 EST), no container was started, cancelled by hand to run the H100 session first and to requeue with the whole remaining run list. Nothing billed.
+- 2026-11-17 00:11, M4 session (L4:2): remaining list (ramp leftover, rag, no-sharing, autoscale): NEVER RAN: last request for a 2-GPU L4 machine, queued for 120 minutes (17:20 to 19:20 EST), no container was started, cancelled by the queue watchdog. Nothing billed.
 
 ## Totals
 
 - dev: $2.84 of $10.00
 - fleet: $3.21 of $18.00
-- h100: $3.97 of $7.00
-- **all: $10.02 of $35.00**
+- h100: $4.06 of $7.00
+- **all: $10.11 of $35.00**

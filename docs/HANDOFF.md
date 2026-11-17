@@ -1,8 +1,12 @@
 # Handoff
 
-State on 2026-11-16, 17:45 EST. The build is finished except for the fleet runs that are
-still waiting for a 2-GPU container (see "Not finished"). `docs/PROGRESS.md` has the
-exact next step if the build is resumed.
+Final state, 2026-11-16, 21:20 EST. The build is closed. Some fleet runs were never made
+because no 2-GPU container could be had (see "Not finished" and "Adding the missing
+fleet runs later"). Nothing is running on Modal, and no project containers are left in
+Docker. Docker Desktop was started by Claude and is still running: quit it if you do not
+need it. The images `jrottenberg/ffmpeg:7.1-alpine` (153 MB) and
+`ghcr.io/gitleaks/gitleaks:v8.30.1` (77 MB) are kept for rebuilding the videos and
+repeating the secret scan.
 
 ## What was built
 
@@ -96,7 +100,7 @@ Answered on 2026-11-16:
    fleet on vLLM with prefix-cache-aware routing, autoscaling, quantization and
    speculative decoding, measured on real traffic patterns and replayed in an
    interactive control room.", with the plan's 15 topics.
-3. **H100 session (up to $7).** Charlie: "Go for it." Done on 2026-11-16 for $3.97.
+3. **H100 session (up to $7).** Charlie: "Go for it." Done on 2026-11-16 for $4.06.
 
 4. **Wait for the missing fleet runs before going public?** Charlie deferred to Claude.
    Decided: do not wait. The headline does not depend on the missing runs, and the
@@ -134,16 +138,20 @@ uv run modal run -m icr.modal_app.app::fleet --items ramp,rag,no-sharing,autosca
 
 - **4 GPUs.** Never available (five requests, three days, unbilled). The fleet ran on 2
   GPUs, the plan's fallback. Every chart, the site, the videos and the README say 2 GPUs.
-- **Fleet runs still missing:** rag, the no-sharing control, autoscaling, the agentic
+- **Fleet runs never made:** rag, the no-sharing control, autoscaling, the agentic
   workload, and one of six capacity ramp runs (least-loaded, second repeat). On
-  2026-11-16 a 2-GPU request waited two hours without a container. The autoscaling view
-  and chart stay empty until those runs exist. Commands, in order:
-  `--items ramp`, `rag`, `no-sharing`, `autoscale` (each with `--replicas 2`).
+  2026-11-16 four requests for a 2-GPU container waited up to two hours each without
+  starting, the last one from 17:20 to 19:20 EST. All unbilled. The autoscaling view
+  says "Not run yet" and its chart does not exist. See "Adding the missing fleet runs
+  later".
+- **Videos** were built from the 2-GPU chat runs and are final for this data
+  (`assets/video/`). They do not need a rebuild if the missing runs are added, unless
+  the headline numbers change.
 - **Budget raise taken back.** You raised the budget by $17 for a 4-GPU rerun on
   2026-11-15. None of it was spent. The caps in `src/icr/config.py` are at the plan's
   values again.
 - **H100 session (M3b).** Done on 2026-11-16: three calibration ramps and four configs,
-  $3.97 of its $7. It ran before the remaining fleet runs, not after them as the plan
+  $4.06 of its $7. It ran before the remaining fleet runs, not after them as the plan
   orders, because no 2-GPU container could be had (`docs/DECISIONS.md`). GSM8K and the
   greedy-output check were not rerun on the H100.
 - **GitHub description.** Changed from the plan's "A 4-GPU LLM serving fleet ..." to
@@ -156,8 +164,8 @@ uv run modal run -m icr.modal_app.app::fleet --items ramp,rag,no-sharing,autosca
 
 ## Spend
 
-- Total: **$10.02** of the plan's $35 (development $2.83 of $10, fleet $3.21 of $18,
-  H100 $3.97 of $7). No cap was hit.
+- Total: **$10.11** of the plan's $35 (development $2.84 of $10, fleet $3.21 of $18,
+  H100 $4.06 of $7). No cap was hit.
 - Every run, including the requests that never started ($0), is in `docs/GPU_LEDGER.md`.
   Actual costs come from `modal billing report`.
 
